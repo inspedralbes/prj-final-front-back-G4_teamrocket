@@ -10,11 +10,11 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 ### Backend:
 - **Node.js** y **Socket.io**: Gestió de comunicació a temps real entre clients.
 ### Contenedor y despliegue:
-- **GitHub**: Control de versiones y colaboración.
+- **GitHub**: Control de versions y colaboracións.
 ### Unity:
 ---
 ## Participants del Proyecte
-| Nombre | Rol |
+| Nom | Rol |
 |--------|-----|
 | [Hasham Hussain ] | --- |
 | [Albert Robert] | --- |
@@ -22,9 +22,9 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 | [Matthew Castilla] | --- |
 | [David Muñoz] | --- |
 
-## Mentor del Equipo
+## Mentor del Equip
 
-| Nombre        | Contacto          |
+| Nom        | Contacte          |
 |---------------|-------------------|
 | [ ? ]    | [?]  |
 
