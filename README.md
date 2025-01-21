@@ -4,13 +4,14 @@
 
 En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors han de sobreviure en un entorn hostil, recol·lectar recursos essencials i evitar ser detectats per perillosos Monstres. L'objectiu és mantenir-se amb vida el màxim de temps possible mentre s'enfronten a desafiaments estratègics. Els jugadors han d'utilitzar habilitats de sigil per evadir els monstres i assegurar-ne la supervivència. Amb un entorn dinàmic i múltiples nivells de dificultat, el joc promet una experiència immersiva i desafiant.
 
-## Tecnologías Utilizadas
-### Frontend:
+## Tecnologíes Utilizades
+### Frontend: 
+- **Vue.js**: Framework per construir interficies d'usuario interactives.
 ### Backend:
+- **Node.js** y **Socket.io**: Gestió de comunicació a temps real entre clients.
+### Contenedor y despliegue:
+- **GitHub**: Control de versiones y colaboración.
 ### Unity:
-### Otros:
-- Tecnologías específicas para aplicaciones móviles: *Por definir*.
-
 ---
 ## Participants del Proyecte
 | Nombre | Rol |
@@ -25,7 +26,7 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 
 | Nombre        | Contacto          |
 |---------------|-------------------|
-| [ Pol Prats ]    | [pprats@inspedralbes.cat]  |
+| [ ? ]    | [?]  |
 
 
 # Aquest fitxer ha de contenir com a mínim:
