@@ -1,10 +1,32 @@
-# transversals
-Esquema mínim de carpetes pels projectes transversals
+# MonstersSurvivor
 
-És obligatori seguir aquesta estructura tot i que la podeu ampliar.
+## Descripció del proyecte
 
-## Atenció
-Un cop comenceu heu de canviar aquesta explicació amb la corresponent al vostre projecte (utilitzant markdown)
+En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors han de sobreviure en un entorn hostil, recol·lectar recursos essencials i evitar ser detectats per perillosos Monstres. L'objectiu és mantenir-se amb vida el màxim de temps possible mentre s'enfronten a desafiaments estratègics. Els jugadors han d'utilitzar habilitats de sigil per evadir els monstres i assegurar-ne la supervivència. Amb un entorn dinàmic i múltiples nivells de dificultat, el joc promet una experiència immersiva i desafiant.
+
+## Tecnologías Utilizadas
+### Frontend:
+### Backend:
+### Unity:
+### Otros:
+- Tecnologías específicas para aplicaciones móviles: *Por definir*.
+
+---
+## Participants del Proyecte
+| Nombre | Rol |
+|--------|-----|
+| [Hasham Hussain ] | --- |
+| [Albert Robert] | --- |
+| [Marc Castro] | --- |
+| [Matthew Castilla] | --- |
+| [David Muñoz] | --- |
+
+## Mentor del Equipo
+
+| Nombre        | Contacto          |
+|---------------|-------------------|
+| [ Pol Prats ]    | [pprats@inspedralbes.cat]  |
+
 
 # Aquest fitxer ha de contenir com a mínim:
  * Nom dels integrants
