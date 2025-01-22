@@ -2,7 +2,13 @@
   <div id="app">
     <header class="header">
       <div class="logo-container">
-        <h1>Tu Juego para Windows</h1>
+        <!-- Logo como botón de volver al inicio -->
+        <img 
+          src="@/assets/Logo del Juego de darkness Unseen.png" 
+          alt="Logo del Juego" 
+          class="logo" 
+          @click="scrollToTop" 
+        />
       </div>
     </header>
 
@@ -61,6 +67,12 @@ onMounted(() => {
     observer.observe(section);
   });
 });
+
+// Función para volver al inicio
+const scrollToTop = () => {
+  const aboutSection = document.getElementById('about');
+  aboutSection.scrollIntoView({ behavior: 'smooth' });
+};
 </script>
 
 <style scoped>
@@ -69,17 +81,17 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f0f0f0; /* Fondo claro para toda la página */
-  color: #000; /* Color de texto negro para toda la página */
-  overflow-x: hidden; /* Evitar el desplazamiento horizontal */
+  background-color: #121212; /* Fondo oscuro */
+  color: #fff; /* Texto blanco */
+  overflow-x: hidden;
 }
 
 header {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #222; /* Fondo oscuro para el encabezado */
-  color: #fff; /* Texto blanco en el encabezado */
+  background-color: #1c1c1c; /* Fondo oscuro del header */
+  color: #fff; /* Texto blanco */
   padding: 20px;
   width: 100%;
   z-index: 1000;
@@ -92,40 +104,50 @@ header {
   padding-left: 20px;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 24px;
+.logo {
+  width: 50px; /* Tamaño reducido del logo */
+  height: 50px; /* Tamaño reducido del logo */
+  border-radius: 50%; /* Hace el logo redondo */
+  background-color: #2c2533; /* Fondo del logo */
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* Efecto de hover para el logo */
+.logo:hover {
+  transform: scale(1.1); /* Aumenta ligeramente el tamaño */
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.7); /* Sombra naranja */
 }
 
 .section {
   padding: 50px 20px;
   text-align: center;
-  background-color: #fff;
-  color: #000;
+  background-color: #1e1e1e; /* Fondo oscuro para las secciones */
+  color: #fff; /* Texto blanco */
   opacity: 0;
   transition: opacity 1s ease-in-out;
-  height: 100vh; /* Asegura que cada sección ocupe toda la altura */
+  height: 100vh;
 }
 
 .about {
-  background-color: #e3f2fd; /* Fondo azul claro para la sección 'Acerca del Juego' */
+  background-color: #333333; /* Fondo más oscuro para la sección de "Acerca del Juego" */
 }
 
 .features {
-  background-color: #c8e6c9; /* Fondo verde claro para la sección 'Características' */
+  background-color: #444444; /* Fondo oscuro para características */
 }
 
 .download {
-  background-color: #e8f5e9; /* Fondo verde suave para 'Descargar' */
+  background-color: #555555; /* Fondo oscuro para descarga */
 }
 
 .contact {
-  background-color: #f1f8e9; /* Fondo verde muy suave para 'Contacto' */
+  background-color: #666666; /* Fondo oscuro para contacto */
 }
 
 footer {
-  background-color: #222; /* Fondo oscuro para el pie de página */
-  color: #fff; /* Texto blanco en el pie de página */
+  background-color: #1c1c1c; /* Fondo oscuro del footer */
+  color: #fff; /* Texto blanco */
   text-align: center;
   padding: 10px 0;
   margin-top: 20px;
@@ -135,22 +157,21 @@ footer {
   display: inline-block;
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #28a745; /* Fondo verde para el botón */
+  background-color: #ff6600; /* Color naranja para el botón */
   color: white;
   text-decoration: none;
   border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
 .btn:hover {
-  background-color: #218838; /* Cambio de color al pasar el ratón */
+  background-color: #e65c00; /* Naranja más oscuro al hacer hover */
 }
 
-/* Animación de visibilidad para las secciones */
 .section.visible {
   opacity: 1;
 }
 
-/* Sección 'Acerca del Juego' ocupará toda la pantalla */
 .about {
   height: 100vh;
   display: flex;
@@ -160,7 +181,7 @@ footer {
 }
 
 .features, .download, .contact {
-  height: 100vh; /* Cada sección ocupará toda la pantalla */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
