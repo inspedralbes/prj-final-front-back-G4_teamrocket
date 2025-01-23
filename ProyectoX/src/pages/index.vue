@@ -116,7 +116,7 @@ header {
 /* Efecto de hover para el logo */
 .logo:hover {
   transform: scale(1.1); /* Aumenta ligeramente el tamaño */
-  box-shadow: 0 0 10px rgba(255, 165, 0, 0.7); /* Sombra naranja */
+  box-shadow: 0 0 10px #fc503b; /* Sombra naranja */
 }
 
 .section {
@@ -157,7 +157,7 @@ footer {
   display: inline-block;
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #ff6600; /* Color naranja para el botón */
+  background-color: #fc503b; /* Color naranja para el botón */
   color: white;
   text-decoration: none;
   border-radius: 5px;
@@ -165,7 +165,7 @@ footer {
 }
 
 .btn:hover {
-  background-color: #e65c00; /* Naranja más oscuro al hacer hover */
+  background-color: #fc503b; /* Naranja más oscuro al hacer hover */
 }
 
 .section.visible {
