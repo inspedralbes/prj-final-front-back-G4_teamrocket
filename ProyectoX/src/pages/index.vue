@@ -1,8 +1,7 @@
 <template>
   <div id="app">
-    <header class="header">
+    <header v-if="!isCharacterSelected" class="header">
       <div class="logo-container">
-        <!-- Logo como botón de volver al inicio -->
         <img 
           src="@/assets/Logo del Juego de darkness Unseen.png" 
           alt="Logo del Juego" 
@@ -13,18 +12,41 @@
     </header>
 
     <section id="about" class="section about">
-      <h2>Acerca del Juego</h2>
-      <p>Este juego ofrece una experiencia inmersiva llena de aventuras y desafíos. ¡Prepárate para vivir la mejor experiencia en tu PC!</p>
+      <h2 class="about-title">Acerca del Juego</h2>
+      <p class="about-description">
+        En "Darkness Unseen", te enfrentarás a un mundo lleno de misterios, desafíos y peligros ocultos en cada esquina. 
+        Este juego ofrece una experiencia inmersiva llena de aventuras y emociones. 
+        ¡Prepárate para vivir la mejor experiencia en tu PC!
+      </p>
     </section>
 
     <section id="features" class="section features">
       <h2>Características</h2>
-      <ul>
-        <li>Gráficos impresionantes</li>
-        <li>Modo multijugador</li>
-        <li>Compatible con mandos</li>
-        <li>Actualizaciones frecuentes</li>
-      </ul>
+      <div v-if="!isCharacterSelected" class="characters-gallery">
+        <div v-for="character in characters" :key="character.name" class="character-card" @click="selectCharacter(character)">
+          <img :src="character.image" :alt="character.name" class="character-image" />
+          <div class="character-details">
+            <h3>{{ character.nickname }}</h3>
+            <p>{{ character.quote }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="isCharacterSelected" class="character-detail">
+        <button class="btn-x" @click="deselectCharacter">X</button>
+        <div class="character-detail-content">
+          <img :src="selectedCharacter.image" :alt="selectedCharacter.name" class="character-detail-image" />
+          <div class="character-detail-info">
+            <h3>{{ selectedCharacter.nickname }}</h3>
+            <p>{{ selectedCharacter.quote }}</p>
+            <ul>
+              <li><strong>Nombre:</strong> {{ selectedCharacter.name }}</li>
+              <li><strong>País/Región:</strong> {{ selectedCharacter.region }}</li>
+            </ul>
+            <p>{{ selectedCharacter.description }}</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="download" class="section download">
@@ -45,9 +67,56 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 
-// Función para animar las secciones al hacer scroll
+const characters = reactive([
+  {
+    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/ca2f1ca1.png",
+    nickname: "Papi",
+    name: "Raúl Díaz",
+    region: "México",
+    quote: "¿Nos tomamos unas copas?",
+    description: "Papi creció en un barrio pobre de Oakvale, con amigos de todas las clases sociales. Jefe de una empresa de seguridad, siempre cuida de su equipo, tanto en operaciones como cuando es hora de celebrar."
+  },
+  {
+    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/7cfa16e3.png",
+    nickname: "Espina Escarlata",
+    name: "Gabriela Valentina",
+    region: "España",
+    quote: "El conocimiento es poder, pero el poder corrompe... ¿y qué más da?",
+    description: "Gabriela, conocida como Espina Escarlata, es una estratega astuta y peligrosa que combina inteligencia con seducción para conseguir lo que quiere."
+  },
+  {
+    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/e7986260.png",
+    nickname: "El Capitán",
+    name: "Luis Salazar",
+    region: "Colombia",
+    quote: "Mantén la cabeza fría y los enemigos lejos de casa.",
+    description: "Luis es un exmilitar con un fuerte sentido del deber y la justicia. Ahora lidera operaciones clandestinas para proteger a su comunidad."
+  },
+  {
+    image:"https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/bc5dd673.png",
+    nickname: "Belladona",
+    name: "Ana Levitska",
+    region: "Rusia",
+    quote: "La belleza es mi arma más letal.",
+    description: "Ana, conocida como Belladona, es una experta en espionaje que utiliza su encanto y habilidades para infiltrarse en los lugares más inaccesibles."
+  }
+]);
+
+const selectedCharacter = ref(null);
+const isCharacterSelected = ref(false);
+
+const selectCharacter = (character) => {
+  selectedCharacter.value = character;
+  isCharacterSelected.value = true;
+};
+
+const deselectCharacter = () => {
+  selectedCharacter.value = null;
+  isCharacterSelected.value = false;
+};
+
 onMounted(() => {
   const sections = document.querySelectorAll('.section');
   const options = {
@@ -55,20 +124,19 @@ onMounted(() => {
     threshold: 0.2,
   };
 
-  const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
       }
     });
   }, options);
 
-  sections.forEach(section => {
+  sections.forEach((section) => {
     observer.observe(section);
   });
 });
 
-// Función para volver al inicio
 const scrollToTop = () => {
   const aboutSection = document.getElementById('about');
   aboutSection.scrollIntoView({ behavior: 'smooth' });
@@ -76,13 +144,12 @@ const scrollToTop = () => {
 </script>
 
 <style scoped>
-/* Fondo general para toda la página */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #121212; /* Fondo oscuro */
-  color: #fff; /* Texto blanco */
+  background-color: #121212;
+  color: #fff;
   overflow-x: hidden;
 }
 
@@ -90,8 +157,8 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  background-color: #1c1c1c; /* Fondo oscuro del header */
-  color: #fff; /* Texto blanco */
+  background-color: #1c1c1c;
+  color: #fff;
   padding: 20px;
   width: 100%;
   z-index: 1000;
@@ -101,90 +168,124 @@ header {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-left: 20px;
+}
+
+.about {
+  background-color: #333333;
+  padding: 120px 20px 50px;
+  text-align: center;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  color: #fc503b;
+  margin-bottom: 20px;
+}
+
+.about-description {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #fff;
 }
 
 .logo {
-  width: 50px; /* Tamaño reducido del logo */
-  height: 50px; /* Tamaño reducido del logo */
-  border-radius: 50%; /* Hace el logo redondo */
-  background-color: #2c2533; /* Fondo del logo */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-/* Efecto de hover para el logo */
 .logo:hover {
-  transform: scale(1.1); /* Aumenta ligeramente el tamaño */
-  box-shadow: 0 0 10px #fc503b; /* Sombra naranja */
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #fc503b;
 }
 
 .section {
   padding: 50px 20px;
   text-align: center;
-  background-color: #1e1e1e; /* Fondo oscuro para las secciones */
-  color: #fff; /* Texto blanco */
+  background-color: #1e1e1e;
   opacity: 0;
   transition: opacity 1s ease-in-out;
-  height: 100vh;
-}
-
-.about {
-  background-color: #333333; /* Fondo más oscuro para la sección de "Acerca del Juego" */
-}
-
-.features {
-  background-color: #444444; /* Fondo oscuro para características */
-}
-
-.download {
-  background-color: #555555; /* Fondo oscuro para descarga */
-}
-
-.contact {
-  background-color: #666666; /* Fondo oscuro para contacto */
-}
-
-footer {
-  background-color: #1c1c1c; /* Fondo oscuro del footer */
-  color: #fff; /* Texto blanco */
-  text-align: center;
-  padding: 10px 0;
-  margin-top: 20px;
-}
-
-.btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #fc503b; /* Color naranja para el botón */
-  color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-.btn:hover {
-  background-color: #fc503b; /* Naranja más oscuro al hacer hover */
+  min-height: 100vh;
 }
 
 .section.visible {
   opacity: 1;
 }
 
-.about {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.characters-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-top: 80px; /* Añadido espacio suficiente para no quedar debajo del header */
 }
 
-.features, .download, .contact {
-  height: 100vh;
+.character-card {
+  background-color: #333;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s ease-in-out;
+}
+
+.character-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px 4px #e04635;
+}
+
+.character-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.character-detail {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  background-color: #222;
+  flex-direction: column;
+}
+
+.character-detail-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: left;
+}
+
+.character-detail-image {
+  width: 30%;
+  border-radius: 10px;
+  margin-right: 20px;
+}
+
+.character-detail-info {
+  color: #fff;
+  max-width: 500px;
+}
+
+.btn-x {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  background-color: transparent;
+  color: #ffffff;
+  font-size: 2rem;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-x:hover {
+  background-color: #fc503b;
+  color: #fff;
 }
 </style>
