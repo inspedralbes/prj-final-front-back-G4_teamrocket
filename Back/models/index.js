@@ -15,9 +15,13 @@ const sequelize = new Sequelize(
 );
 
 import defineUser from './user.js';
+import defineMod from './mod.js';
+import defineFriendship from './friendship.js';
 
 const models = {
-  User: defineUser(sequelize)
+  User: defineUser(sequelize),
+  Mod: defineMod(sequelize),
+  FriendShip: defineFriendship(sequelize)
 };
 
 // Definir asociaciones (si existen)
@@ -26,8 +30,6 @@ Object.values(models).forEach(model => {
     model.associate(models);
   }
 });
-
-const User = defineUser(sequelize);
 
 export { sequelize, models };
 export default sequelize;

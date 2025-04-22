@@ -16,7 +16,7 @@ services:
     env_file:
       - ./Back/.env  
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword  
+      MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - "3306:3306"  
     volumes:
@@ -26,7 +26,7 @@ services:
     build: 
       context: ./Back  
       dockerfile: Dockerfile.Node
-    container_name: node_server
+    container_name: node_app
     restart: always
     env_file:
       - ./Back/.env  
@@ -35,8 +35,8 @@ services:
     depends_on:
       - mysql
     volumes:
-      - ./Back:/server  
-      - /server/node_modules  
+      - ./Back:/app  
+      - /app/node_modules  
 
   # frontend:
   #   build: 

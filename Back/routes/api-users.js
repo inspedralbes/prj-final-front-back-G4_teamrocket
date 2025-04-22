@@ -1,11 +1,12 @@
 // Importa módulos necesarios
 import express from 'express';
 import bcrypt from 'bcrypt'; // Para encriptar contraseñas
-import { User } from '../models/index.js'; // Modelo de usuario desde Sequelize
+import { models } from '../models/index.js'; // Modelo de usuario desde Sequelize
 
 const router = express.Router(); // Crea un enrutador de Express
+const { User } = models;
 
-router.post('/login', async (req, res) => {
+router.post('/login-unity', async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -29,6 +30,7 @@ router.post('/login', async (req, res) => {
 
 // Ruta POST para registrar un nuevo usuario (modo normal)
 router.post('/register-unity', async (req, res) => {
+    console.log("Hola");
     try {
         const { username, email, password } = req.body;
 
@@ -48,10 +50,10 @@ router.post('/register-unity', async (req, res) => {
         const hardPassword = await bcrypt.hash(password, 10);
 
         // Genera la ruta de carpeta asociada al email para estadísticas
-        const emailFolder = `/statistics/images/${email.replace(/[@.]/g, "_")}`;
+        // const emailFolder = `/statistics/images/${email.replace(/[@.]/g, "_")}`;
 
         // Crea el nuevo usuario en la base de datos
-        await User.create({ username, email, password: hardPassword, statistics: emailFolder });
+        await User.create({ username, email, password_hash: hardPassword });
 
         return res.status(201).json({ message: "success", email: email });
 
@@ -60,3 +62,5 @@ router.post('/register-unity', async (req, res) => {
         return res.status(500).json({ message: "Error intern del servidor" });
     }
 });
+
+export default router;

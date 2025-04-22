@@ -11,8 +11,9 @@ import cors from 'cors';
 import fileUpload from 'express-fileupload';
 
 // Importación de rutas y modelos
-import { sequelize } from "./models/index.js";
-import api_users from "./routes/api-users.js";
+import { sequelize } from './models/index.js';
+import api_users from './routes/api-users.js';
+import api_mods from './routes/api-mods.js';
 
 // Carga variables de entorno desde .env
 dotenv.config();
@@ -21,14 +22,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-app.use("/api/users", api_users);  
+app.use(express.json());
+
+app.use("/api/users", api_users);
+app.use("/api/mods", api_mods);
 
 // Sincroniza Sequelize (base de datos relacional) y arranca el servidor
 sequelize
   .sync()
   .then(() => {
     console.log("Base de dades sincronitzada.");
-    server.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`Servidor funcionan en http://localhost:${PORT}`);
     });
   })

@@ -1,30 +1,38 @@
-export default (sequelize, DataTypes) => {
-    const User = sequelize.define('User', {
-      username: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false
-      },
-      email: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false
-      },
-      password_hash: {
-        type: DataTypes.STRING,
-        allowNull: false
-      }
-    }, {
-      timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: false
-    });
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
+  const User = sequelize.define('User', {
+    id: {
+      type: DataTypes.INTEGER, 
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    password_hash: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    isOnline: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    }
+  }, {
+    tableName: 'users',
+    timestamps: false
+  });
   
-    // User.associate = models => {
-    //   User.hasMany(models.GameSession, { foreignKey: 'created_by' });
-    //   User.hasMany(models.Mod, { foreignKey: 'uploaded_by' });
-    //   User.hasMany(models.ModRating, { foreignKey: 'user_id' });
-    // };
-  
-    return User;
+  User.associate = models => {
+    User.hasMany(models.Mod, { foreignKey: 'uploaded_by' });
+  };
+
+  return User;
 };
