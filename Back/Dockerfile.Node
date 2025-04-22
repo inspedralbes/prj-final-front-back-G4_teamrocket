@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Establim el directori de treball dins del contenidor
-WORKDIR /server
+WORKDIR /app
 
 # Copiem els fitxers de package.json i package-lock.json (si existeixen)
 COPY package*.json ./
