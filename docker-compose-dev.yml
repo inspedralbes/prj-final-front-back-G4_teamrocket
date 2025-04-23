@@ -36,20 +36,20 @@ services:
       - mysql
     volumes:
       - ./Back:/app
-      - /app/node_modules  
+      - /app/node_modules
 
-  # frontend:
-  #   build: 
-  #     context: ./Front/vuetify-boxhead  
-  #     dockerfile: Dockerfile.Vuetify
-  #   container_name: vuetify_frontend
-  #   restart: always
-  #   ports:
-  #     - "7001:7001"  
-  #   volumes:
-  #     - ./Front/vuetify-boxhead:/app
-  #     - /app/node_modules
-  #   working_dir: /app
+  frontend:
+   build: 
+     context: ./Front/vuetify-boxhead  
+     dockerfile: Dockerfile.Vuetify
+   container_name: vuetify_frontend
+   restart: always
+   ports:
+     - "7001:7001"  
+   volumes:
+     - ./Front/vuetify-boxhead:/app
+     - /app/node_modules
+   working_dir: /app
   
   # python-app:
   #   build:

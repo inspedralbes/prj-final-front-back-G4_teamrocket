@@ -1,9 +1,17 @@
 <template>
-  <v-app>
+  <v-app style="background-color: #121212;">
     <router-view />
   </v-app>
 </template>
 
-<script setup>
-  //
-</script>
+<style>
+/* Estilos globales */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+  color: #fff;
+  overflow-x: hidden;
+}
+</style>
