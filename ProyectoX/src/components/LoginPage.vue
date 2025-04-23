@@ -18,7 +18,6 @@
           </v-card-title>
           
           <v-card-text>
-            <v-form ref="form" v-model="valid">
               <v-text-field
                 v-model="email"
                 label="Correo Electrónico"
@@ -61,17 +60,15 @@
               -->
 
               <v-btn
-                type="submit"
+                @click="login"
                 block
                 color="#fc503b"
                 size="large"
-                :disabled="!valid"
                 :loading="loading"
                 class="mb-4"
               >
                 INICIAR SESIÓN
               </v-btn>
-            </v-form>
 
             <div class="text-center mt-4">
               <p>¿No tienes una cuenta? 
@@ -95,24 +92,20 @@
 
 <script setup>
 import { ref } from 'vue';
+import { postLogin } from "../services/communicationManager.js";
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const valid = ref(false);
 const loading = ref(false);
 const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);
-const form = ref(null);
 
 const login = async () => {
-  if (!valid.value) return;
-  
+
   loading.value = true;
   try {
-    // Aquí implementarías la lógica de autenticación
-    // Por ejemplo:
-    // await authService.login(email.value, password.value);
+    await postLogin(email, password);
     
     // Simular una espera para demostración
     await new Promise(resolve => setTimeout(resolve, 1000));

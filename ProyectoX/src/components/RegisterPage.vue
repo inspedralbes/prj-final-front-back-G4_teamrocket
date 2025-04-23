@@ -110,7 +110,6 @@ const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const termsAccepted = ref(false);
 
 const register = async () => {
   loading.value = true;
@@ -118,10 +117,6 @@ const register = async () => {
   console.log(email);
   
   try {
-    // Aquí implementarías la lógica de registro
-    // Por ejemplo:
-    // await authService.register(username.value, email.value, password.value);
-
     await postRegister(username, email, password);
     
     // Simular una espera para demostración

@@ -22,6 +22,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+const corsOptions = {
+  origin: 'http://localhost:7001',
+  methods: ['GET', 'POST', 'DELETE', 'PUT'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 app.use("/api/users", api_users);
