@@ -109,6 +109,8 @@ const login = async () => {
     
     // Simular una espera para demostración
     await new Promise(resolve => setTimeout(resolve, 1000));
+
+    localStorage.setItem('userEmail', email.value);
     
     // Redireccionar al usuario a la página principal
     router.push('/');

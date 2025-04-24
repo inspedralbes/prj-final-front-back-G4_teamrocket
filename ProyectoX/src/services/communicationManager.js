@@ -39,3 +39,26 @@ export async function postLogin(email, password) {
         console.log(err);
     }
 }
+
+export async function getMods() {
+    try {
+        const response = await fetch('http://localhost:3002/api/mods');
+
+        return response;
+    } catch (err) {
+        console.error('Error cargando mods:', err);
+    }
+}
+
+export async function postMod(formData) {
+    try {
+        const response = await fetch('http://localhost:3002/api/mods/new-mod', {
+        method: 'POST',
+        body: formData,
+        });
+
+        return response;
+    } catch (error) {
+        console.error('Error al subir mod:', error);
+    }
+}

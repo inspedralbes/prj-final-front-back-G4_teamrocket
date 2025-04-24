@@ -29,7 +29,14 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(fileUpload());
+
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
 
 app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);

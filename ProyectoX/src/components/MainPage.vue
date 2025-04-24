@@ -11,8 +11,18 @@
           @click="scrollToTop"
         ></v-img>
       </div>
+      <v-btn
+        color="#fc503b"
+        class="mr-2"
+        to="/mods"
+        :outlined="true"
+        :ripple="false"
+      >
+        Mods
+      </v-btn>
       <v-spacer></v-spacer>
       <v-btn
+        v-if="!userEmail"
         color="#fc503b"
         class="mr-2"
         to="/login"
@@ -20,6 +30,16 @@
         :ripple="false"
       >
         Iniciar Sesión
+      </v-btn>
+      <v-btn
+        v-if="userEmail"
+        color="#fc503b"
+        class="mr-2"
+        @click="logout"
+        :outlined="true"
+        :ripple="false"
+      >
+        Cerrar Sesión
       </v-btn>
     </v-app-bar>
 
@@ -196,6 +216,7 @@ const characters = reactive([
 
 const selectedCharacter = ref(null);
 const isCharacterSelected = ref(false);
+const userEmail = ref(localStorage.getItem('userEmail'));
 
 const selectCharacter = (character) => {
   selectedCharacter.value = character;
@@ -231,6 +252,11 @@ const scrollToTop = () => {
   const aboutSection = document.getElementById('about');
   aboutSection.scrollIntoView({ behavior: 'smooth' });
 };
+
+const logout = () => {
+  localStorage.removeItem('userEmail');
+  userEmail.value = null;
+}
 </script>
 
 <style scoped>
