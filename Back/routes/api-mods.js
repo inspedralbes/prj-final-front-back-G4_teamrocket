@@ -46,6 +46,7 @@ const handleFileUpload = (file, directory) => {
 router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
+    console.log(email);
 
     if (!req.files || !req.files.modFile) {
       return res.status(400).json({ message: "No s'han penjat els fitxers requerits" });

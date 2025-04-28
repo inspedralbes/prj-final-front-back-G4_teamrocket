@@ -1,10 +1,10 @@
 // Importa módulos necesarios
-import express from 'express';
+import express, { json } from 'express';
 import bcrypt from 'bcrypt'; // Para encriptar contraseñas
 import { models } from '../models/index.js'; // Modelo de usuario desde Sequelize
 
 const router = express.Router(); // Crea un enrutador de Express
-const { User } = models;
+const { User, Mod } = models;
 
 router.post('/login-unity', async (req, res) => {
     try {
@@ -112,6 +112,26 @@ router.post('/register-web', async (req, res) => {
 
     } catch (error) {
         console.error("Error en el registra:", error);
+        return res.status(500).json({ message: "Error intern del servidor" });
+    }
+});
+
+router.post('/user-data', async (req, res) => {
+    try {
+        const { email } = req.body;
+        console.log(email);
+        const user = await User.findOne({ where: { email }});
+        const mods = await Mod.findAll( { where: { uploaded_by: user.id }});
+
+        const userData = {
+            username: user.username,
+            email: user.email,
+            mods: mods
+        }
+
+        return res.status(201).json(userData);
+    } catch (error) {
+        console.error("Error en obtenir les dades del usuari:", error);
         return res.status(500).json({ message: "Error intern del servidor" });
     }
 });
