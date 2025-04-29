@@ -41,6 +41,15 @@ app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
 app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);
 
+/*
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('Connectat a MongoDB'))
+.catch((err) => console.error('Error al connectar a MongoDB', err));
+*/
+
 // Sincroniza Sequelize (base de datos relacional) y arranca el servidor
 sequelize
   .sync()
