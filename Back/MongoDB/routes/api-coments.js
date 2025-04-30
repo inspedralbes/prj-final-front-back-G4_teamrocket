@@ -24,9 +24,9 @@ router.get('/mod/:modId', async (req, res) => {
 });
 
 // Crear un nuevo comentario
-router.post('/', async (req, res) => {
+router.post('/new-comment', async (req, res) => {
   const comment = new Comment({
-    username: req.body.username,
+    email: req.body.email,
     modId: req.body.modId,
     content: req.body.content,
     rating: req.body.rating
@@ -40,4 +40,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

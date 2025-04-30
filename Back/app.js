@@ -14,6 +14,7 @@ import fileUpload from 'express-fileupload';
 import { sequelize } from './models/index.js';
 import api_users from './routes/api-users.js';
 import api_mods from './routes/api-mods.js';
+import api_comments from './MongoDB/routes/api-coments.js';
 
 // Carga variables de entorno desde .env
 dotenv.config();
@@ -40,17 +41,17 @@ app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
 
 app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);
+app.use("/api/comments", api_comments);
 
-/*
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log('Connectat a MongoDB'))
 .catch((err) => console.error('Error al connectar a MongoDB', err));
-*/
 
 // Sincroniza Sequelize (base de datos relacional) y arranca el servidor
+/*
 sequelize
   .sync()
   .then(() => {
@@ -60,3 +61,8 @@ sequelize
     });
   })
   .catch((err) => console.error("Error sincronitzant la base de dades:", err));
+*/
+
+app.listen(PORT, () => {
+  console.log(`Servidor funcionan en http://localhost:${PORT}`);
+});

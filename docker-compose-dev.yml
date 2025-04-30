@@ -14,13 +14,20 @@ services:
     container_name: mysql
     restart: always
     env_file:
-      - ./Back/.env  
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      - ./Back/.env
     ports:
       - "3306:3306"  
     volumes:
-      - mysql_data:/var/lib/mysql  
+      - mysql_data:/var/lib/mysql
+  
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
 
   app:
     build: 
@@ -34,22 +41,10 @@ services:
       - "3002:3002"  
     depends_on:
       - mysql
+      - mongodb
     volumes:
       - ./Back:/app  
-      - /app/node_modules  
-
-  frontend:
-   build: 
-     context: ./ProyectoX 
-     dockerfile: Dockerfile.Vuetify
-   container_name: vuetify_frontend
-   restart: always
-   ports:
-     - "7001:7001"  
-   volumes:
-     - ./ProyectoX:/app
-     - /app/node_modules
-   working_dir: /app
+      - /app/node_modules
   
   # python-app:
   #   build:
@@ -73,3 +68,4 @@ services:
 volumes:
   data:
   mysql_data:
+  mongodb_data:
