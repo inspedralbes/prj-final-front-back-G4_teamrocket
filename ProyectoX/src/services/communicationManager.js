@@ -1,4 +1,4 @@
-export async function postRegister(username, email, password) {
+export const postRegister = async (username, email, password) => {
     const userData = { username: username.value, email: email.value, password: password.value }
 
     try {
@@ -19,7 +19,7 @@ export async function postRegister(username, email, password) {
     }
 }
 
-export async function postLogin(email, password) {
+export const postLogin = async (email, password) => {
     const userData = { email: email.value, password: password.value };
 
     try {
@@ -40,7 +40,7 @@ export async function postLogin(email, password) {
     }
 }
 
-export async function getMods() {
+export const getMods = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods');
 
@@ -50,7 +50,11 @@ export async function getMods() {
     }
 }
 
-export async function postMod(formData) {
+export const getMod = async (id) => {
+    return await fetch(`http://localhost:3002/api/mods/${id}`);
+}
+
+export const postMod = async (formData) => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/new-mod', {
         method: 'POST',

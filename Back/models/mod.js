@@ -16,10 +16,6 @@ export default (sequelize) => {
             type: DataTypes.STRING(255),
             allowNull: false
         },
-        category: {
-            type: DataTypes.STRING(100),
-            allowNull: false
-        },
         downloads: {
             type: DataTypes.INTEGER,
             defaultValue: 0

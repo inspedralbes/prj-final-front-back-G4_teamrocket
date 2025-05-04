@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import MainPage from '../components/MainPage.vue'
 import LoginView from '../components/LoginPage.vue'
 import RegisterView from '../components/RegisterPage.vue'
-import ModsView from '@/components/ModsPage.vue'
+import ModsListView from '@/components/ModsListPage.vue'
+import ModDetailView from '@/components/ModDetailPage.vue'
 import { components } from 'vuetify/dist/vuetify-labs.js'
 
 const routes = [
@@ -24,7 +25,12 @@ const routes = [
   {
     path: '/mods',
     name: 'mods',
-    component: ModsView
+    component: ModsListView
+  },
+  {
+    path: '/mod/:id',
+    name: 'mod-detail',
+    component: ModDetailView
   }
 ]
 

@@ -9,7 +9,9 @@
             <div class="text-grey text-caption mt-2">Descargas: {{ mod.downloads }}</div>
           </v-card-text>
           <v-card-actions>
-            <v-btn :href="`http://localhost:3002/${mod.file_path}`" download target="_blank">Descargar</v-btn>
+            <v-btn :to="`/mod/${mod.id}`" color="primary" variant="text">Ver detalles</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn :href="`http://localhost:3002${mod.file_path}`" download target="_blank">Descargar</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -60,6 +62,7 @@ const userEmail = ref(localStorage.getItem('userEmail'));
 const fetchMods = async () => {
   const response = await getMods();
   mods.value = await response.json();
+  console.log(mods.value);
 };
 
 const uploadMod = async () => {
