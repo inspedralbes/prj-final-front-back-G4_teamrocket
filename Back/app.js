@@ -51,7 +51,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch((err) => console.error('Error al connectar a MongoDB', err));
 
 // Sincroniza Sequelize (base de datos relacional) y arranca el servidor
-/*
 sequelize
   .sync()
   .then(() => {
@@ -61,8 +60,3 @@ sequelize
     });
   })
   .catch((err) => console.error("Error sincronitzant la base de dades:", err));
-*/
-
-app.listen(PORT, () => {
-  console.log(`Servidor funcionan en http://localhost:${PORT}`);
-});

@@ -50,10 +50,6 @@ export const getMods = async () => {
     }
 }
 
-export const getMod = async (id) => {
-    return await fetch(`http://localhost:3002/api/mods/${id}`);
-}
-
 export const postMod = async (formData) => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/new-mod', {
@@ -65,4 +61,22 @@ export const postMod = async (formData) => {
     } catch (error) {
         console.error('Error al subir mod:', error);
     }
+}
+
+export const getMod = async (id) => {
+    return await fetch(`http://localhost:3002/api/mods/${id}`);
+}
+
+export const getComments = async (id) => {
+    return await fetch(`http://localhost:3002/api/comments/${id}`);
+}
+
+export const postComment = async (newComment) => {
+    return await fetch('http://localhost:3002/api/comments/new-comment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newComment.value)
+    });
 }

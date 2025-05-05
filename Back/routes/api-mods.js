@@ -32,6 +32,7 @@ router.get('/:id', async (req, res) => {
       description: mod.description,
       downloads: mod.downloads,
       title: mod.title,
+      file_path: mod.file_path,
       uploaded_at: mod.uploaded_at,
       uploaded_by: user.username
     }

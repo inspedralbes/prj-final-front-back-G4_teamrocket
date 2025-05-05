@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-row>
+      <h1>Mods</h1>
       <v-col cols="12" md="4" v-for="mod in mods" :key="mod.id">
         <v-card>
           <v-card-title>{{ mod.title }}</v-card-title>
