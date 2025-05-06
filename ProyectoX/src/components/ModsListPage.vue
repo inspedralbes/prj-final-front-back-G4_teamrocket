@@ -76,9 +76,11 @@ const uploadMod = async () => {
   formData.append('modFile', modFile.value);
 
   try {
+    console.log(formData.title);
     const response = await postMod(formData);
     const newMod = await response.json();
-    mods.value.unshift(newMod); // Añadir al inicio
+    console.log(newMod);
+    mods.value.unshift(newMod);
     dialog.value = false;
     title.value = '';
     description.value = '';

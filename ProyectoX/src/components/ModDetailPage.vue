@@ -28,12 +28,6 @@
               <v-icon color="primary" class="mr-2">mdi-account</v-icon>
               <span class="text-body-2">Subido por: {{ mod.uploaded_by }}</span>
             </div>
-            
-            <!-- Sección de calificación promedio -->
-            <div class="d-flex align-center mt-4" v-if="averageRating">
-              <v-icon color="amber" class="mr-2">mdi-star</v-icon>
-              <span class="text-body-2">{{ averageRating.toFixed(1) }} ({{ comments.length }} valoraciones)</span>
-            </div>
           </v-col>
           
           <v-col cols="12" md="4">
@@ -52,6 +46,81 @@
             </v-card>
           </v-col>
         </v-row>
+        
+        <!-- Sección de comentarios -->
+        <v-divider class="my-6"></v-divider>
+        
+        <h3 class="text-h5 mb-4">Comentarios</h3>
+        
+        <!-- Formulario para añadir comentarios -->
+        <v-card variant="outlined" class="mb-6 pa-4">
+          <h4 class="text-h6 mb-3">Añadir un comentario</h4>
+          
+          <v-form @submit.prevent="submitComment" v-model="formValid">
+            <v-textarea
+              v-model="newComment.content"
+              label="Comentario"
+              :rules="[v => !!v || 'Comentario es requerido']"
+              required
+              counter
+              rows="3"
+            ></v-textarea>
+            
+            <div class="mb-3">
+              <label class="text-subtitle-1 mb-2 d-block">Valoración</label>
+              <v-rating
+                v-model="newComment.rating"
+                color="amber"
+                hover
+                half-increments
+              ></v-rating>
+            </div>
+            
+            <v-btn
+              type="submit"
+              color="primary"
+              :disabled="!formValid"
+              :loading="submitting"
+            >
+              Publicar comentario
+            </v-btn>
+          </v-form>
+        </v-card>
+        
+        <!-- Lista de comentarios -->
+        <div v-if="comments.length > 0">
+          <v-card v-for="(comment, index) in comments" :key="index" class="mb-3 pa-4" variant="outlined">
+            <div class="d-flex justify-space-between align-center">
+              <div class="text-subtitle-1 font-weight-bold">{{ maskEmail(comment.email) }}</div>
+              <v-rating
+                :model-value="comment.rating"
+                color="amber"
+                readonly
+                dense
+                size="small"
+              ></v-rating>
+            </div>
+            
+            <div class="text-body-2 my-2">{{ comment.content }}</div>
+            
+            <div class="text-caption text-grey">
+              {{ formatDate(comment.createdAt) }}
+            </div>
+          </v-card>
+        </div>
+        
+        <div v-else class="text-center py-4">
+          <v-icon size="large" color="grey">mdi-comment-outline</v-icon>
+          <p class="text-body-1 mt-2">No hay comentarios aún. ¡Sé el primero en opinar!</p>
+        </div>
+        
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          timeout="3000"
+        >
+          {{ snackbar.text }}
+        </v-snackbar>
       </v-card-text>
     </v-card>
     
@@ -61,131 +130,11 @@
         <div v-else class="text-h6">Mod no encontrado</div>
       </v-card-text>
     </v-card>
-    
-    <!-- Sección de comentarios -->
-    <v-card v-if="mod" class="mt-6">
-      <v-card-title class="d-flex align-center">
-        <v-icon class="mr-2">mdi-comment-multiple-outline</v-icon>
-        Comentarios
-      </v-card-title>
-      
-      <!-- Formulario para añadir comentario -->
-      <v-card-text>
-        <v-form ref="form" v-model="isFormValid" @submit.prevent="submitComment">
-          <v-row>
-            <v-col cols="12" md="6">
-              <div class="d-flex align-center">
-                <span class="mr-2">Valoración:</span>
-                <v-rating
-                  v-model="newComment.rating"
-                  color="amber"
-                  half-increments
-                  hover
-                ></v-rating>
-              </div>
-            </v-col>
-            
-            <v-col cols="12">
-              <v-textarea
-                v-model="newComment.content"
-                label="Tu comentario"
-                :rules="[v => !!v || 'El comentario es obligatorio']"
-                required
-                auto-grow
-                rows="3"
-              ></v-textarea>
-            </v-col>
-            
-            <v-col cols="12" class="d-flex justify-end">
-              <v-btn
-                type="submit"
-                color="primary"
-                :disabled="!isFormValid || isSubmitting"
-                prepend-icon="mdi-send"
-              >
-                {{ isSubmitting ? 'Enviando...' : 'Enviar comentario' }}
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-form>
-        
-        <v-alert
-          v-if="commentStatus.show"
-          :type="commentStatus.type"
-          variant="tonal"
-          closable
-          class="mt-4"
-        >
-          {{ commentStatus.message }}
-        </v-alert>
-        
-        <v-divider class="my-4"></v-divider>
-        
-        <!-- Lista de comentarios -->
-        <div v-if="commentsLoading" class="text-center py-4">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        </div>
-        
-        <div v-else-if="comments.length === 0" class="text-center py-4">
-          <v-icon size="large" color="grey" class="mb-2">mdi-comment-off-outline</v-icon>
-          <div class="text-body-1">No hay comentarios aún. ¡Sé el primero en comentar!</div>
-        </div>
-        
-        <div v-else>
-          <v-list lines="three">
-            <v-list-item
-              v-for="(comment, index) in comments"
-              :key="index"
-              class="mb-4"
-            >
-              <template v-slot:prepend>
-                <v-avatar color="primary" class="text-white">
-                  {{ comment.email.charAt(0).toUpperCase() }}
-                </v-avatar>
-              </template>
-              
-              <v-list-item-title>
-                <div class="d-flex align-center">
-                  <span class="font-weight-medium">{{ maskEmail(comment.email) }}</span>
-                  <v-spacer></v-spacer>
-                  <v-rating
-                    :model-value="comment.rating"
-                    color="amber"
-                    density="compact"
-                    readonly
-                    size="small"
-                  ></v-rating>
-                </div>
-              </v-list-item-title>
-              
-              <v-list-item-subtitle class="text-caption text-grey">
-                {{ formatDate(comment.createdAt) }}
-              </v-list-item-subtitle>
-              
-              <v-list-item-text class="mt-2">
-                {{ comment.content }}
-              </v-list-item-text>
-            </v-list-item>
-          </v-list>
-          
-          <div v-if="hasMoreComments" class="text-center py-2">
-            <v-btn
-              variant="text"
-              color="primary"
-              @click="loadMoreComments"
-              :disabled="loadingMoreComments"
-            >
-              {{ loadingMoreComments ? 'Cargando...' : 'Cargar más comentarios' }}
-            </v-btn>
-          </div>
-        </div>
-      </v-card-text>
-    </v-card>
   </v-container>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getComments, getMod, postComment } from '@/services/communicationManager';
 
@@ -193,34 +142,20 @@ const route = useRoute();
 const mod = ref(null);
 const loading = ref(true);
 const comments = ref([]);
-const commentsLoading = ref(true);
-const hasMoreComments = ref(false);
-const loadingMoreComments = ref(false);
-const currentPage = ref(1);
-const commentsPerPage = 5;
+const formValid = ref(false);
+const submitting = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
-
-// Form state
-const form = ref(null);
-const isFormValid = ref(false);
-const isSubmitting = ref(false);
-const commentStatus = ref({
+const snackbar = ref({
   show: false,
-  type: 'success',
-  message: ''
+  text: '',
+  color: 'success'
 });
 
 const newComment = ref({
   email: userEmail,
   content: '',
-  rating: 5,
-  modId: ''
-});
-
-const averageRating = computed(() => {
-  if (!comments.value.length) return 0;
-  const total = comments.value.reduce((sum, comment) => sum + comment.rating, 0);
-  return total / comments.value.length;
+  modId: route.params.id,
+  rating: 5
 });
 
 const fetchModDetails = async () => {
@@ -228,12 +163,7 @@ const fetchModDetails = async () => {
   try {
     const response = await getMod(route.params.id);
     mod.value = await response.json();
-    
-    // Una vez que tenemos el mod, podemos cargar sus comentarios
-    if (mod.value) {
-      newComment.value.modId = route.params.id;
-      fetchComments();
-    }
+    await fetchComments();
   } catch (error) {
     console.error('Error al cargar detalles del mod:', error);
   } finally {
@@ -242,79 +172,50 @@ const fetchModDetails = async () => {
 };
 
 const fetchComments = async () => {
-  commentsLoading.value = true;
   try {
-    const response = getComments(route.params.id);
-    const data = await response.json();
-    
-    if (data.success) {
-      comments.value = data.comments;
-      hasMoreComments.value = data.totalComments > comments.value.length;
-    }
+    // Asumiendo que tienes un endpoint para obtener comentarios por modId
+    const response = await getComments(route.params.id);
+    comments.value = await response.json();
   } catch (error) {
     console.error('Error al cargar comentarios:', error);
-  } finally {
-    commentsLoading.value = false;
-  }
-};
-
-const loadMoreComments = async () => {
-  loadingMoreComments.value = true;
-  try {
-    currentPage.value++;
-    const response = await fetch(`/api/comments?modId=${route.params.id}&page=${currentPage.value}&limit=${commentsPerPage}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      comments.value = [...comments.value, ...data.comments];
-      hasMoreComments.value = data.totalComments > comments.value.length;
-    }
-  } catch (error) {
-    console.error('Error al cargar más comentarios:', error);
-  } finally {
-    loadingMoreComments.value = false;
+    snackbar.value = {
+      show: true,
+      text: 'Error al cargar comentarios',
+      color: 'error'
+    };
   }
 };
 
 const submitComment = async () => {
-  if (!isFormValid.value) return;
-  
-  isSubmitting.value = true;
+  submitting.value = true;
   try {
-    const response = await postComment(newComment);
+    await postComment(newComment);
     
-    const data = await response.json();
+    // Resetear formulario
+    newComment.value = {
+      email: '',
+      content: '',
+      rating: 5
+    };
     
-    if (data.success) {
-      // Añadir el nuevo comentario al principio de la lista
-      comments.value.unshift(data.comment);
-      
-      // Resetear el formulario
-      newComment.value.content = '';
-      form.value.reset();
-      
-      commentStatus.value = {
-        show: true,
-        type: 'success',
-        message: '¡Comentario publicado con éxito!'
-      };
-      
-      // Ocultar el mensaje después de 5 segundos
-      setTimeout(() => {
-        commentStatus.value.show = false;
-      }, 5000);
-    } else {
-      throw new Error(data.message || 'Error al publicar el comentario');
-    }
-  } catch (error) {
-    console.error('Error al enviar comentario:', error);
-    commentStatus.value = {
+    // Mostrar mensaje de éxito
+    snackbar.value = {
       show: true,
-      type: 'error',
-      message: error.message || 'Error al publicar el comentario. Inténtalo de nuevo.'
+      text: '¡Comentario publicado correctamente!',
+      color: 'success'
+    };
+    
+    // Actualizar lista de comentarios
+    await fetchComments();
+  } catch (error) {
+    console.error('Error al publicar comentario:', error);
+    snackbar.value = {
+      show: true,
+      text: 'Error al publicar comentario',
+      color: 'error'
     };
   } finally {
-    isSubmitting.value = false;
+    submitting.value = false;
   }
 };
 
@@ -334,10 +235,18 @@ const formatDate = (dateString) => {
 // Función para ocultar parte del email por privacidad
 const maskEmail = (email) => {
   if (!email) return '';
-  const [username, domain] = email.split('@');
-  if (username.length <= 2) return email;
+  const parts = email.split('@');
+  if (parts.length !== 2) return email;
   
-  return `${username.substring(0, 2)}***@${domain}`;
+  const name = parts[0];
+  const domain = parts[1];
+  
+  // Mostrar solo primeros 2 caracteres + asteriscos + último caracter
+  const maskedName = name.length <= 3 
+    ? name 
+    : `${name.substring(0, 2)}${'*'.repeat(name.length - 3)}${name.charAt(name.length - 1)}`;
+  
+  return `${maskedName}@${domain}`;
 };
 
 onMounted(fetchModDetails);

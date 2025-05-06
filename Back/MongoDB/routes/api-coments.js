@@ -14,9 +14,10 @@ router.get('/', async (req, res) => {
 });
 
 // Obtener comentarios de un mod específico
-router.get('/mod/:modId', async (req, res) => {
+router.get('/:modId', async (req, res) => {
   try {
     const comments = await Comment.find({ modId: req.params.modId });
+    console.log(comments);
     res.json(comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -25,6 +26,7 @@ router.get('/mod/:modId', async (req, res) => {
 
 // Crear un nuevo comentario
 router.post('/new-comment', async (req, res) => {
+  console.log(req.body);
   const comment = new Comment({
     email: req.body.email,
     modId: req.body.modId,

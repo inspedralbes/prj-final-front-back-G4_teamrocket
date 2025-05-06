@@ -67,12 +67,12 @@ export const getMod = async (id) => {
     return await fetch(`http://localhost:3002/api/mods/${id}`);
 }
 
-export const getComments = async (id) => {
-    return await fetch(`http://localhost:3002/api/comments/${id}`);
+export const getComments = async (modId) => {
+    return await fetch(`http://localhost:3002/api/comments/${modId}`);
 }
 
 export const postComment = async (newComment) => {
-    return await fetch('http://localhost:3002/api/comments/new-comment', {
+    await fetch('http://localhost:3002/api/comments/new-comment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
