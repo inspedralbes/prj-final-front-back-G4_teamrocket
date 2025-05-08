@@ -32,13 +32,11 @@
           
           <v-col cols="12" md="4">
             <v-card variant="outlined" class="pa-4">
-              <v-btn 
+              <v-btn
+                @click="download(mod)" 
                 block 
                 color="primary" 
-                size="large" 
-                :href="`http://localhost:3002${mod.file_path}`" 
-                download 
-                target="_blank"
+                size="large"
                 prepend-icon="mdi-download"
               >
                 Descargar mod
@@ -136,7 +134,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getComments, getMod, postComment } from '@/services/communicationManager';
+import { getComments, getMod, postComment, postDownload } from '@/services/communicationManager';
+import { functionSocket2 } from '@/services/socketManager';
 
 const route = useRoute();
 const mod = ref(null);
@@ -248,6 +247,24 @@ const maskEmail = (email) => {
   
   return `${maskedName}@${domain}`;
 };
+
+const download = async (mod) => {
+  try {
+    postDownload(route.params.id);
+
+    const link = document.createElement('a');
+    link.href = `http://localhost:3002${mod.file_path}`;
+    link.setAttribute('download', '');
+    link.setAttribute('target', '_blank');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    functionSocket2(mod);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 onMounted(fetchModDetails);
 </script>

@@ -80,3 +80,7 @@ export const postComment = async (newComment) => {
         body: JSON.stringify(newComment.value)
     });
 }
+
+export const postDownload = async (modId) => {
+    await fetch(`http://localhost:3002/api/mods/download/${modId}`);
+}

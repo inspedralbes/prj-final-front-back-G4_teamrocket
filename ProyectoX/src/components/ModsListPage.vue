@@ -12,7 +12,7 @@
           <v-card-actions>
             <v-btn :to="`/mod/${mod.id}`" color="primary" variant="text">Ver detalles</v-btn>
             <v-spacer></v-spacer>
-            <v-btn :href="`http://localhost:3002${mod.file_path}`" download target="_blank">Descargar</v-btn>
+            <v-btn @click="download(mod, mods)">Descargar</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -49,7 +49,8 @@
 </template>
 
 <script setup>
-import { getMods, postMod } from '@/services/communicationManager';
+import { getMods, postMod, postDownload } from '@/services/communicationManager';
+import { functionSocket } from '@/services/socketManager';
 import { ref, onMounted } from 'vue';
 
 const mods = ref([]);
@@ -91,6 +92,24 @@ const uploadMod = async () => {
     loading.value = false;
   }
 };
+
+const download = async (mod, mods) => {
+  try {
+    postDownload(mod.id);
+
+    const link = document.createElement('a');
+    link.href = `http://localhost:3002${mod.file_path}`;
+    link.setAttribute('download', '');
+    link.setAttribute('target', '_blank');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    functionSocket(mods);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 onMounted(fetchMods);
 </script>

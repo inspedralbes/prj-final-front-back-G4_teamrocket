@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
 import { title } from 'process';
+import { getIO } from '../app.js';
 
 const router = express.Router();
 const { Mod, User } = models;
@@ -14,7 +15,6 @@ const modsDir = path.join(uploadsDir, 'mods');
 router.get('/', async (req, res) => {
   try {
     const mods = await Mod.findAll();
-    console.log(mods);
     res.json(mods);
   } catch (error) {
     console.log({ error: 'Error al obtener los mods' });
@@ -74,38 +74,26 @@ router.post('/new-mod', async (req, res) => {
 
 router.get('/download/:id', async (req, res) => {
   try {
-    // Buscar el mod por ID
     const mod = await Mod.findByPk(req.params.id);
-    
+
     if (!mod) {
       return res.status(404).json({ error: 'Mod no encontrado' });
     }
-    
-    // Obtener la ruta completa del archivo
-    const filePath = path.resolve(__dirname, modsDir, mod.file_path);
-    
-    // Verificar si el archivo existe
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Archivo no encontrado' });
-    }
-    
-    // Incrementar el contador de descargas
+
+    // Emitir evento de descarga (antes de guardar, para velocidad)
+    const io = getIO();
+    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
+
+    // Incrementar descargas y guardar
     mod.downloads += 1;
     await mod.save();
-    
-    // Obtener el nombre del archivo de la ruta
-    const fileName = path.basename(filePath);
-    
-    // Configurar los headers para la descarga
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-    
-    // Enviar el archivo como respuesta
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
+
+    // Enviar respuesta (sin archivo, solo registro)
+    res.status(200).json({ message: 'Descarga registrada' });
+
   } catch (error) {
-    console.error('Error al descargar el mod:', error);
-    res.status(500).json({ error: 'Error al descargar el mod' });
+    console.error('Error al registrar descarga:', error);
+    res.status(500).json({ error: 'Error al registrar descarga' });
   }
 });
 

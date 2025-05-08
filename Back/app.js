@@ -2,9 +2,10 @@
 // Importación de módulos necesarios
 import express from "express";
 import path from "path";
-import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { fileURLToPath } from "url";
+import http from 'http';
+import { Server as SocketIOServer } from "socket.io";
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -21,18 +22,35 @@ dotenv.config();
 
 // Inicialización de la app de Express
 const app = express();
-const PORT = process.env.PORT || 3002;
 
-const corsOptions = {
-  origin: 'http://localhost:7001',
-  methods: ['GET', 'POST', 'DELETE', 'PUT'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
+const PORT = process.env.PORT || 3002;
+const server = http.createServer(app);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+let io;
+
+io = new SocketIOServer(server, {
+  cors: {
+    origin: "http://localhost:7001",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('Usuario conectado:', socket.id);
+});
+
+export const getIO = () => {
+  if (!io) {
+    throw new Error('Socket.io no ha sido inicializado');
+  }
+  return io;
+};
+
+app.use(cors());
 app.use(fileUpload());
 
 app.use(express.json());
@@ -55,7 +73,7 @@ sequelize
   .sync()
   .then(() => {
     console.log("Base de dades sincronitzada.");
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Servidor funcionan en http://localhost:${PORT}`);
     });
   })
