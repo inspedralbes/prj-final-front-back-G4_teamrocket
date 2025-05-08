@@ -11,6 +11,13 @@ const { Mod, User } = models;
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
 
+[uploadsDir, modsDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Carpeta "${dir}" creada.`);
+  }
+});
+
 // Obtener todos los mods
 router.get('/', async (req, res) => {
   try {
