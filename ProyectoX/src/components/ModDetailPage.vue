@@ -104,6 +104,10 @@
             <div class="text-caption text-grey">
               {{ formatDate(comment.createdAt) }}
             </div>
+            <div>
+              <v-btn v-if="comment.email == userEmail" @click="deleteComment(comment)">Eliminar</v-btn>
+              <v-btn v-if="comment.email == userEmail" @click="editComment()">Editar</v-btn>
+            </div>
           </v-card>
         </div>
         
@@ -134,7 +138,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getComments, getMod, postComment, postDownload } from '@/services/communicationManager';
+import { getComments, getMod, postComment, postDownload, deleteCommentSequelize } from '@/services/communicationManager';
 import { functionSocket2 } from '@/services/socketManager';
 
 const route = useRoute();
@@ -175,6 +179,7 @@ const fetchComments = async () => {
     // Asumiendo que tienes un endpoint para obtener comentarios por modId
     const response = await getComments(route.params.id);
     comments.value = await response.json();
+    console.log(comments.value);
   } catch (error) {
     console.error('Error al cargar comentarios:', error);
     snackbar.value = {
@@ -265,6 +270,22 @@ const download = async (mod) => {
     console.log(error);
   }
 }
+
+const deleteComment = async (comment) => {
+  try {
+    const response = await deleteCommentSequelize(comment._id);
+
+    if(!response.ok) {
+      const errorData = response.json();
+      console.error("Error al eliminar comentario:", errorData.error);
+    }
+
+    console.log("Comentario eliminado correctamente");
+    fetchComments();
+  } catch (error) {
+    console.log("Error");
+  }
+};
 
 onMounted(fetchModDetails);
 </script>

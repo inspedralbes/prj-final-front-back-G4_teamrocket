@@ -84,3 +84,13 @@ export const postComment = async (newComment) => {
 export const postDownload = async (modId) => {
     await fetch(`http://localhost:3002/api/mods/download/${modId}`);
 }
+
+export const deleteCommentSequelize = async (commentId) => {
+    return await fetch('http://localhost:3002/api/comments/delete-comment', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ commentId: commentId })
+    });
+}
