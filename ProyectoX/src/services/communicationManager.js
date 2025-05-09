@@ -41,21 +41,14 @@ export const postLogin = async (email, password) => {
 }
 
 export async function loadUserData(email) {
-    console.log(email);
     try {
-        const response = await fetch('http://localhost:3002/api/users/user-data', {
+        return await fetch('http://localhost:3002/api/users/user-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email }),
         });
-
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-
-        return response;
     } catch (error) {
         console.error('Error al obtener los datos del usuario:', error);
     }

@@ -27,11 +27,11 @@ export default (sequelize) => {
         },
         security: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            allowNull: true
         },
         visible: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            allowNull: true
         },
         average_rating: {
             type: DataTypes.FLOAT,
@@ -43,7 +43,7 @@ export default (sequelize) => {
         },
         image: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: true
         },
     }, {
       timestamps: true,

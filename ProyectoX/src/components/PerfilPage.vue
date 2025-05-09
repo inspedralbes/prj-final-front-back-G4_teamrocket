@@ -46,9 +46,13 @@ const isPublic = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
 
 const fetchUser = async () => {
-    const response = await loadUserData(userEmail.value);
-    user.value = await response.json();
-    console.log(user);
+  const response = await loadUserData(userEmail.value);
+
+  if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+  user.value = await response.json();
+
+  console.log(user);
 }
 
 onMounted(fetchUser);
