@@ -99,10 +99,28 @@
               ></v-rating>
             </div>
             
-            <div class="text-body-2 my-2">{{ comment.content }}</div>
-            
+            <div v-if="!isEditing" class="text-body-2 my-2">
+              {{ comment.content }}
+            </div>
+
+            <div v-else class="text-body-2 my-2">
+              <v-textarea
+                v-model="newContent"
+                rows="2"
+                label="Editar comentario"
+              />
+              <v-btn color="primary" @click="editComment(comment)">Enviar</v-btn>
+            </div>
+
             <div class="text-caption text-grey">
               {{ formatDate(comment.createdAt) }}
+            </div>
+
+            <div>
+              <v-btn v-if="comment.email === userEmail" @click="deleteComment(comment)">Eliminar</v-btn>
+              <v-btn v-if="comment.email === userEmail" @click="toggleEdit(comment)">
+                {{ isEditing ? 'Cancelar' : 'Editar' }}
+              </v-btn>
             </div>
           </v-card>
         </div>
@@ -134,7 +152,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getComments, getMod, postComment, postDownload } from '@/services/communicationManager';
+import { getComments, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { functionSocket2 } from '@/services/socketManager';
 
 const route = useRoute();
@@ -143,6 +161,8 @@ const loading = ref(true);
 const comments = ref([]);
 const formValid = ref(false);
 const submitting = ref(false);
+const isEditing = ref(false);
+const newContent = ref('');
 const userEmail = ref(localStorage.getItem('userEmail'));
 const snackbar = ref({
   show: false,
@@ -175,6 +195,7 @@ const fetchComments = async () => {
     // Asumiendo que tienes un endpoint para obtener comentarios por modId
     const response = await getComments(route.params.id);
     comments.value = await response.json();
+    console.log(comments.value);
   } catch (error) {
     console.error('Error al cargar comentarios:', error);
     snackbar.value = {
@@ -263,6 +284,59 @@ const download = async (mod) => {
     functionSocket2(mod);
   } catch (error) {
     console.log(error);
+  }
+}
+
+const deleteComment = async (comment) => {
+  try {
+    const response = await deleteCommentMongodb(comment._id);
+
+    if(!response.ok) {
+      const errorData = response.json();
+      console.error("Error al eliminar comentario:", errorData.error);
+      return;
+    }
+
+    snackbar.value = {
+      show: true,
+      text: '¡Comentario eliminado correctamente!',
+      color: 'success'
+    };
+
+    await fetchComments();
+  } catch (error) {
+    console.log("Error");
+  }
+};
+
+const toggleEdit = (comment) => {
+  if (!isEditing.value) {
+    newContent.value = comment.content; // cargar contenido original
+  }
+  isEditing.value = !isEditing.value;
+}
+
+const editComment = async (comment) => {
+  try {
+    const response = await putComment(comment._id, newContent.value);
+
+    if(!response.ok) {
+      const errorData = await response.json();
+      console.error(errorData.error);
+      return;
+    }
+
+    snackbar.value = {
+      show: true,
+      text: '¡Comentario actualizado correctamente!',
+      color: 'success'
+    };
+
+    console.log(newContent.value);
+    comment.content = newContent.value;
+    isEditing.value = false;
+  } catch (error) {
+    console.error("Error");
   }
 }
 

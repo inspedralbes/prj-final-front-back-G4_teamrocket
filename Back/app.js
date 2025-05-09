@@ -15,7 +15,7 @@ import fileUpload from 'express-fileupload';
 import { sequelize } from './models/index.js';
 import api_users from './routes/api-users.js';
 import api_mods from './routes/api-mods.js';
-import api_comments from './MongoDB/routes/api-coments.js';
+import api_comments from './MongoDB/routes/api-comments.js';
 
 // Carga variables de entorno desde .env
 dotenv.config();
