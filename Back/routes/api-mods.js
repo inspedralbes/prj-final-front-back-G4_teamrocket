@@ -2,6 +2,8 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
+import { title } from 'process';
+import { getIO } from '../app.js';
 
 const router = express.Router();
 const { Mod, User } = models;
@@ -9,13 +11,20 @@ const { Mod, User } = models;
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
 
+[uploadsDir, modsDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Carpeta "${dir}" creada.`);
+  }
+});
+
 // Obtener todos los mods
 router.get('/', async (req, res) => {
   try {
     const mods = await Mod.findAll();
     res.json(mods);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los mods' });
+    console.log({ error: 'Error al obtener los mods' });
   }
 });
 
@@ -24,7 +33,17 @@ router.get('/:id', async (req, res) => {
   try {
     const mod = await Mod.findByPk(req.params.id);
     if (!mod) return res.status(404).json({ error: 'Mod no encontrado' });
-    res.json(mod);
+    const user = await User.findByPk(mod.uploaded_by);
+    if (!user) return res.status(404).json({ error: 'User no encontrado' });
+    const modUser = {
+      description: mod.description,
+      downloads: mod.downloads,
+      title: mod.title,
+      file_path: mod.file_path,
+      uploaded_at: mod.uploaded_at,
+      uploaded_by: user.username
+    }
+    res.json(modUser);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el mod' });
   }
@@ -58,6 +77,31 @@ router.post('/new-mod', async (req, res) => {
     res.status(201).json(newMod);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear el mod' });
+  }
+});
+
+router.get('/download/:id', async (req, res) => {
+  try {
+    const mod = await Mod.findByPk(req.params.id);
+
+    if (!mod) {
+      return res.status(404).json({ error: 'Mod no encontrado' });
+    }
+
+    // Emitir evento de descarga (antes de guardar, para velocidad)
+    const io = getIO();
+    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
+
+    // Incrementar descargas y guardar
+    mod.downloads += 1;
+    await mod.save();
+
+    // Enviar respuesta (sin archivo, solo registro)
+    res.status(200).json({ message: 'Descarga registrada' });
+
+  } catch (error) {
+    console.error('Error al registrar descarga:', error);
+    res.status(500).json({ error: 'Error al registrar descarga' });
   }
 });
 
