@@ -77,7 +77,6 @@ const uploadMod = async () => {
   formData.append('modFile', modFile.value);
 
   try {
-    console.log(formData.title);
     const response = await postMod(formData);
     const newMod = await response.json();
     console.log(newMod);

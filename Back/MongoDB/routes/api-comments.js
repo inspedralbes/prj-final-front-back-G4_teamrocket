@@ -40,8 +40,27 @@ router.post('/new-comment', async (req, res) => {
   }
 });
 
-router.put('/edit-comment', async (req, res) => {
+router.put('/update-comment', async (req, res) => {
+  const { commentId, newContent } = req.body;
 
+  try {
+    const updated = await Comment.findByIdAndUpdate(
+      commentId,
+      { content: newContent },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Comentario no encontrado' });
+    }
+
+    console.log(updated);
+
+    res.status(200).json(updated);
+  } catch (error) {
+    console.error('Error actualizando comentario:', error);
+    res.status(500).json({ error: 'Error del servidor al actualizar el comentario' });
+  }
 });
 
 router.delete('/delete-comment', async (req, res) => {

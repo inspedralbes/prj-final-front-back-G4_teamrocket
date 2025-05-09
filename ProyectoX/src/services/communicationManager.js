@@ -85,7 +85,7 @@ export const postDownload = async (modId) => {
     await fetch(`http://localhost:3002/api/mods/download/${modId}`);
 }
 
-export const deleteCommentSequelize = async (commentId) => {
+export const deleteCommentMongodb = async (commentId) => {
     return await fetch('http://localhost:3002/api/comments/delete-comment', {
         method: 'DELETE',
         headers: {
@@ -93,4 +93,14 @@ export const deleteCommentSequelize = async (commentId) => {
         },
         body: JSON.stringify({ commentId: commentId })
     });
+}
+
+export const putComment = async (commentId, newContent) => {
+    return await fetch('http://localhost:3002/api/comments/update-comment', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ commentId: commentId, newContent: newContent })
+    })
 }
