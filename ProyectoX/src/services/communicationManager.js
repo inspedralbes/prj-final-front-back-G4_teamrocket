@@ -40,6 +40,27 @@ export const postLogin = async (email, password) => {
     }
 }
 
+export async function loadUserData(email) {
+    console.log(email);
+    try {
+        const response = await fetch('http://localhost:3002/api/users/user-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
+        return response;
+    } catch (error) {
+        console.error('Error al obtener los datos del usuario:', error);
+    }
+}
+
 export const getMods = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods');
@@ -60,27 +81,6 @@ export const postMod = async (formData) => {
         return response;
     } catch (error) {
         console.error('Error al subir mod:', error);
-    }
-}
-
-export async function loadUserData(email) {
-    console.log(email);
-    try {
-        const response = await fetch('http://localhost:3002/api/users/user-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-
-        return response;
-    } catch (error) {
-        console.error('Error al obtener los datos del usuario:', error);
     }
 }
 

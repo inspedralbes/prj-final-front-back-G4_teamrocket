@@ -4,6 +4,7 @@ import LoginView from '../components/LoginPage.vue'
 import RegisterView from '../components/RegisterPage.vue'
 import ModsListView from '@/components/ModsListPage.vue'
 import ModDetailView from '@/components/ModDetailPage.vue'
+import PerfilView from '@/components/PerfilPage.vue'
 import { components } from 'vuetify/dist/vuetify-labs.js'
 
 const routes = [
@@ -21,6 +22,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component: RegisterView
+  },
+  {
+    path: '/perfil',
+    name: 'perfil',
+    component: PerfilView
   },
   {
     path: '/mods',

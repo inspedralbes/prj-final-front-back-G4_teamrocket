@@ -27,6 +27,9 @@
             <v-btn icon>
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
+            <v-btn icon v-if="isPublic = !isPublic">
+              <v-icon> {{ isPublic ? mdi-earth : mdi-lock }}</v-icon>
+            </v-btn>
           </v-list-item-action>
         </v-list-item>
       </v-list>
@@ -39,6 +42,7 @@ import { ref, onMounted } from 'vue';
 import { loadUserData } from "../services/communicationManager.js";
 
 const user = ref({});
+const isPublic = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
 
 const fetchUser = async () => {
