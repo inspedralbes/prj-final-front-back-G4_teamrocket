@@ -64,6 +64,10 @@ export const getMods = async () => {
     }
 }
 
+export const getMod = async (id) => {
+    return await fetch(`http://localhost:3002/api/mods/${id}`);
+}
+
 export const postMod = async (formData) => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/new-mod', {
@@ -77,8 +81,32 @@ export const postMod = async (formData) => {
     }
 }
 
-export const getMod = async (id) => {
-    return await fetch(`http://localhost:3002/api/mods/${id}`);
+export const putMod = async (formData) => {
+    try {
+        return await fetch('http://localhost:3002/api/mods/update-mod', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: formData
+        });
+    } catch (error) {
+        console.error('Error al subir actulizar mod:', error);
+    }
+}
+
+export const putVisible = async (modId, visible) => {
+    try {
+        return await fetch('http://localhost:3002/api/mods/update-visible', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: modId, visible })
+        });
+    } catch (error) {
+        console.error('Error al actualizar la visibilidad del mod:', error);
+    }
 }
 
 export const getComments = async (modId) => {

@@ -24,35 +24,154 @@
             <v-list-item-subtitle>{{ mod.description }}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-btn icon>
+            <v-btn icon @click="openEditDialog(mod)">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
-            <v-btn icon v-if="isPublic = !isPublic">
-              <v-icon> {{ isPublic ? mdi-earth : mdi-lock }}</v-icon>
+            <v-btn icon @click="updateVisible(mod)">
+              <v-icon>{{ mod.visible ? 'mdi-earth' : 'mdi-lock' }}</v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
       </v-list>
+
+      <v-dialog v-model="dialog" max-width="600">
+        <v-card>
+          <v-card-title>Subir Mod</v-card-title>
+          <v-card-text>
+              <v-text-field v-model="editMod.title" label="Título del Mod" />
+              <v-textarea v-model="editMod.description" label="Descripción" />
+              <v-file-input v-model="editMod.modFile" label="Archivo del Mod" />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn text @click="dialog = false">Cancelar</v-btn>
+            <v-btn color="primary" :loading="loading" :disabled="!userEmail" @click="updateMod">Actualizar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        timeout="3000"
+      >
+      {{ snackbar.text }}
+      </v-snackbar>
     </v-card>
   </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { loadUserData } from "../services/communicationManager.js";
+import { loadUserData, putMod, putVisible } from "../services/communicationManager.js";
 
-const user = ref({});
-const isPublic = ref(true);
+const user = ref({ mods: [] });
+const dialog = ref(false);
+const loading = ref(false);
+let data;
 const userEmail = ref(localStorage.getItem('userEmail'));
+const editMod = ref({
+  modId: 0,
+  title: '',
+  description: '',
+  modFile: null
+});
+const snackbar = ref({
+  show: false,
+  text: '',
+  color: 'success'
+});
 
 const fetchUser = async () => {
   const response = await loadUserData(userEmail.value);
-
   if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
-  user.value = await response.json();
+  const data = await response.json();
 
-  console.log(user);
+  user.value = data;
+
+  console.log(user.value);
+}
+
+const openEditDialog = (mod) => {
+  editMod.value.modId = mod.id;
+  editMod.value.title = mod.title;
+  editMod.value.description = mod.description;
+  editMod.value.modFile = null;
+  dialog.value = true;
+};
+
+const updateVisible = async (mod) => {
+  mod.visible = !mod.visible;
+
+  console.log(mod.visible);
+
+  try {
+    const response = await putVisible(mod.id, mod.visible);
+
+    if(!response.ok) {
+      data = await response.json();
+      snackbar.value = {
+        show: true,
+        text: data.error,
+        color: 'error'
+      };
+      
+      return;
+    }
+
+    data = await response.json();
+
+    snackbar.value = {
+      show: true,
+      text: data.message,
+      color: 'success'
+    };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const updateMod = async () => {
+  loading.value = true;
+
+  const formData = new FormData();
+  formData.append('id', editMod.value.modId);
+  formData.append('title', editMod.value.title);
+  formData.append('description', editMod.value.description);
+  if (editMod.value.modFile) {
+    formData.append('modFile', editMod.value.modFile);
+  }
+
+  try {
+    const response = await putMod(formData);
+
+    if (!response.ok) {
+      data = await response.json();
+      snackbar.value = {
+        show: true,
+        text: data.error,
+        color: 'error'
+      };
+      
+      return;
+    }
+
+    data = await response.json();
+
+    snackbar.value = {
+      show: true,
+      text: data.message,
+      color: 'success'
+    };
+    
+    await fetchUser();
+    dialog.value = false;
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(fetchUser);

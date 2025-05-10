@@ -56,6 +56,7 @@ app.use(fileUpload());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
+app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
 
 app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);

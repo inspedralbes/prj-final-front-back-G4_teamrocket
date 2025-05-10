@@ -12,7 +12,10 @@ export default (sequelize) => {
             allowNull: false
         },
         description: DataTypes.TEXT,
-        categoria: DataTypes.STRING(255),
+        category: {
+            type: DataTypes.STRING(255),
+            defaultValue: null
+        },
         file_path: {
             type: DataTypes.STRING(255),
             allowNull: false
@@ -27,11 +30,13 @@ export default (sequelize) => {
         },
         security: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: true,
+            defaultValue: true
         },
         visible: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: true,
+            defaultValue: true
         },
         average_rating: {
             type: DataTypes.FLOAT,
@@ -43,17 +48,13 @@ export default (sequelize) => {
         },
         image: {
             type: DataTypes.STRING(255),
-            allowNull: true
+            allowNull: true,
+            defaultValue: null
         },
     }, {
       timestamps: true,
       createdAt: 'uploaded_at',
-      updatedAt: false,
-      indexes: [
-        {
-            fields: ['categoria']
-        }
-      ]
+      updatedAt: false
     });
   
     Mod.associate = models => {
