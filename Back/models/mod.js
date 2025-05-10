@@ -49,11 +49,11 @@ export default (sequelize) => {
       timestamps: true,
       createdAt: 'uploaded_at',
       updatedAt: false,
-      indexes: [
-        {
-            fields: ['categoria']
-        }
-      ]
+//      indexes: [
+  //      {
+    //        fields: ['categoria']
+      //  }
+      //]
     });
   
     Mod.associate = models => {
