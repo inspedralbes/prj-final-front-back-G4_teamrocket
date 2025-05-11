@@ -111,23 +111,17 @@ const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);
 
-
-const rules = {
-  required: value => !!value || 'Campo requerido',
-};
-
-
 const login = async () => {
+
   loading.value = true;
   try {
     await postLogin(email, password);
-   
+    
     // Simular una espera para demostración
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-
     localStorage.setItem('userEmail', email.value);
-   
+    
     // Redireccionar al usuario a la página principal
     router.push('/');
   } catch (error) {
@@ -136,6 +130,10 @@ const login = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const rules = {
+  required: value => !!value || 'Campo requerido',
 };
 
 
