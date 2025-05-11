@@ -105,12 +105,21 @@ const login = async () => {
 
   loading.value = true;
   try {
-    await postLogin(email, password);
+    const response = await postLogin(email, password);
+
+    if(!response.ok) {
+      const data = await response.json();
+      alert(data.message);
+      return;
+    }
+
+    const data = await response.json();
     
     // Simular una espera para demostración
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    localStorage.setItem('userEmail', email.value);
+    localStorage.setItem('userEmail', data.email);
+    localStorage.setItem('userAdmin', data.admin.toString());
     
     // Redireccionar al usuario a la página principal
     router.push('/');
