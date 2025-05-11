@@ -2,9 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
-import { title } from 'process';
 import { getIO } from '../app.js';
-import { error } from 'console';
 
 const router = express.Router();
 const { Mod, User } = models;
@@ -96,7 +94,7 @@ router.put('/update-mod', async (req, res) => {
     }
 
     await mod.save();
-    res.status(200).json({ message: 'Mod actualizado correctamente' });
+    res.status(201).json({ message: 'Mod actualizado correctamente' });
   } catch (error) {
     console.error('Error actualizado el mod:', error);
     res.status(500).json({ error: 'Error al actualizar el mod' });

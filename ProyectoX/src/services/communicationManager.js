@@ -54,6 +54,13 @@ export async function loadUserData(email) {
     }
 }
 
+export const putUserProfile = async (formData) => {
+    return await fetch('http://localhost:3002/api/users/update-perfil', {
+        method: 'PUT',
+        body: formData
+    });
+}
+
 export const getMods = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods');
