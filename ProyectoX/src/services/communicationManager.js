@@ -95,6 +95,16 @@ export const deleteCommentMongodb = async (commentId) => {
     });
 }
 
+export const getModStats = async (modId) => {
+    try {
+        const response = await fetch(`http://localhost:3002/api/mods/stats/${modId}`);
+        return response;
+    } catch (error) {
+        console.error('Error al obtener estadísticas:', error);
+        throw error;
+    }
+}
+
 export const putComment = async (commentId, newContent) => {
     return await fetch('http://localhost:3002/api/comments/update-comment', {
         method: 'PUT',

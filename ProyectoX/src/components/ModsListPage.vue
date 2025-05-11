@@ -39,30 +39,47 @@
       </div>
     </v-app-bar>
 
-    <!-- Hero Section -->
-    <section class="nexus-hero">
-      <v-container>
-        <v-row>
-          <v-col cols="12" md="8">
-            <h1 class="nexus-hero-title">Darkness Unseen Mods</h1>
-            <p class="nexus-hero-subtitle">
-              Transforma tu experiencia de terror con mods que mejoran gráficos, añaden nuevos elementos de juego y contenido escalofriante.
-            </p>
-            <div class="nexus-hero-buttons">
-              <v-btn color="#fc503b" class="nexus-hero-btn">Explorar todos los mods</v-btn>
-              <v-btn 
-                color="#fc503b" 
-                variant="outlined" 
-                class="nexus-hero-btn" 
-                @click="openUploadDialog"
-                :disabled="!userEmail"
-              >
-                Subir mod
-              </v-btn>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
+    <!-- Hero Section with Video Background -->
+    <section class="nexus-hero" @click="openVideoModal">
+      <div class="video-background">
+        <video 
+          ref="backgroundVideo"
+          autoplay
+          muted
+          loop
+          playsinline
+          class="video-element"
+        >
+          <source src="" type="video/mp4">
+          Tu navegador no soporta videos HTML5.
+        </video>
+        <div class="video-overlay"></div>
+      </div>
+      
+      <div class="hero-content">
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="8">
+              <h1 class="nexus-hero-title">Darkness Unseen Mods</h1>
+              <p class="nexus-hero-subtitle">
+                Transforma tu experiencia de terror con mods que mejoran gráficos, añaden nuevos elementos de juego y contenido escalofriante.
+              </p>
+              <div class="nexus-hero-buttons">
+                <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar todos los mods</v-btn>
+                <v-btn 
+                  color="#fc503b" 
+                  variant="outlined" 
+                  class="nexus-hero-btn" 
+                  @click.stop="openUploadDialog"
+                  :disabled="!userEmail"
+                >
+                  Subir mod
+                </v-btn>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </div>
     </section>
 
     <!-- Stats Section -->
@@ -158,6 +175,18 @@
             <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
             <div class="nexus-mod-meta">
               <span class="nexus-mod-author">por {{ mod.author || 'Anónimo' }}</span>
+              <span class="nexus-mod-stats">
+                <v-icon small color="warning">mdi-star</v-icon>
+                {{ calculateAverageRating(mod.comments || []) }}/5
+              </span>
+              <span class="nexus-mod-stats">
+                <v-icon small>mdi-comment</v-icon>
+                {{ mod.comments?.length || 0 }} comentarios
+              </span>
+              <span class="nexus-mod-stats">
+                <v-icon small>mdi-thumb-up</v-icon>
+                {{ calculateEndorsements(mod.comments || []) }} reseñas
+              </span>
               <span class="nexus-mod-downloads">
                 <v-icon small>mdi-download</v-icon>
                 {{ formatDownloads(mod.downloads) }}
@@ -275,6 +304,38 @@
       </v-card>
     </v-dialog>
 
+    <!-- Video Modal -->
+    <v-dialog v-model="videoModal" max-width="800" persistent>
+      <v-card class="nexus-video-modal">
+        <v-card-title class="nexus-video-modal-title">
+          <v-icon icon="mdi-video" class="mr-2"></v-icon>
+          Video de Presentación
+        </v-card-title>
+        <v-card-text>
+          <video 
+            ref="modalVideo"
+            autoplay
+            loop
+            playsinline
+            class="video-element"
+          >
+            <source src="" type="video/mp4">
+            Tu navegador no soporta videos HTML5.
+          </video>
+        </v-card-text>
+        <v-card-actions class="nexus-video-modal-actions">
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="text"
+            @click="closeVideoModal"
+            class="nexus-btn"
+          >
+            Cerrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Upload Success Snackbar -->
     <v-snackbar v-model="uploadSuccess" color="success" timeout="3000">
       Mod subido correctamente!
@@ -294,7 +355,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { getMods, postMod, postDownload } from '@/services/communicationManager';
 
 // Datos reales
@@ -329,11 +390,25 @@ const errorMessage = ref('');
 const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
   }
   return num.toString();
+};
+
+const calculateAverageRating = (comments) => {
+  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
+  const totalRating = comments.reduce((sum, comment) => {
+    const rating = comment?.rating || 0;
+    return sum + (typeof rating === 'number' ? rating : 0);
+  }, 0);
+  return (totalRating / comments.length).toFixed(1);
+};
+
+const calculateEndorsements = (comments) => {
+  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
+  const uniqueReviewers = new Set(comments.map(comment => comment?.email || '').filter(email => email));
+  return uniqueReviewers.size;
 };
 
 const formatDownloads = (num) => {
