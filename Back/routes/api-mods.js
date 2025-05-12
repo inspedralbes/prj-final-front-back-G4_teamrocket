@@ -28,6 +28,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/admin-mods', async (req, res) => {
+  try {
+    const mods = await Mod.findAll({
+      include: [{
+        model: User,
+        attributes: ['username'],
+      }],
+      attributes: ['id', 'title', 'uploaded_at', 'security', 'file_path'],
+      order: [['uploaded_at', 'DESC']]
+    });
+
+    const result = mods.map(mod => ({
+      id: mod.id,
+      title: mod.title,
+      username: mod.User ? mod.User.username : 'Desconocido',
+      uploaded_at: new Date(mod.uploaded_at).toISOString().split('T')[0],
+      security: mod.security,
+      file_path: mod.file_path
+    }));
+
+    res.status(200).json({ mods: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener mods para administración' });
+  }
+});
+
+router.put('/:modId/safe', async (req, res) => {
+  try {
+    const modId = req.params.modId;
+    const { isSafe } = req.body;
+
+    const mod = await Mod.findOne({ where: { id: modId }});
+
+    console.log(isSafe);
+    mod.security = isSafe;
+    mod.save();
+
+    res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
 // Obtener un mod específico por ID
 router.get('/:id', async (req, res) => {
   try {
@@ -43,7 +88,7 @@ router.get('/:id', async (req, res) => {
       uploaded_at: mod.uploaded_at,
       uploaded_by: user.username
     }
-    res.json(modUser);
+    res.status(200).json(modUser);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el mod' });
   }
@@ -94,7 +139,7 @@ router.put('/update-mod', async (req, res) => {
     }
 
     await mod.save();
-    res.status(201).json({ message: 'Mod actualizado correctamente' });
+    res.status(200).json({ message: 'Mod actualizado correctamente' });
   } catch (error) {
     console.error('Error actualizado el mod:', error);
     res.status(500).json({ error: 'Error al actualizar el mod' });

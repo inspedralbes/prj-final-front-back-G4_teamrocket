@@ -31,7 +31,7 @@ export default (sequelize) => {
         security: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
-            defaultValue: true
+            defaultValue: false
         },
         visible: {
             type: DataTypes.BOOLEAN,

@@ -62,9 +62,7 @@ const loading = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
 
 const fetchMods = async () => {
-  const response = await getMods();
-  mods.value = await response.json();
-  console.log(mods.value);
+  mods.value = await getMods();
 };
 
 const uploadMod = async () => {

@@ -57,11 +57,32 @@ export const putUserProfile = async (formData) => {
 export const getMods = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods');
-
-        return response;
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        return await response.json();
     } catch (err) {
         console.error('Error cargando mods:', err);
+        throw err;
     }
+}
+
+export const getModsAdmin = async () => {
+    try {
+        const response = await fetch('http://localhost:3002/api/mods/admin-mods');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.mods
+    } catch (err) {
+        console.error('Error cargando mods de administrador:', err);
+        throw err; // Re-lanzar el error para manejo posterior
+    }   
 }
 
 export const getMod = async (id) => {
