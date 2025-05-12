@@ -12,30 +12,23 @@ export default (sequelize) => {
             allowNull: false
         },
         description: DataTypes.TEXT,
-        categoria: DataTypes.STRING(255),
         file_path: {
             type: DataTypes.STRING(255),
             allowNull: false
         },
-        likes: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0
-        },
-        dislikes: {
+        totalLikes: {
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
         security: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            allowNull: true,
+            defaultValue: true
         },
         visible: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
-        },
-        average_rating: {
-            type: DataTypes.FLOAT,
-            defaultValue: 0
+            allowNull: true,
+            defaultValue: true
         },
         downloads: {
             type: DataTypes.INTEGER,
@@ -43,17 +36,13 @@ export default (sequelize) => {
         },
         image: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: true,
+            defaultValue: null
         },
     }, {
       timestamps: true,
       createdAt: 'uploaded_at',
-      updatedAt: false,
-//      indexes: [
-  //      {
-    //        fields: ['categoria']
-      //  }
-      //]
+      updatedAt: false
     });
   
     Mod.associate = models => {

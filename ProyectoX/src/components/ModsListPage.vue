@@ -261,10 +261,7 @@
             <v-file-input
               v-model="modFile"
               label="Archivo del Mod (ZIP, RAR, 7Z)*"
-              :rules="[
-                v => !!v || 'El archivo es requerido',
-                v => !v || v.size < 50000000 || 'El archivo debe ser menor a 50MB'
-              ]"
+
               required
               variant="outlined"
               density="compact"
@@ -356,7 +353,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { getMods, postMod, postDownload } from '@/services/communicationManager';
+import { getMods, postMod, postDownload, getAllComments } from '@/services/communicationManager';
 
 // Datos reales
 const stats = ref({
@@ -367,6 +364,7 @@ const stats = ref({
 });
 
 const mods = ref([]);
+const comments = ref([]);
 const loading = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
 
@@ -446,6 +444,17 @@ const fetchMods = async () => {
     loading.value = false;
   }
 };
+
+const fetchComments = async () => {
+  try {
+    const response = await getAllComments();
+    const data = await response.json();
+    comments.value = data.comments
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const filteredMods = computed(() => {
   let result = [...mods.value];
@@ -584,6 +593,7 @@ const scrollToTop = () => {
 // Inicialización
 onMounted(() => {
   fetchMods();
+  fetchComments();
   
   // Obtener estadísticas de miembros y recompensas del backend si es necesario
   // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });

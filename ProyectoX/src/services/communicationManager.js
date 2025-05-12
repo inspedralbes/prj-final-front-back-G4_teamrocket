@@ -67,7 +67,11 @@ export const getMod = async (id) => {
     return await fetch(`http://localhost:3002/api/mods/${id}`);
 }
 
-export const getComments = async (modId) => {
+export const getAllComments = async () => {
+    return await fetch(`http://localhost:3002/api/comments`);
+}
+
+export const getCommentsById = async (modId) => {
     return await fetch(`http://localhost:3002/api/comments/${modId}`);
 }
 
