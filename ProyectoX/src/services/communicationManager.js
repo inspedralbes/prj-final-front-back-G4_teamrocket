@@ -64,10 +64,13 @@ export const putUserProfile = async (formData) => {
 export const getMods = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods');
-
-        return response;
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return await response.json();
     } catch (err) {
         console.error('Error cargando mods:', err);
+        throw err; // Re-lanzar el error para manejarlo en el llamador
     }
 }
 
@@ -134,8 +137,18 @@ export const postComment = async (newComment) => {
     });
 }
 
-export const postDownload = async (modId) => {
+export const postDownloadMod = async (modId) => {
     await fetch(`http://localhost:3002/api/mods/download/${modId}`);
+}
+
+export const putComment = async (commentId, newContent) => {
+    return await fetch('http://localhost:3002/api/comments/update-comment', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ commentId: commentId, newContent: newContent })
+    })
 }
 
 export const deleteCommentMongodb = async (commentId) => {
@@ -148,6 +161,14 @@ export const deleteCommentMongodb = async (commentId) => {
     });
 }
 
+export const postLike = async (modId, email) => {
+    try {
+        const response = await fetch('http://localhost:3003/api/likes/new-like')
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 export const getModStats = async (modId) => {
     try {
         const response = await fetch(`http://localhost:3002/api/mods/stats/${modId}`);
@@ -156,14 +177,4 @@ export const getModStats = async (modId) => {
         console.error('Error al obtener estadísticas:', error);
         throw error;
     }
-}
-
-export const putComment = async (commentId, newContent) => {
-    return await fetch('http://localhost:3002/api/comments/update-comment', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ commentId: commentId, newContent: newContent })
-    })
 }

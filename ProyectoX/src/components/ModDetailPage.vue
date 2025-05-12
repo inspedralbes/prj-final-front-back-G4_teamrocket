@@ -305,7 +305,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCommentsById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
+import { getCommentsById, getMod, postComment, postDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { listenToModDownloads2 } from '@/services/socketManager';
 import Chart from 'chart.js/auto';
 
@@ -531,7 +531,7 @@ const formatChartDate = (dateString) => {
 
 const download = async (mod) => {
   try {
-    await postDownload(route.params.id);
+    await postDownloadMod(route.params.id);
     
     // Simulate download
     const link = document.createElement('a');

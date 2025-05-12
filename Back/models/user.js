@@ -9,6 +9,7 @@ export default (sequelize) => {
     },
     username: {
       type: DataTypes.STRING,
+      unique: true,
       allowNull: false
     },
     email: {

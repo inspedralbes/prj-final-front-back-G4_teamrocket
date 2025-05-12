@@ -16,6 +16,7 @@ import { sequelize } from './models/index.js';
 import api_users from './routes/api-users.js';
 import api_mods from './routes/api-mods.js';
 import api_comments from './MongoDB/routes/api-comments.js';
+import api_likes from './MongoDB/routes/api-likes.js';
 
 // Carga variables de entorno desde .env
 dotenv.config();
@@ -28,6 +29,19 @@ const server = http.createServer(app);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+app.use(cors());
+app.use(fileUpload());
+
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
+app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
+
+app.use("/api/users", api_users);
+app.use("/api/mods", api_mods);
+app.use("/api/comments", api_comments);
+app.use("/api/likes", api_likes);
 
 let io;
 
@@ -53,18 +67,6 @@ export const getIO = () => {
   }
   return io;
 };
-
-app.use(cors());
-app.use(fileUpload());
-
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
-app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
-
-app.use("/api/users", api_users);
-app.use("/api/mods", api_mods);
-app.use("/api/comments", api_comments);
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,

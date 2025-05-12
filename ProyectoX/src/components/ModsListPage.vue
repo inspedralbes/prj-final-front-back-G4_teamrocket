@@ -183,9 +183,13 @@
                 <v-icon small>mdi-comment</v-icon>
                 {{ getCommentsCountForMod(mod.id) }} comentarios
               </span>
-              <span class="nexus-mod-stats">
-                <v-icon small>mdi-thumb-up</v-icon>
-                {{ calculateEndorsements(mod.comments || []) }} reseñas
+              <span class="nexus-mod-stats" @click="toggleLike(mod.id)" style="cursor: pointer;">
+                <v-icon 
+                  small
+                >
+                  mdi-thumb-up
+                </v-icon>
+                {{ getLikesCountForMod(mod.id) }} reseñas
               </span>
               <span class="nexus-mod-downloads">
                 <v-icon small>mdi-download</v-icon>
@@ -352,7 +356,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { getMods, postMod, postDownload, getAllComments } from '@/services/communicationManager';
+import { getMods, postMod, postDownloadMod, getAllComments } from '@/services/communicationManager';
 import { listenToModDownloads, listenToComments } from '@/services/socketManager';
 
 // Datos reales
@@ -365,6 +369,7 @@ const stats = ref({
 
 const mods = ref([]);
 const comments = ref([]);
+const likes = ref([]);
 const loading = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
 
@@ -405,11 +410,9 @@ const getCommentsCountForMod = (modId) => {
   return comments.value.filter(comment => comment.modId === modId).length;
 };
 
-const calculateEndorsements = (comments) => {
-  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
-  const uniqueReviewers = new Set(comments.map(comment => comment?.email || '').filter(email => email));
-  return uniqueReviewers.size;
-};
+const getLikesCountForMod = (modId) => {
+  return likes.value.filter(like => like.modId === modId).length;
+}
 
 const formatDownloads = (num) => {
   return formatNumber(num || 0);
@@ -430,8 +433,7 @@ const truncateDescription = (desc) => {
 const fetchMods = async () => {
   try {
     loading.value = true;
-    const response = await getMods();
-    mods.value = await response.json();
+    mods.value = await getMods();
     
     // Calcular estadísticas
     stats.value = {
@@ -442,6 +444,8 @@ const fetchMods = async () => {
     };
   } catch (error) {
     console.error('Error fetching mods:', error);
+    // Aquí podrías añadir algún manejo de errores adicional
+    // Por ejemplo, establecer un mensaje de error para mostrar en la UI
   } finally {
     loading.value = false;
   }
@@ -508,6 +512,16 @@ const closeDialog = () => {
   modFile.value = null;
 };
 
+const toggleLike = async (modId) => {
+  if(likes.modId !== modId) {
+    try {
+      await postLike(modId, userEmail);
+    } catch (err) {
+      console.log(err);
+    }
+  }  
+};
+
 const uploadMod = async () => {
   if (!formValid.value) return;
   
@@ -549,7 +563,7 @@ const downloadMod = async (mod) => {
   
   try {
     // Registrar la descarga en el backend
-    await postDownload(mod.id);
+    await postDownloadMod(mod.id);
     
     // Descargar el archivo
     const link = document.createElement('a');
