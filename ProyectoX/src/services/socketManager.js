@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3002");
 
-export const functionSocket = (mods) => {
+export const functionSocket = (mods, stats) => {
   socket.on("modDownloaded", (downloaded) => {
     console.log("Mod descargado:", downloaded);
 

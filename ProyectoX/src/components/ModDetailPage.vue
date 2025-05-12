@@ -305,7 +305,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCommentsByIdById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
+import { getCommentsById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { functionSocket2 } from '@/services/socketManager';
 import Chart from 'chart.js/auto';
 

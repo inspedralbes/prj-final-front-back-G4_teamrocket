@@ -120,7 +120,7 @@ export const getAllComments = async () => {
     return await fetch(`http://localhost:3002/api/comments`);
 }
 
-export const getCommentsByIdById = async (modId) => {
+export const getCommentsById = async (modId) => {
     return await fetch(`http://localhost:3002/api/comments/${modId}`);
 }
 

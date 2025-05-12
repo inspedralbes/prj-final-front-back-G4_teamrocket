@@ -354,6 +354,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { getMods, postMod, postDownload, getAllComments } from '@/services/communicationManager';
+import { functionSocket } from '@/services/socketManager';
 
 // Datos reales
 const stats = ref({
@@ -527,9 +528,6 @@ const uploadMod = async () => {
     // Agregar el nuevo mod a la lista
     mods.value.unshift(newMod);
     
-    // Actualizar estadísticas
-    stats.value.totalMods += 1;
-    
     // Mostrar feedback
     uploadSuccess.value = true;
     closeDialog();
@@ -556,8 +554,8 @@ const downloadMod = async (mod) => {
     await postDownload(mod.id);
     
     // Incrementar el contador localmente
-    mod.downloads = (mod.downloads || 0) + 1;
-    stats.value.totalDownloads += 1;
+    // mod.downloads = (mod.downloads || 0) + 1;
+    // stats.value.totalDownloads += 1;
     
     // Descargar el archivo
     const link = document.createElement('a');
@@ -567,6 +565,8 @@ const downloadMod = async (mod) => {
     document.body.appendChild(link);
     link.click();
     link.remove();
+
+    functionSocket(mods, stats);
   } catch (error) {
     console.error('Error downloading mod:', error);
     errorMessage.value = 'Error al descargar el mod';
