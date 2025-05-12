@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
+import DailyNewMod from '../MongoDB/models/dailyNewMods.js';
 import { getIO } from '../app.js';
 
 const router = express.Router();
@@ -79,6 +80,16 @@ router.post('/new-mod', async (req, res) => {
     const user = await User.findOne({ where: { email } });
     const modPath = await handleFileUpload(req.files.modFile, modsDir);
     const newMod = await Mod.create({ title, description, file_path: modPath, uploaded_by: user.id });
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await DailyNewMod.findOneAndUpdate(
+      { date: today },
+      { $inc: { newMods: 1 } },
+      { upsert: true }
+    );
+
     res.status(201).json(newMod);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear el mod' });
@@ -101,7 +112,7 @@ router.put('/update-mod', async (req, res) => {
     }
 
     await mod.save();
-    res.status(201).json({ message: 'Mod actualizado correctamente' });
+    res.status(200).json({ message: 'Mod actualizado correctamente' });
   } catch (error) {
     console.error('Error actualizado el mod:', error);
     res.status(500).json({ error: 'Error al actualizar el mod' });
