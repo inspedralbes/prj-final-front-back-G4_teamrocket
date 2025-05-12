@@ -1,159 +1,313 @@
 <template>
-  <v-container>
-    <v-btn @click="$router.back()" prepend-icon="mdi-arrow-left" class="mb-4">
+  <div class="nexus-detail-page">
+    <!-- Botón de volver -->
+    <v-btn 
+      @click="$router.back()" 
+      prepend-icon="mdi-arrow-left" 
+      variant="text"
+      color="#fc503b"
+      class="nexus-back-btn"
+    >
       Volver a la lista
     </v-btn>
     
-    <v-card v-if="mod" class="mod-detail">
-      <v-card-title class="text-h4">{{ mod.title }}</v-card-title>
+    <!-- Contenido principal -->
+    <v-card v-if="mod" class="nexus-mod-detail">
+      <!-- Encabezado -->
+      <div class="nexus-mod-header">
+        <h1 class="nexus-mod-title">{{ mod.title }}</h1>
+        <div class="nexus-mod-author">por {{ mod.uploaded_by || 'Anónimo' }}</div>
+      </div>
       
-      <v-card-text>
-        <v-row>
-          <v-col cols="12" md="8">
-            <div class="text-body-1 my-4">{{ mod.description }}</div>
-            
-            <v-divider class="my-4"></v-divider>
-            
-            <div class="d-flex align-center mb-2">
-              <v-icon color="primary" class="mr-2">mdi-download</v-icon>
-              <span class="text-body-2">{{ mod.downloads }} descargas</span>
-            </div>
-            
-            <div class="d-flex align-center mb-2" v-if="mod.uploaded_at">
-              <v-icon color="primary" class="mr-2">mdi-calendar</v-icon>
-              <span class="text-body-2">Subido el {{ formatDate(mod.uploaded_at) }}</span>
-            </div>
-            
-            <div class="d-flex align-center mb-2" v-if="mod.uploaded_by">
-              <v-icon color="primary" class="mr-2">mdi-account</v-icon>
-              <span class="text-body-2">Subido por: {{ mod.uploaded_by }}</span>
-            </div>
-          </v-col>
+      <v-divider class="nexus-divider"></v-divider>
+      
+      <div class="nexus-mod-content">
+        <!-- Columna izquierda -->
+        <div class="nexus-main-column">
+          <!-- Descripción -->
+          <div class="nexus-section">
+            <h2 class="nexus-section-title">Descripción</h2>
+            <div class="nexus-mod-description">{{ mod.description }}</div>
+          </div>
           
-          <v-col cols="12" md="4">
-            <v-card variant="outlined" class="pa-4">
-              <v-btn
-                @click="download(mod)" 
-                block 
-                color="primary" 
-                size="large"
-                prepend-icon="mdi-download"
-              >
-                Descargar mod
-              </v-btn>
+          <!-- Actualizaciones -->
+          <div class="nexus-section" v-if="mod.uploaded_at">
+            <h2 class="nexus-section-title">Actualizaciones</h2>
+            <div class="nexus-update-info">
+              <div class="nexus-update-item">
+                <span class="nexus-update-label">Última actualización:</span>
+                <span class="nexus-update-value">{{ formatDate(mod.updated_at || mod.uploaded_at) }}</span>
+              </div>
+              <div class="nexus-update-item">
+                <span class="nexus-update-label">Subida original:</span>
+                <span class="nexus-update-value">{{ formatDate(mod.uploaded_at) }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Comentarios -->
+          <div class="nexus-section">
+            <h2 class="nexus-section-title">Comentarios</h2>
+            
+            <!-- Formulario para añadir comentarios -->
+            <v-card variant="outlined" class="nexus-comment-form">
+              <h3 class="nexus-comment-form-title">Añadir un comentario</h3>
+              
+              <v-form @submit.prevent="submitComment" v-model="formValid">
+                <v-textarea
+                  v-model="newComment.content"
+                  label="Comentario"
+                  :rules="[v => !!v || 'Comentario es requerido']"
+                  required
+                  counter
+                  rows="3"
+                  variant="outlined"
+                  class="nexus-comment-input"
+                ></v-textarea>
+                
+                <div class="nexus-rating-section">
+                  <label class="nexus-rating-label">Valoración</label>
+                  <v-rating
+                    v-model="newComment.rating"
+                    color="amber"
+                    hover
+                    half-increments
+                    density="comfortable"
+                  ></v-rating>
+                </div>
+                
+                <v-btn
+                  type="submit"
+                  color="#fc503b"
+                  :disabled="!formValid"
+                  :loading="submitting"
+                  class="nexus-comment-submit"
+                >
+                  Publicar comentario
+                </v-btn>
+              </v-form>
             </v-card>
-          </v-col>
-        </v-row>
+            
+            <!-- Lista de comentarios -->
+            <div v-if="comments.length > 0" class="nexus-comments-list">
+              <v-card 
+                v-for="(comment, index) in comments" 
+                :key="index" 
+                class="nexus-comment-card"
+                variant="outlined"
+              >
+                <div class="nexus-comment-header">
+                  <div class="nexus-comment-author">{{ maskEmail(comment.email) }}</div>
+                  <v-rating
+                    :model-value="comment.rating"
+                    color="amber"
+                    readonly
+                    density="compact"
+                    size="small"
+                  ></v-rating>
+                </div>
+                
+                <div v-if="!isEditing" class="nexus-comment-content">
+                  {{ comment.content }}
+                </div>
+
+                <div v-else class="nexus-comment-edit">
+                  <v-textarea
+                    v-model="newContent"
+                    rows="2"
+                    label="Editar comentario"
+                    variant="outlined"
+                  />
+                  <div class="nexus-comment-edit-actions">
+                    <v-btn color="#fc503b" @click="editComment(comment)" size="small">Guardar</v-btn>
+                    <v-btn variant="text" @click="isEditing = false" size="small">Cancelar</v-btn>
+                  </div>
+                </div>
+
+                <div class="nexus-comment-footer">
+                  <span class="nexus-comment-date">{{ formatDate(comment.createdAt) }}</span>
+                  
+                  <div class="nexus-comment-actions" v-if="comment.email === userEmail">
+                    <v-btn 
+                      variant="text" 
+                      color="#fc503b" 
+                      size="small"
+                      @click="toggleEdit(comment)"
+                      class="nexus-comment-action-btn"
+                    >
+                      {{ isEditing ? 'Cancelar' : 'Editar' }}
+                    </v-btn>
+                    <v-btn 
+                      variant="text" 
+                      color="error" 
+                      size="small"
+                      @click="deleteComment(comment)"
+                      class="nexus-comment-action-btn"
+                    >
+                      Eliminar
+                    </v-btn>
+                  </div>
+                </div>
+              </v-card>
+            </div>
+            
+            <div v-else class="nexus-no-comments">
+              <v-icon size="large" color="grey">mdi-comment-outline</v-icon>
+              <p>No hay comentarios aún. ¡Sé el primero en opinar!</p>
+            </div>
+          </div>
+        </div>
         
-        <!-- Sección de comentarios -->
-        <v-divider class="my-6"></v-divider>
-        
-        <h3 class="text-h5 mb-4">Comentarios</h3>
-        
-        <!-- Formulario para añadir comentarios -->
-        <v-card variant="outlined" class="mb-6 pa-4">
-          <h4 class="text-h6 mb-3">Añadir un comentario</h4>
+        <!-- Columna derecha -->
+        <div class="nexus-sidebar">
+          <!-- Estadísticas -->
+          <v-card variant="outlined" class="nexus-stats-card">
+            <div class="nexus-stats-item">
+              <div class="nexus-stats-label">Endorsements</div>
+              <div class="nexus-stats-value">8,984</div>
+            </div>
+            
+            <v-divider class="nexus-stats-divider"></v-divider>
+            
+            <div class="nexus-stats-item">
+              <div class="nexus-stats-label">Total descargas</div>
+              <div class="nexus-stats-value">{{ formatNumber(mod.downloads) }}</div>
+            </div>
+            
+            <v-divider class="nexus-stats-divider"></v-divider>
+            
+            <div class="nexus-stats-item">
+              <div class="nexus-stats-label">Versión</div>
+              <div class="nexus-stats-value">1.3</div>
+            </div>
+          </v-card>
           
-          <v-form @submit.prevent="submitComment" v-model="formValid">
-            <v-textarea
-              v-model="newComment.content"
-              label="Comentario"
-              :rules="[v => !!v || 'Comentario es requerido']"
-              required
-              counter
-              rows="3"
-            ></v-textarea>
-            
-            <div class="mb-3">
-              <label class="text-subtitle-1 mb-2 d-block">Valoración</label>
-              <v-rating
-                v-model="newComment.rating"
-                color="amber"
-                hover
-                half-increments
-              ></v-rating>
+          <!-- Botón de descarga -->
+          <v-btn
+            @click="download(mod)" 
+            block 
+            color="#fc503b" 
+            size="large"
+            prepend-icon="mdi-download"
+            class="nexus-download-btn"
+          >
+            Descargar mod
+          </v-btn>
+          
+          <!-- Información del creador -->
+          <v-card variant="outlined" class="nexus-creator-card">
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Creado por</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anónimo' }}</span>
             </div>
             
-            <v-btn
-              type="submit"
-              color="primary"
-              :disabled="!formValid"
-              :loading="submitting"
-            >
-              Publicar comentario
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Subido por</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anónimo' }}</span>
+            </div>
+            
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Escaneo de virus</span>
+              <span class="nexus-creator-value nexus-virus-safe">
+                <v-icon color="success">mdi-check-circle</v-icon>
+                Seguro
+              </span>
+            </div>
+          </v-card>
+          
+          <!-- Tags -->
+          <v-card variant="outlined" class="nexus-tags-card">
+            <h3 class="nexus-tags-title">Tags para este mod</h3>
+            <div class="nexus-tags-list">
+              <v-chip v-for="(tag, index) in ['Mapa', 'Interfaz', 'Mejora']" :key="index" class="nexus-tag">
+                {{ tag }}
+              </v-chip>
+            </div>
+            <v-btn variant="text" color="#fc503b" size="small" class="nexus-add-tag-btn">
+              + Añadir tag
             </v-btn>
-          </v-form>
-        </v-card>
-        
-        <!-- Lista de comentarios -->
-        <div v-if="comments.length > 0">
-          <v-card v-for="(comment, index) in comments" :key="index" class="mb-3 pa-4" variant="outlined">
-            <div class="d-flex justify-space-between align-center">
-              <div class="text-subtitle-1 font-weight-bold">{{ maskEmail(comment.email) }}</div>
-              <v-rating
-                :model-value="comment.rating"
-                color="amber"
-                readonly
-                dense
-                size="small"
-              ></v-rating>
+          </v-card>
+          
+          <!-- Estadísticas de archivos -->
+          <v-card variant="outlined" class="nexus-files-card">
+            <div class="nexus-files-grid">
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">DESCRIPCIÓN</div>
+                <div class="nexus-files-value">1</div>
+              </div>
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">ARCHIVOS</div>
+                <div class="nexus-files-value">1</div>
+              </div>
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">IMÁGENES</div>
+                <div class="nexus-files-value">9</div>
+              </div>
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">VIDEOS</div>
+                <div class="nexus-files-value">1</div>
+              </div>
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">POSTS</div>
+                <div class="nexus-files-value">85</div>
+              </div>
+              <div class="nexus-files-item">
+                <div class="nexus-files-label">BUGS</div>
+                <div class="nexus-files-value">0</div>
+              </div>
             </div>
-            
-            <div v-if="!isEditing" class="text-body-2 my-2">
-              {{ comment.content }}
-            </div>
+          </v-card>
 
-            <div v-else class="text-body-2 my-2">
-              <v-textarea
-                v-model="newContent"
-                rows="2"
-                label="Editar comentario"
-              />
-              <v-btn color="primary" @click="editComment(comment)">Enviar</v-btn>
-            </div>
-
-            <div class="text-caption text-grey">
-              {{ formatDate(comment.createdAt) }}
-            </div>
-
-            <div>
-              <v-btn v-if="comment.email === userEmail" @click="deleteComment(comment)">Eliminar</v-btn>
-              <v-btn v-if="comment.email === userEmail" @click="toggleEdit(comment)">
-                {{ isEditing ? 'Cancelar' : 'Editar' }}
-              </v-btn>
+          <!-- Gráfico de instalaciones mini -->
+          <v-card variant="outlined" class="nexus-stats-mini-card">
+            <h3 class="nexus-section-title">Instalaciones recientes</h3>
+            <div class="nexus-chart-container-mini">
+              <canvas ref="downloadsChart" class="nexus-chart-mini"></canvas>
             </div>
           </v-card>
         </div>
-        
-        <div v-else class="text-center py-4">
-          <v-icon size="large" color="grey">mdi-comment-outline</v-icon>
-          <p class="text-body-1 mt-2">No hay comentarios aún. ¡Sé el primero en opinar!</p>
+      </div>
+    </v-card>
+    
+    <!-- Loading/Error states -->
+    <v-card v-else class="nexus-loading-card">
+      <v-card-text class="nexus-loading-content">
+        <v-progress-circular indeterminate color="#fc503b" v-if="loading"></v-progress-circular>
+        <div v-else class="nexus-error-message">
+          <v-icon color="error" size="large">mdi-alert-circle</v-icon>
+          <p>Mod no encontrado</p>
         </div>
-        
-        <v-snackbar
-          v-model="snackbar.show"
-          :color="snackbar.color"
-          timeout="3000"
-        >
-          {{ snackbar.text }}
-        </v-snackbar>
       </v-card-text>
     </v-card>
     
-    <v-card v-else>
-      <v-card-text class="text-center py-8">
-        <v-progress-circular indeterminate color="primary" v-if="loading"></v-progress-circular>
-        <div v-else class="text-h6">Mod no encontrado</div>
-      </v-card-text>
-    </v-card>
-  </v-container>
+    <!-- Snackbar para mensajes -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      timeout="3000"
+      location="bottom right"
+      class="nexus-snackbar"
+    >
+      {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar.show = false"
+          :color="snackbar.color === 'error' ? 'white' : ''"
+        >
+          Cerrar
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCommentsById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
+import { getCommentsByIdById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { functionSocket2 } from '@/services/socketManager';
+import Chart from 'chart.js/auto';
 
 const route = useRoute();
 const mod = ref(null);
@@ -183,6 +337,7 @@ const fetchModDetails = async () => {
     const response = await getMod(route.params.id);
     mod.value = await response.json();
     await fetchComments();
+    initChart();
   } catch (error) {
     console.error('Error al cargar detalles del mod:', error);
   } finally {
@@ -192,8 +347,7 @@ const fetchModDetails = async () => {
 
 const fetchComments = async () => {
   try {
-    // Asumiendo que tienes un endpoint para obtener comentarios por modId
-    const response = await getCommentsById(route.params.id);
+    const response = await getCommentsByIdById(route.params.id);
     comments.value = await response.json();
     console.log(comments.value);
   } catch (error) {
@@ -211,21 +365,18 @@ const submitComment = async () => {
   try {
     await postComment(newComment);
     
-    // Resetear formulario
     newComment.value = {
       email: '',
       content: '',
       rating: 5
     };
     
-    // Mostrar mensaje de éxito
     snackbar.value = {
       show: true,
       text: '¡Comentario publicado correctamente!',
       color: 'success'
     };
     
-    // Actualizar lista de comentarios
     await fetchComments();
   } catch (error) {
     console.error('Error al publicar comentario:', error);
@@ -252,7 +403,6 @@ const formatDate = (dateString) => {
   }).format(date);
 };
 
-// Función para ocultar parte del email por privacidad
 const maskEmail = (email) => {
   if (!email) return '';
   const parts = email.split('@');
@@ -261,7 +411,6 @@ const maskEmail = (email) => {
   const name = parts[0];
   const domain = parts[1];
   
-  // Mostrar solo primeros 2 caracteres + asteriscos + último caracter
   const maskedName = name.length <= 3 
     ? name 
     : `${name.substring(0, 2)}${'*'.repeat(name.length - 3)}${name.charAt(name.length - 1)}`;
@@ -269,10 +418,125 @@ const maskEmail = (email) => {
   return `${maskedName}@${domain}`;
 };
 
+const formatNumber = (num) => {
+  if (!num) return '0';
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const downloadsChart = ref(null);
+let chartInstance = null;
+
+const generateSampleData = () => {
+  const data = [];
+  const now = new Date();
+  
+  // Get the last 14 days including today
+  for (let i = 14; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Use real data if available, otherwise use 0
+    const downloads = mod.value?.downloads_history?.[dateStr] || 0;
+    
+    data.push({
+      date: dateStr,
+      downloads: downloads
+    });
+  }
+  
+  return data;
+};
+
+const initChart = () => {
+  if (!downloadsChart.value) return;
+  
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+  
+  const ctx = downloadsChart.value.getContext('2d');
+  const chartData = generateSampleData();
+  
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.map(item => formatChartDate(item.date)),
+      datasets: [{
+        label: 'Instalaciones',
+        data: chartData.map(item => item.downloads),
+        backgroundColor: '#fc503b',
+        borderColor: '#fc503b',
+        borderWidth: 1,
+        borderRadius: 2,
+        hoverBackgroundColor: '#ff6e5d',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: true,
+          backgroundColor: 'rgba(13, 13, 13, 0.9)',
+          bodyColor: '#ffffff',
+          borderColor: '#252525',
+          borderWidth: 1,
+          padding: 8,
+          bodyFont: {
+            size: 10
+          },
+          callbacks: {
+            label: function(context) {
+              return ` ${context.raw} descargas`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.7)',
+            font: {
+              size: 9
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.05)',
+            drawBorder: false
+          },
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.7)',
+            font: {
+              size: 9
+            },
+            stepSize: 20,
+            padding: 5
+          }
+        }
+      }
+    }
+  });
+};
+
+const formatChartDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+};
+
 const download = async (mod) => {
   try {
-    postDownload(route.params.id);
-
+    // Simulate download
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
     link.setAttribute('download', '');
@@ -281,11 +545,34 @@ const download = async (mod) => {
     link.click();
     link.remove();
     
-    functionSocket2(mod);
+    // Update local stats
+    const today = new Date().toISOString().split('T')[0];
+    if (!mod.downloads_history) {
+      mod.downloads_history = {};
+    }
+    mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
+    mod.value.downloads = (mod.value.downloads || 0) + 1;
+    
+    // Update chart
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+    initChart();
+    
+    snackbar.value = {
+      show: true,
+      text: `¡Descarga iniciada! (${mod.downloads_history[today]} descargas hoy)`,
+      color: 'info'
+    };
   } catch (error) {
     console.log(error);
+    snackbar.value = {
+      show: true,
+      text: 'Error al iniciar la descarga',
+      color: 'error'
+    };
   }
-}
+};
 
 const deleteComment = async (comment) => {
   try {
@@ -311,7 +598,7 @@ const deleteComment = async (comment) => {
 
 const toggleEdit = (comment) => {
   if (!isEditing.value) {
-    newContent.value = comment.content; // cargar contenido original
+    newContent.value = comment.content;
   }
   isEditing.value = !isEditing.value;
 }
@@ -341,10 +628,403 @@ const editComment = async (comment) => {
 }
 
 onMounted(fetchModDetails);
+
+onBeforeUnmount(() => {
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+});
 </script>
 
 <style scoped>
-.mod-detail {
+.nexus-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #0d0d0d;
+  color: #ffffff;
+}
+
+.nexus-back-btn {
+  margin-bottom: 20px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.nexus-mod-detail {
+  background: rgba(18, 18, 18, 0.9);
+  border: 1px solid #252525;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nexus-mod-header {
+  padding: 24px;
+  border-bottom: 1px solid #252525;
+}
+
+.nexus-mod-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fc503b;
+  margin-bottom: 8px;
+}
+
+.nexus-mod-author {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-divider {
+  border-color: #252525;
+}
+
+.nexus-mod-content {
+  display: flex;
+  padding: 24px;
+  gap: 24px;
+}
+
+.nexus-main-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.nexus-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.nexus-section {
+  margin-bottom: 32px;
+}
+
+.nexus-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fc503b;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #252525;
+}
+
+.nexus-mod-description {
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-update-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nexus-update-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nexus-update-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-update-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* Cards de la sidebar */
+.nexus-stats-card,
+.nexus-creator-card,
+.nexus-tags-card,
+.nexus-files-card,
+.nexus-stats-mini-card {
+  background: rgba(13, 13, 13, 0.8);
+  border: 1px solid #252525;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.nexus-stats-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.nexus-stats-divider {
+  border-color: #252525;
+  margin: 8px 0;
+}
+
+.nexus-stats-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-stats-value {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.nexus-download-btn {
+  margin-bottom: 16px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.nexus-creator-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.nexus-creator-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-creator-value {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.nexus-virus-safe {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #4caf50;
+}
+
+.nexus-tags-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nexus-tag {
+  background: rgba(252, 80, 59, 0.1);
+  color: #fc503b;
+  border: 1px solid rgba(252, 80, 59, 0.3);
+}
+
+.nexus-add-tag-btn {
+  width: 100%;
+}
+
+.nexus-files-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.nexus-files-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nexus-files-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.nexus-files-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Estilos para el gráfico mini */
+.nexus-chart-container-mini {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  background: rgba(13, 13, 13, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.nexus-chart-mini {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Estilos para comentarios */
+.nexus-comment-form {
+  background: rgba(13, 13, 13, 0.8);
+  border: 1px solid #252525;
+  border-radius: 6px;
+  padding: 16px;
   margin-bottom: 24px;
+}
+
+.nexus-comment-form-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-comment-input {
+  margin-bottom: 16px;
+}
+
+.nexus-rating-section {
+  margin-bottom: 16px;
+}
+
+.nexus-rating-label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-comment-submit {
+  text-transform: none;
+}
+
+.nexus-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nexus-comment-card {
+  background: rgba(13, 13, 13, 0.8);
+  border: 1px solid #252525;
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.nexus-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.nexus-comment-author {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-comment-content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
+}
+
+.nexus-comment-edit {
+  margin-bottom: 12px;
+}
+
+.nexus-comment-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nexus-comment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nexus-comment-date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nexus-comment-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.nexus-comment-action-btn {
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: 0;
+}
+
+.nexus-no-comments {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-no-comments p {
+  margin-top: 12px;
+}
+
+/* Loading states */
+.nexus-loading-card {
+  background: rgba(18, 18, 18, 0.9);
+  border: 1px solid #252525;
+  border-radius: 6px;
+}
+
+.nexus-loading-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.nexus-error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Snackbar */
+.nexus-snackbar {
+  font-family: inherit;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .nexus-mod-content {
+    flex-direction: column;
+  }
+  
+  .nexus-sidebar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .nexus-mod-header {
+    padding: 16px;
+  }
+  
+  .nexus-mod-title {
+    font-size: 24px;
+  }
+  
+  .nexus-mod-content {
+    padding: 16px;
+  }
+  
+  .nexus-files-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
