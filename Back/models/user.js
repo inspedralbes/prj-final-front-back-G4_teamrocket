@@ -21,6 +21,11 @@ export default (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    avatar_path: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null
+    },
     isOnline: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

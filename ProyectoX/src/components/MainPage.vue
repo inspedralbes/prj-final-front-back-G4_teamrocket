@@ -41,6 +41,16 @@
       >
         Cerrar Sesión
       </v-btn>
+      <v-btn
+        v-if="userEmail"
+        color="#fc503b"
+        class="mr-2"
+        to="/perfil"
+        :outlined="true"
+        :ripple="false"
+      >
+        Perfil
+      </v-btn>
     </v-app-bar>
 
     <v-container fluid class="pa-0">

@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-row>
+      <h1>Mods</h1>
       <v-col cols="12" md="4" v-for="mod in mods" :key="mod.id">
         <v-card>
           <v-card-title>{{ mod.title }}</v-card-title>
@@ -9,7 +10,9 @@
             <div class="text-grey text-caption mt-2">Descargas: {{ mod.downloads }}</div>
           </v-card-text>
           <v-card-actions>
-            <v-btn :href="`http://localhost:3002/${mod.file_path}`" download target="_blank">Descargar</v-btn>
+            <v-btn :to="`/mod/${mod.id}`" color="primary" variant="text">Ver detalles</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn @click="download(mod, mods)">Descargar</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -46,7 +49,8 @@
 </template>
 
 <script setup>
-import { getMods, postMod } from '@/services/communicationManager';
+import { getMods, postMod, postDownload } from '@/services/communicationManager';
+import { functionSocket } from '@/services/socketManager';
 import { ref, onMounted } from 'vue';
 
 const mods = ref([]);
@@ -60,6 +64,7 @@ const userEmail = ref(localStorage.getItem('userEmail'));
 const fetchMods = async () => {
   const response = await getMods();
   mods.value = await response.json();
+  console.log(mods.value);
 };
 
 const uploadMod = async () => {
@@ -74,7 +79,8 @@ const uploadMod = async () => {
   try {
     const response = await postMod(formData);
     const newMod = await response.json();
-    mods.value.unshift(newMod); // Añadir al inicio
+    console.log(newMod);
+    mods.value.unshift(newMod);
     dialog.value = false;
     title.value = '';
     description.value = '';
@@ -85,6 +91,24 @@ const uploadMod = async () => {
     loading.value = false;
   }
 };
+
+const download = async (mod, mods) => {
+  try {
+    postDownload(mod.id);
+
+    const link = document.createElement('a');
+    link.href = `http://localhost:3002${mod.file_path}`;
+    link.setAttribute('download', '');
+    link.setAttribute('target', '_blank');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    functionSocket(mods);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 onMounted(fetchMods);
 </script>
