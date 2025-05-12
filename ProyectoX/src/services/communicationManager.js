@@ -116,7 +116,7 @@ export const putVisible = async (modId, visible) => {
     }
 }
 
-export const getComments = async (modId) => {
+export const getCommentsById = async (modId) => {
     return await fetch(`http://localhost:3002/api/comments/${modId}`);
 }
 

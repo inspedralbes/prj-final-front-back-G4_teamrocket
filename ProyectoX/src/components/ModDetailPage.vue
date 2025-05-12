@@ -152,7 +152,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getComments, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
+import { getCommentsById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { functionSocket2 } from '@/services/socketManager';
 
 const route = useRoute();
@@ -193,7 +193,7 @@ const fetchModDetails = async () => {
 const fetchComments = async () => {
   try {
     // Asumiendo que tienes un endpoint para obtener comentarios por modId
-    const response = await getComments(route.params.id);
+    const response = await getCommentsById(route.params.id);
     comments.value = await response.json();
     console.log(comments.value);
   } catch (error) {

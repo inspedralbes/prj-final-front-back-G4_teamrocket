@@ -12,19 +12,11 @@ export default (sequelize) => {
             allowNull: false
         },
         description: DataTypes.TEXT,
-        category: {
-            type: DataTypes.STRING(255),
-            defaultValue: null
-        },
         file_path: {
             type: DataTypes.STRING(255),
             allowNull: false
         },
-        likes: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0
-        },
-        dislikes: {
+        totalLikes: {
             type: DataTypes.INTEGER,
             defaultValue: 0
         },
@@ -37,10 +29,6 @@ export default (sequelize) => {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: true
-        },
-        average_rating: {
-            type: DataTypes.FLOAT,
-            defaultValue: 0
         },
         downloads: {
             type: DataTypes.INTEGER,
