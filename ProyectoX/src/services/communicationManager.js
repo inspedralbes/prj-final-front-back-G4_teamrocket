@@ -125,7 +125,7 @@ export const getCommentsById = async (modId) => {
 }
 
 export const postComment = async (newComment) => {
-    await fetch('http://localhost:3002/api/comments/new-comment', {
+    return await fetch('http://localhost:3002/api/comments/new-comment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

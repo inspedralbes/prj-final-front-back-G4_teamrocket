@@ -1,5 +1,6 @@
 import express from 'express';
 import Comment from '../models/comment.js';
+import { getIO } from '../../app.js';
 
 const router = express.Router();
 
@@ -7,7 +8,10 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const comments = await Comment.find();
-    res.json(comments);
+
+    //await Comment.deleteMany({});
+
+    res.status(200).json(comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -25,17 +29,30 @@ router.get('/:modId', async (req, res) => {
 
 // Crear un nuevo comentario
 router.post('/new-comment', async (req, res) => {
+  const { email, modId, content, rating } = req.body;
+
+  if (!email || !modId || !content || rating === undefined) {
+    return res.status(400).json({ message: 'Faltan datos necesarios' });
+  }
+
   const comment = new Comment({
-    email: req.body.email,
-    modId: req.body.modId,
-    content: req.body.content,
-    rating: req.body.rating
+    email,
+    modId,
+    content,
+    rating
   });
 
   try {
-    const newComment = await comment.save();
-    res.status(201).json(newComment);
+    await comment.save();
+
+    const allComments = await Comment.find();
+
+    const io = getIO();
+    io.emit('updateComments', { allComments });
+
+    res.status(201).json({ message: "Nuevo comentario creado exitosamente" });
   } catch (err) {
+    console.error("Hola");
     res.status(400).json({ message: err.message });
   }
 });
@@ -71,6 +88,11 @@ router.delete('/delete-comment', async (req, res) => {
   }
 
   const deleted = await Comment.findByIdAndDelete(id);
+  
+  const allComments = await Comment.find();
+
+  const io = getIO();
+  io.emit('updateComments', { allComments });
 
   if (!deleted) {
     return res.status(404).json({ error: 'Comentario no encontrado' });

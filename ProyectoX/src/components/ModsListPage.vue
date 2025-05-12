@@ -174,14 +174,14 @@
             <h3 class="nexus-mod-title">{{ mod.title }}</h3>
             <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
             <div class="nexus-mod-meta">
-              <span class="nexus-mod-author">por {{ mod.author || 'Anónimo' }}</span>
+              <span class="nexus-mod-author">por {{ mod.User.username || 'Anónimo' }}</span>
               <span class="nexus-mod-stats">
                 <v-icon small color="warning">mdi-star</v-icon>
-                {{ calculateAverageRating(mod.comments || []) }}/5
+                {{ calculateAverageRating(mod.id) }}/5
               </span>
               <span class="nexus-mod-stats">
                 <v-icon small>mdi-comment</v-icon>
-                {{ mod.comments?.length || 0 }} comentarios
+                {{ getCommentsCountForMod(mod.id) }} comentarios
               </span>
               <span class="nexus-mod-stats">
                 <v-icon small>mdi-thumb-up</v-icon>
@@ -193,7 +193,7 @@
               </span>
               <span class="nexus-mod-date">
                 <v-icon small>mdi-calendar</v-icon>
-                {{ formatDate(mod.created_at) }}
+                {{ formatDate(mod.uploaded_at) }}
               </span>
             </div>
           </div>
@@ -212,7 +212,6 @@
               variant="text"
               size="small"
               @click="downloadMod(mod)"
-              :loading="mod.downloading"
               class="nexus-mod-btn"
               :disabled="!mod.file_path"
             >
@@ -354,7 +353,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { getMods, postMod, postDownload, getAllComments } from '@/services/communicationManager';
-import { functionSocket } from '@/services/socketManager';
+import { listenToModDownloads, listenToComments } from '@/services/socketManager';
 
 // Datos reales
 const stats = ref({
@@ -395,13 +394,15 @@ const formatNumber = (num) => {
   return num.toString();
 };
 
-const calculateAverageRating = (comments) => {
-  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0;
-  const totalRating = comments.reduce((sum, comment) => {
-    const rating = comment?.rating || 0;
-    return sum + (typeof rating === 'number' ? rating : 0);
-  }, 0);
-  return (totalRating / comments.length).toFixed(1);
+const calculateAverageRating = (modId) => {
+  const modComments = comments.value.filter(c => c.modId === modId);
+  if (modComments.length === 0) return 0;
+  const total = modComments.reduce((sum, c) => sum + (c.rating || 0), 0);
+  return (total / modComments.length).toFixed(0);
+};
+
+const getCommentsCountForMod = (modId) => {
+  return comments.value.filter(comment => comment.modId === modId).length;
 };
 
 const calculateEndorsements = (comments) => {
@@ -449,9 +450,8 @@ const fetchMods = async () => {
 const fetchComments = async () => {
   try {
     const response = await getAllComments();
-    const data = await response.json();
-    comments.value = data.comments
-    console.log(data);
+    comments.value = await response.json();
+    console.log(comments.value);
   } catch (err) {
     console.log(err);
   }
@@ -547,32 +547,22 @@ const uploadMod = async () => {
 const downloadMod = async (mod) => {
   if (!mod.file_path) return;
   
-  mod.downloading = true;
-  
   try {
     // Registrar la descarga en el backend
     await postDownload(mod.id);
     
-    // Incrementar el contador localmente
-    // mod.downloads = (mod.downloads || 0) + 1;
-    // stats.value.totalDownloads += 1;
-    
     // Descargar el archivo
     const link = document.createElement('a');
-    link.href = mod.file_path;
+    link.href = `http://localhost:3002${mod.file_path}`;
     link.setAttribute('download', '');
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
     link.remove();
-
-    functionSocket(mods, stats);
   } catch (error) {
     console.error('Error downloading mod:', error);
     errorMessage.value = 'Error al descargar el mod';
     uploadError.value = true;
-  } finally {
-    mod.downloading = false;
   }
 };
 
@@ -594,6 +584,8 @@ const scrollToTop = () => {
 onMounted(() => {
   fetchMods();
   fetchComments();
+  listenToModDownloads(mods, stats);
+  listenToComments(comments);
   
   // Obtener estadísticas de miembros y recompensas del backend si es necesario
   // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });

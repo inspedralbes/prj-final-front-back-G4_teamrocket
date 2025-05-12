@@ -171,7 +171,7 @@
             
             <div class="nexus-stats-item">
               <div class="nexus-stats-label">Total descargas</div>
-              <div class="nexus-stats-value">{{ formatNumber(mod.downloads) }}</div>
+              <div class="nexus-stats-value">{{ mod.downloads || 0 }}</div>
             </div>
             
             <v-divider class="nexus-stats-divider"></v-divider>
@@ -306,7 +306,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCommentsById, getMod, postComment, postDownload, deleteCommentMongodb, putComment } from '@/services/communicationManager';
-import { functionSocket2 } from '@/services/socketManager';
+import { listenToModDownloads2 } from '@/services/socketManager';
 import Chart from 'chart.js/auto';
 
 const route = useRoute();
@@ -347,9 +347,8 @@ const fetchModDetails = async () => {
 
 const fetchComments = async () => {
   try {
-    const response = await getCommentsByIdById(route.params.id);
+    const response = await getCommentsById(route.params.id);
     comments.value = await response.json();
-    console.log(comments.value);
   } catch (error) {
     console.error('Error al cargar comentarios:', error);
     snackbar.value = {
@@ -366,8 +365,9 @@ const submitComment = async () => {
     await postComment(newComment);
     
     newComment.value = {
-      email: '',
+      email: userEmail,
       content: '',
+      modId: route.params.id,
       rating: 5
     };
     
@@ -416,11 +416,6 @@ const maskEmail = (email) => {
     : `${name.substring(0, 2)}${'*'.repeat(name.length - 3)}${name.charAt(name.length - 1)}`;
   
   return `${maskedName}@${domain}`;
-};
-
-const formatNumber = (num) => {
-  if (!num) return '0';
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
 const downloadsChart = ref(null);
@@ -536,6 +531,8 @@ const formatChartDate = (dateString) => {
 
 const download = async (mod) => {
   try {
+    await postDownload(route.params.id);
+    
     // Simulate download
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
@@ -545,23 +542,24 @@ const download = async (mod) => {
     link.click();
     link.remove();
     
-    // Update local stats
-    const today = new Date().toISOString().split('T')[0];
-    if (!mod.downloads_history) {
-      mod.downloads_history = {};
-    }
-    mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
-    mod.value.downloads = (mod.value.downloads || 0) + 1;
+    // // Update local stats
+    // const today = new Date().toISOString().split('T')[0];
+    // if (!mod.downloads_history) {
+    //   mod.downloads_history = {};
+    // }
+    // mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
+    // mod.value.downloads = (mod.value.downloads || 0) + 1;
     
     // Update chart
     if (chartInstance) {
       chartInstance.destroy();
     }
     initChart();
+
     
     snackbar.value = {
       show: true,
-      text: `¡Descarga iniciada! (${mod.downloads_history[today]} descargas hoy)`,
+      text: `¡Descarga iniciada!`,
       color: 'info'
     };
   } catch (error) {
@@ -627,7 +625,13 @@ const editComment = async (comment) => {
   }
 }
 
-onMounted(fetchModDetails);
+onMounted(() => {
+  fetchModDetails();
+  listenToModDownloads2(mod);
+  
+  // Obtener estadísticas de miembros y recompensas del backend si es necesario
+  // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });
+});
 
 onBeforeUnmount(() => {
   if (chartInstance) {

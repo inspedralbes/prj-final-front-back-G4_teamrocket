@@ -21,8 +21,16 @@ const imageDir = path.join(uploadsDir, 'images');
 // Obtener todos los mods
 router.get('/', async (req, res) => {
   try {
-    const mods = await Mod.findAll();
-    res.json(mods);
+    const mods = await Mod.findAll({
+      include: [{
+        model: User,
+        attributes: ['username']
+      }],
+    });
+
+    const listMods = mods.filter(mod => mod.visible === true);
+
+    res.status(200).json(listMods);
   } catch (error) {
     console.log({ error: 'Error al obtener los mods' });
   }
@@ -63,7 +71,6 @@ const handleFileUpload = (file, directory) => {
 router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
-    console.log(email);
 
     if (!req.files || !req.files.modFile) {
       return res.status(400).json({ message: "No s'han penjat els fitxers requerits" });
@@ -104,8 +111,6 @@ router.put('/update-mod', async (req, res) => {
 router.put('/update-visible', async (req, res) => {
   try {
     const { id, visible } = req.body;
-
-    console.log(id);
 
     const mod = await Mod.findByPk(id);
     if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });

@@ -41,6 +41,10 @@ io = new SocketIOServer(server, {
 
 io.on('connection', (socket) => {
   console.log('Usuario conectado:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log(`Usuario desconectado: ${socket.id}`);
+  });
 });
 
 export const getIO = () => {

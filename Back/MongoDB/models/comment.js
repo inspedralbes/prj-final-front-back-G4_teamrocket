@@ -6,7 +6,7 @@ const CommentSchema = new mongoose.Schema({
     required: true
   },
   modId: {
-    type: String,
+    type: Number,
     required: true
   },
   content: {
