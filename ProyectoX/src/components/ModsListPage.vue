@@ -189,7 +189,7 @@
       </div>
 
       <!-- Mods List -->
-      <div v-else class="nexus-mods-list">
+      <div v-else>
         <div v-if="filteredMods.length === 0" class="nexus-no-mods">
           <v-icon color="#fc503b" size="48">mdi-alert-circle-outline</v-icon>
           <h3>No se encontraron mods</h3>
@@ -199,59 +199,65 @@
           </v-btn>
         </div>
 
-        <div v-for="mod in filteredMods" :key="mod.id" class="nexus-mod-item">
-          <div class="nexus-mod-content">
-            <h3 class="nexus-mod-title">{{ mod.title }}</h3>
-            <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
-            <div class="nexus-mod-meta">
-              <span class="nexus-mod-author">por {{ mod.User.username || 'Anónimo' }}</span>
-              <span class="nexus-mod-stats">
-                <v-icon small color="warning">mdi-star</v-icon>
-                {{ calculateAverageRating(mod.id) }}/5
-              </span>
-              <span class="nexus-mod-stats">
-                <v-icon small>mdi-comment</v-icon>
-                {{ getCommentsCountForMod(mod.id) }} comentarios
-              </span>
-              <span class="nexus-mod-stats" @click="toggleLike(mod.id)" style="cursor: pointer;">
-                <v-icon 
-                  small
-                  :color="isToggled(mod.id) ? 'blue' : undefined"
-                >
-                  mdi-thumb-up
-                </v-icon>
-                {{ getLikesCountForMod(mod.id) }} reseñas
-              </span>
-              <span class="nexus-mod-downloads">
-                <v-icon small>mdi-download</v-icon>
-                {{ formatDownloads(mod.downloads) }}
-              </span>
-              <span class="nexus-mod-date">
-                <v-icon small>mdi-calendar</v-icon>
-                {{ formatDate(mod.uploaded_at) }}
-              </span>
+        <div class="mods-cubes-row">
+          <div v-for="mod in filteredMods" :key="mod.id" class="mod-cube">
+            <div class="mod-cube-image-wrapper">
+              <img v-if="mod.image" :src="`http://localhost:3002${mod.image}`" alt="Imagen del mod" class="mod-cube-image" />
+              <div v-else class="mod-cube-image-placeholder">Sin imagen</div>
             </div>
-          </div>
-          <div class="nexus-mod-actions">
-            <v-btn
-              color="#fc503b"
-              variant="text"
-              size="small"
-              @click="navigateToMod(mod.id)"
-              class="nexus-mod-btn"
-            >
-              Detalles
-            </v-btn>
-            <v-btn
-              color="#fc503b"
-              variant="text"
-              size="small"
-              @click="downloadMod(mod)"
-              class="nexus-mod-btn"
-              :disabled="!mod.file_path"
-            >
-              Descargar
-            </v-btn>
+            <div class="nexus-mod-content">
+              <h3 class="nexus-mod-title">{{ mod.title }}</h3>
+              <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
+              <div class="nexus-mod-meta">
+                <span class="nexus-mod-author">por {{ mod.User.username || 'Anónimo' }}</span>
+                <span class="nexus-mod-stats">
+                  <v-icon small color="warning">mdi-star</v-icon>
+                  {{ calculateAverageRating(mod.id) }}/5
+                </span>
+                <span class="nexus-mod-stats">
+                  <v-icon small>mdi-comment</v-icon>
+                  {{ getCommentsCountForMod(mod.id) }} comentarios
+                </span>
+                <span class="nexus-mod-stats" @click="toggleLike(mod.id)" style="cursor: pointer;">
+                  <v-icon 
+                    small
+                    :color="isToggled(mod.id) ? 'blue' : undefined"
+                  >
+                    mdi-thumb-up
+                  </v-icon>
+                  {{ getLikesCountForMod(mod.id) }} reseñas
+                </span>
+                <span class="nexus-mod-downloads">
+                  <v-icon small>mdi-download</v-icon>
+                  {{ formatDownloads(mod.downloads) }}
+                </span>
+                <span class="nexus-mod-date">
+                  <v-icon small>mdi-calendar</v-icon>
+                  {{ formatDate(mod.uploaded_at) }}
+                </span>
+              </div>
+            </div>
+            <div class="nexus-mod-actions">
+              <v-btn
+                color="#fc503b"
+                variant="text"
+                size="small"
+                @click="navigateToMod(mod.id)"
+                class="nexus-mod-btn"
+              >
+                Detalles
+              </v-btn>
+              <v-btn
+                color="#fc503b"
+                variant="text"
+                size="small"
+                @click="downloadMod(mod)"
+                class="nexus-mod-btn"
+                :disabled="!mod.file_path"
+              >
+                Descargar
+              </v-btn>
+            </div>
           </div>
         </div>
       </div>
