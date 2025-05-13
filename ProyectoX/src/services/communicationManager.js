@@ -161,9 +161,55 @@ export const deleteCommentMongodb = async (commentId) => {
     });
 }
 
+export const getAllLikes = async () => {
+    try {
+        const response = await fetch('http://localhost:3002/api/likes');
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 export const postLike = async (modId, email) => {
     try {
-        const response = await fetch('http://localhost:3003/api/likes/new-like')
+        const response = await fetch('http://localhost:3002/api/likes/new-like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ modId, email })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+export const deleteLike = async (modId, email) => {
+    try {
+        const response = await fetch('http://localhost:3002/api/likes/delete-like', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ modId, email })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        return await response.json();
     } catch (err) {
         console.log(err);
     }

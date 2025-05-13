@@ -1,32 +1,58 @@
 import express from 'express';
-import Reaction from '../models/like.js';
+import Like from '../models/like.js';
+import { getIO } from '../../app.js';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        const reactions = Reaction.findAll();
-        res.json(reactions);
+        const likes = await Like.find();
+        res.status(200).json(likes);
     } catch (error) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Error" });
     }
 });
 
 router.post('/new-like', async (req, res) => {
     try {
-        const { modId, email } = req.body;
-        
-        const todayDate = new Date();
-        todayDate.setHours(0,0,0,0);
+      const { modId, email } = req.body;
+  
+      const newLike = new Like({ modId, email });
+      await newLike.save();
 
-        await ModDailyReactions.findOneAndUpdate(
-            { modId, date: todayDate },
-            { $inc: { totalLikes: 1 } },
-            { upsert: true}
-        );
-    } catch {
-        console.error(error);
-        res.status(500).json({ error: 'Ocurrió un error al registrar el like.' });
+      const allLikes = await Like.find();
+
+      const io = getIO();
+      io.emit('updateLikes', { allLikes });
+  
+      res.status(201).json({ message: 'Like registrado correctamente' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Ocurrió un error al registrar el like.' });
+    }
+});
+
+router.delete('/delete-like', async (req, res) => {
+    try {
+      const { modId, email } = req.body;
+  
+      // Buscar y eliminar el like que coincide
+      const deleted = await Like.findOneAndDelete({ modId, email });
+  
+      if (deleted) {
+
+        const allLikes = await Like.find();
+
+        const io = getIO();
+        io.emit('updateLikes', { allLikes });
+
+        res.status(200).json({ message: 'Like eliminado correctamente' });
+      } else {
+        res.status(404).json({ message: 'Like no encontrado' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Ocurrió un error al eliminar el like.' });
     }
 });
 

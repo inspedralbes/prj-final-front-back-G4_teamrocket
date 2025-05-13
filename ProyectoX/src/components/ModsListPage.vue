@@ -186,6 +186,7 @@
               <span class="nexus-mod-stats" @click="toggleLike(mod.id)" style="cursor: pointer;">
                 <v-icon 
                   small
+                  :color="isToggled(mod.id) ? 'blue' : undefined"
                 >
                   mdi-thumb-up
                 </v-icon>
@@ -356,8 +357,8 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { getMods, postMod, postDownloadMod, getAllComments } from '@/services/communicationManager';
-import { listenToModDownloads, listenToComments } from '@/services/socketManager';
+import { getMods, postMod, postDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
+import { listenToModDownloads, listenToComments, listenToLikes } from '@/services/socketManager';
 
 // Datos reales
 const stats = ref({
@@ -429,6 +430,10 @@ const truncateDescription = (desc) => {
   return desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
 };
 
+const isToggled = (modId) => {
+  return likes.value.some(like => like.modId === modId && like.email === userEmail.value);
+};
+
 // Funciones de mods
 const fetchMods = async () => {
   try {
@@ -444,8 +449,6 @@ const fetchMods = async () => {
     };
   } catch (error) {
     console.error('Error fetching mods:', error);
-    // Aquí podrías añadir algún manejo de errores adicional
-    // Por ejemplo, establecer un mensaje de error para mostrar en la UI
   } finally {
     loading.value = false;
   }
@@ -456,6 +459,15 @@ const fetchComments = async () => {
     const response = await getAllComments();
     comments.value = await response.json();
     console.log(comments.value);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+const fetchLikes = async () => {
+  try {
+    likes.value = await getAllLikes();
+    console.log(likes.value);
   } catch (err) {
     console.log(err);
   }
@@ -513,13 +525,23 @@ const closeDialog = () => {
 };
 
 const toggleLike = async (modId) => {
-  if(likes.modId !== modId) {
+  const existingLike = likes.value.find(
+    like => like.modId === modId && like.email === userEmail.value
+  );
+
+  if (!existingLike) {
     try {
-      await postLike(modId, userEmail);
+      await postLike(modId, userEmail.value);
     } catch (err) {
-      console.log(err);
+      console.log('Error al registrar like:', err);
     }
-  }  
+  } else {
+    try {
+      await deleteLike(modId, userEmail.value);
+    } catch (err) {
+      console.log('Error al eliminar like:', err);
+    }
+  }
 };
 
 const uploadMod = async () => {
@@ -598,8 +620,10 @@ const scrollToTop = () => {
 onMounted(() => {
   fetchMods();
   fetchComments();
+  fetchLikes();
   listenToModDownloads(mods, stats);
   listenToComments(comments);
+  listenToLikes(likes);
   
   // Obtener estadísticas de miembros y recompensas del backend si es necesario
   // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });
