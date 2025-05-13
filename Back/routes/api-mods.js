@@ -10,9 +10,10 @@ const { Mod, User } = models;
 
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
+const imagesDir = path.join(modsDir, 'images');
 const imageDir = path.join(uploadsDir, 'images');
 
-[uploadsDir, modsDir].forEach(dir => {
+[uploadsDir, modsDir, imagesDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
     console.log(`Carpeta "${dir}" creada.`);
@@ -50,7 +51,8 @@ router.get('/:id', async (req, res) => {
       title: mod.title,
       file_path: mod.file_path,
       uploaded_at: mod.uploaded_at,
-      uploaded_by: user.username
+      uploaded_by: user.username,
+      image: mod.image
     }
     res.json(modUser);
   } catch (error) {
@@ -73,13 +75,26 @@ router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
 
-    if (!req.files || !req.files.modFile) {
-      return res.status(400).json({ message: "No s'han penjat els fitxers requerits" });
+    if (!req.files || !req.files.modFile || !req.files.imageFile) {
+      return res.status(400).json({ message: "No se han subido los archivos requeridos (mod o imagen)" });
     }
 
     const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    // Guardar el archivo del mod
     const modPath = await handleFileUpload(req.files.modFile, modsDir);
-    const newMod = await Mod.create({ title, description, file_path: modPath, uploaded_by: user.id });
+    // Guardar la imagen usando el mismo nombre
+    const imagePath = await handleFileUpload(req.files.imageFile, imagesDir);
+    // Guardar en la base de datos
+    const newMod = await Mod.create({
+      title,
+      description,
+      file_path: modPath,
+      image: imagePath,
+      uploaded_by: user.id
+    });
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);

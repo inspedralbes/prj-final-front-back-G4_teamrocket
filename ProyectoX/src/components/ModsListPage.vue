@@ -82,6 +82,36 @@
       </div>
     </section>
 
+    <!-- Sección independiente para BepInEx links -->
+    <section class="bepinex-section">
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <div class="bepinex-links">
+              <div class="bepinex-cube">
+                <a href="https://github.com/BepInEx/BepInEx" class="bepinex-link" target="_blank" rel="noopener">
+                  <v-icon left color="#fc503b" size="28">mdi-github</v-icon>
+                  <span>Instrucciones: BepInEx en GitHub</span>
+                </a>
+              </div>
+              <div class="bepinex-cube">
+                <a href="https://github.com/BepInEx/BepInEx/archive/refs/heads/master.zip" class="bepinex-link" target="_blank" rel="noopener">
+                  <v-icon left color="#fc503b" size="28">mdi-zip-box</v-icon>
+                  <span>Descargar BepInEx (.zip)</span>
+                </a>
+              </div>
+              <div class="bepinex-cube">
+                <a href="#" class="bepinex-link" target="_blank" rel="noopener">
+                  <v-icon left color="#fc503b" size="28">mdi-play-circle</v-icon>
+                  <span>Ver video tutorial (próximamente)</span>
+                </a>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
     <!-- Stats Section -->
     <section class="nexus-stats" v-if="stats.totalMods > 0">
       <v-container>
@@ -265,7 +295,6 @@
             <v-file-input
               v-model="modFile"
               label="Archivo del Mod (ZIP, RAR, 7Z)*"
-
               required
               variant="outlined"
               density="compact"
@@ -274,7 +303,19 @@
               prepend-icon="mdi-paperclip"
               :show-size="1000"
             ></v-file-input>
-            
+
+            <v-file-input
+              v-model="imageFile"
+              label="Imagen del Mod*"
+              required
+              variant="outlined"
+              density="compact"
+              accept="image/*"
+              class="nexus-input"
+              prepend-icon="mdi-image"
+              :show-size="1000"
+            ></v-file-input>
+
             <div class="nexus-upload-hint">
               <v-icon small color="#fc503b">mdi-information-outline</v-icon>
               <span>Asegúrate de incluir instrucciones de instalación en tu archivo</span>
@@ -384,6 +425,7 @@ const dialog = ref(false);
 const title = ref('');
 const description = ref('');
 const modFile = ref(null);
+const imageFile = ref(null);
 const uploading = ref(false);
 const formValid = ref(false);
 const uploadSuccess = ref(false);
@@ -522,6 +564,27 @@ const closeDialog = () => {
   title.value = '';
   description.value = '';
   modFile.value = null;
+  imageFile.value = null;
+};
+
+const toggleLike = async (modId) => {
+  const existingLike = likes.value.find(
+    like => like.modId === modId && like.email === userEmail.value
+  );
+
+  if (!existingLike) {
+    try {
+      await postLike(modId, userEmail.value);
+    } catch (err) {
+      console.log('Error al registrar like:', err);
+    }
+  } else {
+    try {
+      await deleteLike(modId, userEmail.value);
+    } catch (err) {
+      console.log('Error al eliminar like:', err);
+    }
+  }
 };
 
 const toggleLike = async (modId) => {
@@ -546,17 +609,16 @@ const toggleLike = async (modId) => {
 
 const uploadMod = async () => {
   if (!formValid.value) return;
-  
+  if (!modFile.value || !imageFile.value) return;
   uploading.value = true;
   
   const formData = new FormData();
   formData.append('title', title.value);
   formData.append('description', description.value);
+  formData.append('modFile', modFile.value);
+  formData.append('imageFile', imageFile.value);
   formData.append('email', userEmail.value);
-  if (modFile.value) {
-    formData.append('modFile', modFile.value);
-  }
-
+  
   try {
     const response = await postMod(formData);
     const newMod = await response.json();
@@ -941,6 +1003,146 @@ onMounted(() => {
 }
 
 /* Responsive */
+.bepinex-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 24px;
+  margin-bottom: 32px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.bepinex-cube {
+  background: rgba(25, 25, 25, 0.93);
+  border: 2px solid #fc503b;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px 0 rgba(252,80,59,0.15);
+  padding: 28px 22px 20px 22px;
+  min-width: 220px;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.bepinex-cube:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px 0 #fc503b55;
+}
+.bepinex-link {
+  color: #fff !important;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0;
+  transition: color 0.2s;
+  font-size: 1.08rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.bepinex-link:hover {
+  color: #fc503b !important;
+}
+
+/* Cubos de mods */
+.mods-cubes-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+  align-items: stretch;
+  margin-bottom: 32px;
+  margin-top: 18px;
+}
+.mod-cube {
+  background: rgba(25, 25, 25, 0.93);
+  border: 2px solid #fc503b;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px 0 rgba(252,80,59,0.13);
+  min-width: 260px;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.mod-cube-image-wrapper {
+  width: 100%;
+  height: 180px;
+  background: #181818;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  overflow: hidden;
+}
+.mod-cube-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mod-cube-image-placeholder {
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.nexus-mod-content {
+  padding: 20px 18px 6px 18px;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nexus-mod-actions {
+  padding: 0 18px 18px 18px;
+  display: flex;
+  gap: 10px;
+}
+
+.mod-cube:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px 0 #fc503b55;
+}
+@media (max-width: 1100px) {
+  .mods-cubes-row {
+    gap: 18px;
+  }
+  .mod-cube {
+    min-width: 220px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 900px) {
+  .bepinex-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+  .bepinex-cube {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 @media (max-width: 960px) {
   .nexus-hero-title {
     font-size: 2rem;
