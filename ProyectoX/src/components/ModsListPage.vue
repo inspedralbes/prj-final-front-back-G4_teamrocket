@@ -587,26 +587,6 @@ const toggleLike = async (modId) => {
   }
 };
 
-const toggleLike = async (modId) => {
-  const existingLike = likes.value.find(
-    like => like.modId === modId && like.email === userEmail.value
-  );
-
-  if (!existingLike) {
-    try {
-      await postLike(modId, userEmail.value);
-    } catch (err) {
-      console.log('Error al registrar like:', err);
-    }
-  } else {
-    try {
-      await deleteLike(modId, userEmail.value);
-    } catch (err) {
-      console.log('Error al eliminar like:', err);
-    }
-  }
-};
-
 const uploadMod = async () => {
   if (!formValid.value) return;
   if (!modFile.value || !imageFile.value) return;
