@@ -2,7 +2,8 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
-import DailyNewMod from '../MongoDB/models/dailyNewMods.js';
+import DailyNewMods from '../MongoDB/models/dailyNewMods.js';
+import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
 import { getIO } from '../app.js';
 
 const router = express.Router();
@@ -41,10 +42,13 @@ router.get('/', async (req, res) => {
 // Obtener un mod específico por ID
 router.get('/:id', async (req, res) => {
   try {
-    const mod = await Mod.findByPk(req.params.id);
+    const modId = req.params.id;
+    const mod = await Mod.findByPk(modId);
     if (!mod) return res.status(404).json({ error: 'Mod no encontrado' });
+
     const user = await User.findByPk(mod.uploaded_by);
     if (!user) return res.status(404).json({ error: 'User no encontrado' });
+
     const modUser = {
       description: mod.description,
       downloads: mod.downloads,
@@ -53,8 +57,15 @@ router.get('/:id', async (req, res) => {
       uploaded_at: mod.uploaded_at,
       uploaded_by: user.username,
       image: mod.image
-    }
-    res.json(modUser);
+    };
+
+    // await DailyDownloadsMods.deleteMany({});
+
+    const statsDailyDownloadsMods = await DailyDownloadsMods.find({ modId: Number(modId) });
+
+    console.log(statsDailyDownloadsMods);
+
+    res.status(200).json({ modUser, statsDailyDownloadsMods });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el mod' });
   }
@@ -99,7 +110,7 @@ router.post('/new-mod', async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    await DailyNewMod.findOneAndUpdate(
+    await DailyNewMods.findOneAndUpdate(
       { date: today },
       { $inc: { newMods: 1 } },
       { upsert: true }
@@ -152,7 +163,8 @@ router.put('/update-visible', async (req, res) => {
 
 router.get('/download/:id', async (req, res) => {
   try {
-    const mod = await Mod.findByPk(req.params.id);
+    const modId = req.params.id;
+    const mod = await Mod.findByPk(modId);
 
     if (!mod) {
       return res.status(404).json({ error: 'Mod no encontrado' });
@@ -163,6 +175,17 @@ router.get('/download/:id', async (req, res) => {
 
     mod.downloads += 1;
     await mod.save();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const result = await dailyDownloadsMods.findOneAndUpdate(
+      { date: today, modId: modId },
+      { $inc: { totalDownloads: 1 } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    console.log(result);
 
     res.status(200).json({ message: 'Descarga registrada' });
   } catch (error) {
