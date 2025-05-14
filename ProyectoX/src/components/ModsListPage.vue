@@ -1,43 +1,54 @@
 <template>
   <div class="nexus-style">
     <!-- Header -->
-    <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
-      <div class="logo-container">
-        <v-img
-          src="@/assets/Logo del Juego de darkness Unseen.png"
-          alt="Logo del Juego"
-          class="logo nexus-logo"
-          width="50"
-          height="50"
-          @click="scrollToTop"
-        ></v-img>
-      </div>
-      
-      <v-spacer></v-spacer>
-      
-      <div class="nexus-user-section">
-        <v-btn
-          v-if="!userEmail"
-          color="#fc503b"
-          class="nexus-login-btn"
-          to="/login"
-          text
-          :ripple="false"
-        >
-          Iniciar Sesión
-        </v-btn>
-        <v-btn
-          v-if="userEmail"
-          color="#fc503b"
-          class="nexus-login-btn"
-          @click="logout"
-          text
-          :ripple="false"
-        >
-          Cerrar Sesión
-        </v-btn>
-      </div>
-    </v-app-bar>
+<v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
+  <div class="logo-container">
+    <v-img
+      src="@/assets/Logo del Juego de darkness Unseen.png"
+      alt="Logo del Juego"
+      class="logo nexus-logo"
+      width="50"
+      height="50"
+      @click="scrollToTop"
+    ></v-img>
+  </div>
+  
+  <v-spacer></v-spacer>
+  
+  <div class="nexus-user-section">
+    <v-btn
+      v-if="userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/perfil"
+      text
+      :ripple="false"
+    >
+      <v-icon left>mdi-account</v-icon>
+      Perfil
+    </v-btn>
+    <v-btn
+      v-if="!userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/login"
+      text
+      :ripple="false"
+    >
+      Iniciar Sesión
+    </v-btn>
+    <v-btn
+      v-if="userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      @click="logout"
+      text
+      :ripple="false"
+    >
+      Cerrar Sesión
+    </v-btn>
+  </div>
+</v-app-bar>
 
     <!-- Hero Section with Video Background -->
     <section class="nexus-hero" @click="openVideoModal">

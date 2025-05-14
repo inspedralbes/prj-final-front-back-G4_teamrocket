@@ -1,76 +1,383 @@
 <template>
-  <v-container>
-    <!-- Perfil del usuario -->
-    <v-card class="mx-auto my-5" max-width="400">
-      <v-card-title>
-        <v-avatar class="mr-3" size="100">
-          <v-img :src="'http://localhost:3002' + user.avatar" />
-        </v-avatar>
-        <div>
-          <h3>{{ user.username }}</h3>
-          <p class="text-subtitle-2">{{ user.email }}</p>
-        </div>
-        <v-spacer />
-        <v-btn icon @click="editPerfil = true">
-          <v-icon>mdi-pencil</v-icon>
+  <div class="nexus-style">
+    <!-- Header -->
+    <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
+      <div class="logo-container">
+        <v-img
+          src="@/assets/Logo del Juego de darkness Unseen.png"
+          alt="Logo del Juego"
+          class="logo nexus-logo"
+          width="50"
+          height="50"
+          @click="$router.push('/')"
+        ></v-img>
+      </div>
+      
+      <v-spacer></v-spacer>
+      
+      <div class="nexus-user-section">
+        <v-btn
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/mods"
+          text
+          :ripple="false"
+        >
+          Explorar Mods
         </v-btn>
-      </v-card-title>
-    </v-card>
+        <v-btn
+          color="#fc503b"
+          class="nexus-login-btn"
+          @click="logout"
+          text
+          :ripple="false"
+        >
+          Cerrar Sesión
+        </v-btn>
+      </div>
+    </v-app-bar>
 
-    <!-- Diálogo para editar perfil -->
-    <v-dialog v-model="editPerfil" max-width="500">
-      <v-card>
-        <v-card-title>Editar Perfil</v-card-title>
-        <v-card-text>
-          <v-text-field v-model="newInformationUser.username" label="Nombre de usuario" />
-          <v-file-input v-model="newInformationUser.newAvatar" label="Foto de perfil" />
-
-          <v-divider class="my-4"></v-divider>
-
-          <v-text-field v-model="newInformationUser.newPassword" label="Nueva contraseña" type="password" />
-          <v-text-field v-model="newInformationUser.confirmPassword" label="Confirmar contraseña" type="password" />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn text @click="editPerfil = false">Cancelar</v-btn>
-          <v-btn color="primary" :loading="loading" @click="updateProfile">Guardar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Lista de Mods -->
-    <v-card class="mx-auto" max-width="800">
-      <v-card-title>Mis Mods</v-card-title>
-      <v-divider></v-divider>
-      <v-list>
-        <v-list-item v-for="mod in user.mods" :key="mod.id">
-          <v-list-item-content>
-            <v-list-item-title>{{ mod.title }}</v-list-item-title>
-            <v-list-item-subtitle>{{ mod.description }}</v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon @click="openEditDialogMod(mod)">
-              <v-icon>mdi-pencil</v-icon>
+    <v-container class="nexus-main-container">
+      <!-- Perfil del usuario -->
+      <div class="nexus-profile-section">
+        <div class="nexus-profile-left">
+          <div class="nexus-avatar-container" @click="triggerFileInput">
+            <v-avatar class="nexus-profile-avatar" size="160">
+              <v-img :src="'http://localhost:3002' + user.avatar" />
+            </v-avatar>
+            <div class="nexus-avatar-overlay">
+              <v-icon size="32">mdi-camera</v-icon>
+              <span>Cambiar foto</span>
+            </div>
+            <input 
+              type="file" 
+              ref="avatarInput"
+              @change="handleAvatarChange"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+        </div>
+        
+        <div class="nexus-profile-right">
+          <div class="nexus-profile-info">
+            <h1 class="nexus-profile-username">{{ user.username }}</h1>
+            <p class="nexus-profile-email">{{ user.email }}</p>
+            
+            <div class="nexus-profile-stats">
+              <div class="nexus-stat-item">
+                <div class="nexus-stat-value">{{ user.mods?.length || 0 }}</div>
+                <div class="nexus-stat-label">Mods</div>
+              </div>
+              <div class="nexus-stat-item">
+                <div class="nexus-stat-value">{{ totalDownloads }}</div>
+                <div class="nexus-stat-label">Descargas</div>
+              </div>
+              <div class="nexus-stat-item">
+                <div class="nexus-stat-value">0</div>
+                <div class="nexus-stat-label">Likes</div>
+              </div>
+            </div>
+            
+            <v-btn 
+              color="#fc503b" 
+              variant="outlined"
+              @click="editPerfil = true"
+              class="nexus-edit-btn"
+            >
+              <v-icon left>mdi-pencil</v-icon>
+              Editar perfil
             </v-btn>
-            <v-btn icon @click="updateVisible(mod)">
-              <v-icon>{{ mod.visible ? 'mdi-earth' : 'mdi-lock' }}</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
+          </div>
+        </div>
+      </div>
 
-      <v-dialog v-model="editMod" max-width="600">
+      <!-- Diálogo para editar perfil -->
+      <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog">
         <v-card>
-          <v-card-title>Subir Mod</v-card-title>
+          <v-card-title class="nexus-dialog-title">
+            <v-icon icon="mdi-account-edit" class="mr-2"></v-icon>
+            Editar Perfil
+          </v-card-title>
           <v-card-text>
-              <v-text-field v-model="newInformationMod.title" label="Título del Mod" />
-              <v-textarea v-model="newInformationMod.description" label="Descripción" />
-              <v-file-input v-model="newInformationMod.modFile" label="Archivo del Mod" />
+            <v-text-field 
+              v-model="newInformationUser.username" 
+              label="Nombre de usuario" 
+              variant="outlined"
+              class="nexus-input"
+            />
+            <v-divider class="my-4"></v-divider>
+            <v-text-field 
+              v-model="newInformationUser.newPassword" 
+              label="Nueva contraseña" 
+              type="password" 
+              variant="outlined"
+              class="nexus-input"
+            />
+            <v-text-field 
+              v-model="newInformationUser.confirmPassword" 
+              label="Confirmar contraseña" 
+              type="password" 
+              variant="outlined"
+              class="nexus-input"
+            />
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions class="nexus-dialog-actions">
             <v-spacer />
-            <v-btn text @click="editMod = false">Cancelar</v-btn>
-            <v-btn color="primary" :loading="loading" :disabled="!userEmail" @click="updateMod">Actualizar</v-btn>
+            <v-btn 
+              variant="outlined"
+              @click="editPerfil = false"
+              class="nexus-btn"
+            >
+              Cancelar
+            </v-btn>
+            <v-btn 
+              color="#fc503b" 
+              :loading="loading" 
+              @click="updateProfile"
+              class="nexus-btn"
+            >
+              Guardar cambios
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- Tabs de navegación -->
+      <v-tabs v-model="tab" color="#fc503b" class="nexus-tabs">
+        <v-tab value="mods">
+          <v-icon left>mdi-puzzle</v-icon>
+          Mis Mods
+        </v-tab>
+        <v-tab value="activity">
+          <v-icon left>mdi-chart-line</v-icon>
+          Estadísticas
+        </v-tab>
+        <v-tab value="settings">
+          <v-icon left>mdi-cog</v-icon>
+          Configuración
+        </v-tab>
+      </v-tabs>
+
+      <v-window v-model="tab" class="nexus-tab-content">
+        <v-window-item value="mods">
+          <!-- Lista de Mods -->
+          <div class="nexus-mods-container">
+            <div class="nexus-mods-header">
+              <h2 class="nexus-mods-title">Mis Mods</h2>
+              <v-btn 
+                color="#fc503b" 
+                to="/upload-mod"
+                class="nexus-new-mod-btn"
+              >
+                <v-icon left>mdi-plus</v-icon>
+                Nuevo Mod
+              </v-btn>
+            </div>
+            
+            <div v-if="user.mods?.length === 0" class="nexus-no-mods">
+              <div class="nexus-no-mods-content">
+                <v-icon color="#fc503b" size="64">mdi-puzzle-remove-outline</v-icon>
+                <h3>No tienes mods subidos</h3>
+                <p>Comienza a compartir tus creaciones con la comunidad</p>
+                <v-btn 
+                  color="#fc503b" 
+                  to="/upload-mod"
+                  class="nexus-btn"
+                >
+                  <v-icon left>mdi-upload</v-icon>
+                  Subir tu primer mod
+                </v-btn>
+              </div>
+            </div>
+
+            <div v-else class="nexus-mods-grid">
+              <div v-for="mod in user.mods" :key="mod.id" class="nexus-mod-card">
+                <div class="nexus-mod-image-container">
+                  <img 
+                    v-if="mod.image" 
+                    :src="`http://localhost:3002${mod.image}`" 
+                    alt="Imagen del mod" 
+                    class="nexus-mod-image" 
+                  />
+                  <div v-else class="nexus-mod-image-placeholder">
+                    <v-icon size="48" color="#fc503b">mdi-puzzle</v-icon>
+                  </div>
+                </div>
+                
+                <div class="nexus-mod-details">
+                  <div class="nexus-mod-header">
+                    <h3 class="nexus-mod-title">{{ mod.title }}</h3>
+                    <div class="nexus-mod-visibility">
+                      <v-chip 
+                        small 
+                        :color="mod.visible ? 'success' : 'grey'" 
+                        text-color="white"
+                      >
+                        {{ mod.visible ? 'Público' : 'Privado' }}
+                      </v-chip>
+                    </div>
+                  </div>
+                  
+                  <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
+                  
+                  <div class="nexus-mod-footer">
+                    <div class="nexus-mod-stats">
+                      <div class="nexus-mod-stat">
+                        <v-icon small>mdi-download</v-icon>
+                        {{ mod.downloads || 0 }} descargas
+                      </div>
+                      <div class="nexus-mod-stat">
+                        <v-icon small>mdi-calendar</v-icon>
+                        {{ formatDate(mod.uploaded_at) }}
+                      </div>
+                    </div>
+                    
+                    <div class="nexus-mod-actions">
+                      <v-btn
+                        color="#fc503b"
+                        variant="text"
+                        size="small"
+                        @click="openEditDialogMod(mod)"
+                        class="nexus-mod-btn"
+                      >
+                        Editar
+                      </v-btn>
+                      <v-btn
+                        color="#fc503b"
+                        variant="text"
+                        size="small"
+                        @click="updateVisible(mod)"
+                        class="nexus-mod-btn"
+                      >
+                        <v-icon>{{ mod.visible ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+                      </v-btn>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-window-item>
+        
+        <v-window-item value="activity">
+          <div class="nexus-activity-container">
+            <h2 class="nexus-section-title">Estadísticas</h2>
+            <div class="nexus-stats-cards">
+              <v-card class="nexus-stat-card">
+                <v-card-title>Descargas totales</v-card-title>
+                <v-card-text>
+                  <div class="nexus-stat-value">{{ totalDownloads }}</div>
+                </v-card-text>
+              </v-card>
+              
+              <v-card class="nexus-stat-card">
+                <v-card-title>Mods populares</v-card-title>
+                <v-card-text>
+                  <div v-if="topMods.length > 0">
+                    <div v-for="mod in topMods" :key="mod.id" class="nexus-popular-mod">
+                      <span class="nexus-popular-mod-name">{{ mod.title }}</span>
+                      <span class="nexus-popular-mod-downloads">{{ mod.downloads }} descargas</span>
+                    </div>
+                  </div>
+                  <div v-else class="nexus-no-stats">
+                    No hay datos suficientes
+                  </div>
+                </v-card-text>
+              </v-card>
+            </div>
+          </div>
+        </v-window-item>
+        
+        <v-window-item value="settings">
+          <div class="nexus-settings-container">
+            <h2 class="nexus-section-title">Configuración de la cuenta</h2>
+            <v-card class="nexus-settings-card">
+              <v-card-text>
+                <v-list>
+                  <v-list-item @click="editPerfil = true">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-account</v-icon>
+                    </template>
+                    <v-list-item-title>Editar perfil</v-list-item-title>
+                    <template v-slot:append>
+                      <v-icon>mdi-chevron-right</v-icon>
+                    </template>
+                  </v-list-item>
+                  
+                  <v-divider></v-divider>
+                  
+                  <v-list-item @click="changePasswordDialog = true">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-lock</v-icon>
+                    </template>
+                    <v-list-item-title>Cambiar contraseña</v-list-item-title>
+                    <template v-slot:append>
+                      <v-icon>mdi-chevron-right</v-icon>
+                    </template>
+                  </v-list-item>
+                  
+                  <v-divider></v-divider>
+                  
+                  <v-list-item @click="logout">
+                    <template v-slot:prepend>
+                      <v-icon color="error">mdi-logout</v-icon>
+                    </template>
+                    <v-list-item-title class="text-error">Cerrar sesión</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </div>
+        </v-window-item>
+      </v-window>
+
+      <!-- Diálogo para editar mod -->
+      <v-dialog v-model="editMod" max-width="600" class="nexus-dialog">
+        <v-card>
+          <v-card-title class="nexus-dialog-title">
+            <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+            Editar Mod
+          </v-card-title>
+          <v-card-text>
+              <v-text-field 
+                v-model="newInformationMod.title" 
+                label="Título del Mod" 
+                variant="outlined"
+                class="nexus-input"
+              />
+              <v-textarea 
+                v-model="newInformationMod.description" 
+                label="Descripción" 
+                variant="outlined"
+                class="nexus-input"
+                rows="3"
+              />
+              <v-file-input 
+                v-model="newInformationMod.modFile" 
+                label="Archivo del Mod (deja en blanco para no cambiar)" 
+                variant="outlined"
+                class="nexus-input"
+                prepend-icon="mdi-paperclip"
+              />
+          </v-card-text>
+          <v-card-actions class="nexus-dialog-actions">
+            <v-spacer />
+            <v-btn 
+              variant="outlined"
+              @click="editMod = false"
+              class="nexus-btn"
+            >
+              Cancelar
+            </v-btn>
+            <v-btn 
+              color="#fc503b" 
+              :loading="loading" 
+              @click="updateMod"
+              class="nexus-btn"
+            >
+              Actualizar mod
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -79,49 +386,89 @@
         v-model="snackbar.show"
         :color="snackbar.color"
         timeout="3000"
+        class="nexus-snackbar"
       >
       {{ snackbar.text }}
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar.show = false"
+          class="nexus-btn"
+        >
+          Cerrar
+        </v-btn>
+      </template>
       </v-snackbar>
-    </v-card>
-  </v-container>
+    </v-container>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { loadUserData, putUserProfile, putMod, putVisible } from "../services/communicationManager.js";
 
+const router = useRouter();
 const user = ref({ mods: [] });
 const editMod = ref(false);
 const loading = ref(false);
 const editPerfil = ref(false);
+const changePasswordDialog = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
+const tab = ref('mods');
+const avatarInput = ref(null);
+
 const newInformationMod = ref({
   modId: 0,
   title: '',
   description: '',
   modFile: null
 });
+
 const newInformationUser = ref({
   username: '',
   newAvatar: null,
   newPassword: '',
   confirmPassword: ''
 });
+
 const snackbar = ref({
   show: false,
   text: '',
   color: ''
 });
-let data;
+
+// Computed properties
+const totalDownloads = computed(() => {
+  return user.value.mods?.reduce((total, mod) => total + (mod.downloads || 0), 0) || 0;
+});
+
+const topMods = computed(() => {
+  if (!user.value.mods) return [];
+  return [...user.value.mods]
+    .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
+    .slice(0, 3);
+});
 
 const fetchUser = async () => {
   const response = await loadUserData(userEmail.value);
   if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
   const data = await response.json();
-
   user.value = data;
 }
+
+const triggerFileInput = () => {
+  avatarInput.value.click();
+};
+
+const handleAvatarChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    newInformationUser.value.newAvatar = file;
+    updateProfile();
+  }
+};
 
 const updateProfile = async () => {
   loading.value = true;
@@ -129,19 +476,23 @@ const updateProfile = async () => {
   const formData = new FormData();
   formData.append('email', userEmail.value);
   if (newInformationUser.value.username) formData.append('username', newInformationUser.value.username);
-  if (newInformationUser.value.newPassword && newInformationUser.value.newPassword !== newInformationUser.value.confirmPassword) {
-    snackbar.value = {
-      show: true,
-      text: 'Las contraseñas no coinciden',
-      color: 'error'
-    };
-    return;
+  
+  if (newInformationUser.value.newPassword) {
+    if (newInformationUser.value.newPassword !== newInformationUser.value.confirmPassword) {
+      snackbar.value = {
+        show: true,
+        text: 'Las contraseñas no coinciden',
+        color: 'error'
+      };
+      loading.value = false;
+      return;
+    }
+    formData.append('newPassword', newInformationUser.value.newPassword);
   }
-  if(newInformationUser.value.newAvatar) formData.append('newAvatar', newInformationUser.value.newAvatar);
 
-  formData.forEach((value, key) => {
-    console.log(key, value);
-  });
+  if (newInformationUser.value.newAvatar) {
+    formData.append('newAvatar', newInformationUser.value.newAvatar);
+  }
 
   try {
     const response = await putUserProfile(formData);
@@ -156,19 +507,24 @@ const updateProfile = async () => {
       return;
     }
 
-    data = await response.json();
-
+    const data = await response.json();
     snackbar.value = {
       show: true,
       text: data.message,
       color: 'success'
     };
+    
     editPerfil.value = false;
-
+    newInformationUser.value.newPassword = '';
+    newInformationUser.value.confirmPassword = '';
     fetchUser();
   } catch (err) {
     console.error(err);
-    return;
+    snackbar.value = {
+      show: true,
+      text: 'Error al actualizar el perfil',
+      color: 'error'
+    };
   } finally {
     loading.value = false;
   }
@@ -183,31 +539,35 @@ const openEditDialogMod = (mod) => {
 }
 
 const updateVisible = async (mod) => {
-  mod.visible = !mod.visible;
-
   try {
-    const response = await putVisible(mod.id, mod.visible);
+    const response = await putVisible(mod.id, !mod.visible);
 
     if(!response.ok) {
-      data = await response.json();
+      const data = await response.json();
       snackbar.value = {
         show: true,
         text: data.error,
         color: 'error'
       };
-      
       return;
     }
 
-    data = await response.json();
-
+    const data = await response.json();
     snackbar.value = {
       show: true,
       text: data.message,
       color: 'success'
     };
+    
+    // Actualizar el estado local sin recargar toda la página
+    mod.visible = !mod.visible;
   } catch (error) {
     console.error(error);
+    snackbar.value = {
+      show: true,
+      text: 'Error al actualizar la visibilidad del mod',
+      color: 'error'
+    };
   } 
 }
 
@@ -226,18 +586,16 @@ const updateMod = async () => {
     const response = await putMod(formData);
 
     if (!response.ok) {
-      data = await response.json();
+      const data = await response.json();
       snackbar.value = {
         show: true,
         text: data.error,
         color: 'error'
       };
-      
       return;
     }
 
-    data = await response.json();
-
+    const data = await response.json();
     snackbar.value = {
       show: true,
       text: data.message,
@@ -248,10 +606,484 @@ const updateMod = async () => {
     editMod.value = false;
   } catch (err) {
     console.error(err);
+    snackbar.value = {
+      show: true,
+      text: 'Error al actualizar el mod',
+      color: 'error'
+    };
   } finally {
     loading.value = false;
   }
 }
 
+const truncateDescription = (desc) => {
+  if (!desc) return '';
+  return desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'Fecha desconocida';
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+};
+
+const logout = () => {
+  localStorage.removeItem('userEmail');
+  router.push('/');
+};
+
 onMounted(fetchUser);
 </script>
+
+<style scoped>
+/* Estilos generales */
+.nexus-style {
+  background: #0d0d0d;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.nexus-main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 15px 40px;
+}
+
+/* Header */
+.nexus-header {
+  background-color: rgba(13, 13, 13, 0.95) !important;
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid #252525;
+  z-index: 1000;
+  padding: 0 5%;
+}
+
+.logo-container {
+  margin: 0 20px;
+  cursor: pointer;
+}
+
+.nexus-logo {
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.3s;
+  border: 2px solid #fc503b;
+}
+
+.nexus-logo:hover {
+  transform: scale(1.05);
+}
+
+.nexus-user-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nexus-login-btn {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+/* Profile Section */
+.nexus-profile-section {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding: 24px 0;
+}
+
+.nexus-profile-left {
+  flex: 0 0 auto;
+}
+
+.nexus-profile-right {
+  flex: 1;
+}
+
+.nexus-avatar-container {
+  position: relative;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.nexus-avatar-container:hover .nexus-avatar-overlay {
+  opacity: 1;
+}
+
+.nexus-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: white;
+}
+
+.nexus-profile-avatar {
+  border: 3px solid #fc503b;
+  box-shadow: 0 0 20px rgba(252, 80, 59, 0.3);
+}
+
+.nexus-profile-info {
+  padding-top: 12px;
+}
+
+.nexus-profile-username {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #fc503b;
+  margin-bottom: 4px;
+}
+
+.nexus-profile-email {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+.nexus-profile-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.nexus-stat-item {
+  text-align: center;
+}
+
+.nexus-stat-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fc503b;
+  margin-bottom: 4px;
+}
+
+.nexus-stat-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nexus-edit-btn {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Tabs */
+.nexus-tabs {
+  background: transparent !important;
+  margin-bottom: 24px;
+}
+
+.nexus-tab-content {
+  background: transparent;
+}
+
+/* Mods Section */
+.nexus-mods-container {
+  background: transparent;
+}
+
+.nexus-mods-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.nexus-mods-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fc503b;
+}
+
+.nexus-new-mod-btn {
+  text-transform: none;
+  font-weight: 500;
+}
+
+.nexus-mods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.nexus-mod-card {
+  background: #161616;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #252525;
+  transition: all 0.2s;
+}
+
+.nexus-mod-card:hover {
+  border-color: #fc503b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(252, 80, 59, 0.1);
+}
+
+.nexus-mod-image-container {
+  width: 100%;
+  height: 180px;
+  background: #0d0d0d;
+  overflow: hidden;
+  position: relative;
+}
+
+.nexus-mod-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.nexus-mod-card:hover .nexus-mod-image {
+  transform: scale(1.05);
+}
+
+.nexus-mod-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #121212;
+}
+
+.nexus-mod-details {
+  padding: 16px;
+}
+
+.nexus-mod-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.nexus-mod-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fc503b;
+  margin: 0;
+}
+
+.nexus-mod-visibility {
+  margin-left: 8px;
+}
+
+.nexus-mod-description {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nexus-mod-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nexus-mod-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nexus-mod-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nexus-mod-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.nexus-mod-btn {
+  text-transform: none;
+  font-size: 0.8rem;
+}
+
+/* No Mods State */
+.nexus-no-mods {
+  background: #161616;
+  border-radius: 8px;
+  border: 1px dashed #252525;
+  padding: 40px;
+  text-align: center;
+}
+
+.nexus-no-mods-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.nexus-no-mods h3 {
+  color: #fc503b;
+  margin: 15px 0 10px;
+  font-size: 1.2rem;
+}
+
+.nexus-no-mods p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Activity Section */
+.nexus-activity-container {
+  background: transparent;
+}
+
+.nexus-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fc503b;
+  margin-bottom: 24px;
+}
+
+.nexus-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.nexus-stat-card {
+  background: #161616;
+  border-radius: 8px;
+  border: 1px solid #252525;
+}
+
+.nexus-stat-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #fc503b;
+}
+
+.nexus-popular-mod {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #252525;
+}
+
+.nexus-popular-mod:last-child {
+  border-bottom: none;
+}
+
+.nexus-popular-mod-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-popular-mod-downloads {
+  color: #fc503b;
+  font-weight: 500;
+}
+
+.nexus-no-stats {
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Settings Section */
+.nexus-settings-container {
+  background: transparent;
+}
+
+.nexus-settings-card {
+  background: #161616;
+  border-radius: 8px;
+  border: 1px solid #252525;
+}
+
+/* Diálogos */
+.nexus-dialog {
+  background: rgba(13, 13, 13, 0.95);
+}
+
+.nexus-dialog-title {
+  background: #161616;
+  border-bottom: 1px solid #252525;
+  padding: 16px 24px;
+  color: #fc503b;
+  font-weight: 600;
+}
+
+.nexus-dialog-actions {
+  background: #161616;
+  border-top: 1px solid #252525;
+  padding: 16px 24px;
+}
+
+.nexus-input {
+  background: #161616;
+  border-color: #252525 !important;
+}
+
+.nexus-input :deep(.v-field__outline) {
+  color: #252525 !important;
+}
+
+.nexus-btn {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Snackbar */
+.nexus-snackbar {
+  font-family: inherit;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .nexus-profile-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .nexus-profile-stats {
+    justify-content: center;
+  }
+  
+  .nexus-mods-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nexus-profile-username {
+    font-size: 1.5rem;
+  }
+  
+  .nexus-profile-stats {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .nexus-mods-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

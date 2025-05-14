@@ -117,7 +117,7 @@
                     rows="2"
                     label="Editar comentario"
                     variant="outlined"
-                  />
+                  ></v-textarea>
                   <div class="nexus-comment-edit-actions">
                     <v-btn color="#fc503b" @click="editComment(comment)" size="small">Guardar</v-btn>
                     <v-btn variant="text" @click="isEditing = false" size="small">Cancelar</v-btn>
@@ -181,7 +181,21 @@
               <div class="nexus-stats-value">1.3</div>
             </div>
           </v-card>
-          
+
+          <!-- Instalaciones recientes (Stonks) -->
+          <v-card variant="outlined" class="nexus-stonks-card">
+            <div class="nexus-stonks-header">
+              <div class="nexus-stonks-title">Instalaciones recientes</div>
+              <div class="nexus-stonks-value" :class="{'up': isTrendingUp, 'down': !isTrendingUp}">
+                <v-icon>{{ isTrendingUp ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
+                {{ trendPercentage }}%
+              </div>
+            </div>
+            <div class="nexus-chart-container-stonks">
+              <canvas ref="stonksChart" class="nexus-chart-stonks"></canvas>
+            </div>
+          </v-card>
+
           <!-- Botón de descarga -->
           <v-btn
             @click="download(mod)" 
@@ -257,14 +271,6 @@
               </div>
             </div>
           </v-card>
-
-          <!-- Gráfico de instalaciones mini -->
-          <v-card variant="outlined" class="nexus-stats-mini-card">
-            <h3 class="nexus-section-title">Instalaciones recientes</h3>
-            <div class="nexus-chart-container-mini">
-              <canvas ref="downloadsChart" class="nexus-chart-mini"></canvas>
-            </div>
-          </v-card>
         </div>
       </div>
     </v-card>
@@ -303,7 +309,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCommentsById, getMod, postComment, postDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { listenToModDownloads2 } from '@/services/socketManager';
@@ -323,6 +329,10 @@ const snackbar = ref({
   text: '',
   color: 'success'
 });
+const stonksChart = ref(null);
+let stonksChartInstance = null;
+const trendPercentage = ref(0);
+const isTrendingUp = ref(true);
 
 const newComment = ref({
   email: userEmail,
@@ -331,13 +341,56 @@ const newComment = ref({
   rating: 5
 });
 
+// Función para inicializar el historial de descargas si no existe
+const initDownloadsHistory = () => {
+  if (!mod.value.downloads_history) {
+    mod.value.downloads_history = {};
+  }
+  
+  // Asegurarse de que tenemos datos para los últimos 7 días
+  const today = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    if (!mod.value.downloads_history[dateStr]) {
+      mod.value.downloads_history[dateStr] = 0;
+    }
+  }
+};
+
+// Función para calcular la tendencia
+const calculateTrend = () => {
+  if (!mod.value?.downloads_history) return;
+  
+  const dates = Object.keys(mod.value.downloads_history).sort();
+  if (dates.length < 2) {
+    trendPercentage.value = 0;
+    isTrendingUp.value = true;
+    return;
+  }
+  
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
+  
+  const firstValue = mod.value.downloads_history[firstDate] || 0;
+  const lastValue = mod.value.downloads_history[lastDate] || 0;
+  
+  const diff = lastValue - firstValue;
+  trendPercentage.value = Math.abs(Math.round((diff / (firstValue || 1)) * 100));
+  isTrendingUp.value = diff > 0;
+};
+
 const fetchModDetails = async () => {
   loading.value = true;
   try {
     const response = await getMod(route.params.id);
     mod.value = await response.json();
+    initDownloadsHistory();
+    calculateTrend();
     await fetchComments();
-    initChart();
+    initStonksChart();
   } catch (error) {
     console.error('Error al cargar detalles del mod:', error);
   } finally {
@@ -418,53 +471,49 @@ const maskEmail = (email) => {
   return `${maskedName}@${domain}`;
 };
 
-const downloadsChart = ref(null);
-let chartInstance = null;
-
-const generateSampleData = () => {
-  const data = [];
-  const now = new Date();
+const generateStonksData = () => {
+  if (!mod.value?.downloads_history) return [];
   
-  // Get the last 14 days including today
-  for (let i = 14; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    
-    // Use real data if available, otherwise use 0
-    const downloads = mod.value?.downloads_history?.[dateStr] || 0;
-    
-    data.push({
-      date: dateStr,
-      downloads: downloads
-    });
-  }
+  // Ordenar las fechas
+  const sortedDates = Object.keys(mod.value.downloads_history)
+    .sort((a, b) => new Date(a) - new Date(b));
   
-  return data;
+  // Tomar los últimos 7 días
+  const last7Days = sortedDates.slice(-7);
+  
+  return last7Days.map(date => ({
+    date,
+    downloads: mod.value.downloads_history[date] || 0
+  }));
 };
 
-const initChart = () => {
-  if (!downloadsChart.value) return;
+const initStonksChart = () => {
+  if (!stonksChart.value) return;
   
-  if (chartInstance) {
-    chartInstance.destroy();
+  if (stonksChartInstance) {
+    stonksChartInstance.destroy();
   }
   
-  const ctx = downloadsChart.value.getContext('2d');
-  const chartData = generateSampleData();
+  const ctx = stonksChart.value.getContext('2d');
+  const chartData = generateStonksData();
   
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
+  stonksChartInstance = new Chart(ctx, {
+    type: 'line',
     data: {
       labels: chartData.map(item => formatChartDate(item.date)),
       datasets: [{
         label: 'Instalaciones',
         data: chartData.map(item => item.downloads),
-        backgroundColor: '#fc503b',
-        borderColor: '#fc503b',
-        borderWidth: 1,
-        borderRadius: 2,
-        hoverBackgroundColor: '#ff6e5d',
+        borderColor: isTrendingUp.value ? '#4CAF50' : '#F44336',
+        backgroundColor: isTrendingUp.value ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: isTrendingUp.value ? '#4CAF50' : '#F44336',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1,
+        pointRadius: 4,
+        pointHoverRadius: 6
       }]
     },
     options: {
@@ -487,6 +536,10 @@ const initChart = () => {
           callbacks: {
             label: function(context) {
               return ` ${context.raw} descargas`;
+            },
+            title: function(context) {
+              const date = new Date(chartData[context[0].dataIndex].date);
+              return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
           }
         }
@@ -515,7 +568,6 @@ const initChart = () => {
             font: {
               size: 9
             },
-            stepSize: 20,
             padding: 5
           }
         }
@@ -531,9 +583,10 @@ const formatChartDate = (dateString) => {
 
 const download = async (mod) => {
   try {
+    // Registrar la descarga en el backend
     await postDownloadMod(route.params.id);
-    
-    // Simulate download
+
+    // Simular la descarga
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
     link.setAttribute('download', '');
@@ -541,29 +594,35 @@ const download = async (mod) => {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    
-    // // Update local stats
-    // const today = new Date().toISOString().split('T')[0];
-    // if (!mod.downloads_history) {
-    //   mod.downloads_history = {};
-    // }
-    // mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
-    // mod.value.downloads = (mod.value.downloads || 0) + 1;
-    
-    // Update chart
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
-    initChart();
 
+    // Actualizar estadísticas locales
+    const today = new Date().toISOString().split('T')[0];
     
+    // Inicializar downloads_history si no existe
+    if (!mod.downloads_history) {
+      mod.downloads_history = {};
+    }
+    
+    // Incrementar contadores
+    mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
+    mod.downloads = (mod.downloads || 0) + 1;
+
+    // Recalcular tendencia
+    calculateTrend();
+    
+    // Actualizar el gráfico
+    if (stonksChartInstance) {
+      stonksChartInstance.destroy();
+    }
+    initStonksChart();
+
     snackbar.value = {
       show: true,
       text: `¡Descarga iniciada!`,
       color: 'info'
     };
   } catch (error) {
-    console.log(error);
+    console.error('Error al descargar:', error);
     snackbar.value = {
       show: true,
       text: 'Error al iniciar la descarga',
@@ -590,7 +649,7 @@ const deleteComment = async (comment) => {
 
     await fetchComments();
   } catch (error) {
-    console.log("Error");
+    console.error("Error al eliminar comentario:", error);
   }
 };
 
@@ -617,25 +676,29 @@ const editComment = async (comment) => {
       color: 'success'
     };
 
-    console.log(newContent.value);
     comment.content = newContent.value;
     isEditing.value = false;
   } catch (error) {
-    console.error("Error");
+    console.error("Error al editar comentario:", error);
   }
 }
+
+// Watch for changes in downloads history to update chart
+watch(() => mod.value?.downloads_history, () => {
+  if (stonksChartInstance) {
+    stonksChartInstance.destroy();
+  }
+  initStonksChart();
+}, { deep: true });
 
 onMounted(() => {
   fetchModDetails();
   listenToModDownloads2(mod);
-  
-  // Obtener estadísticas de miembros y recompensas del backend si es necesario
-  // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });
 });
 
 onBeforeUnmount(() => {
-  if (chartInstance) {
-    chartInstance.destroy();
+  if (stonksChartInstance) {
+    stonksChartInstance.destroy();
   }
 });
 </script>
@@ -743,7 +806,7 @@ onBeforeUnmount(() => {
 .nexus-creator-card,
 .nexus-tags-card,
 .nexus-files-card,
-.nexus-stats-mini-card {
+.nexus-stonks-card {
   background: rgba(13, 13, 13, 0.8);
   border: 1px solid #252525;
   border-radius: 6px;
@@ -848,17 +911,46 @@ onBeforeUnmount(() => {
   color: #ffffff;
 }
 
-/* Estilos para el gráfico mini */
-.nexus-chart-container-mini {
-  position: relative;
-  height: 200px;
-  width: 100%;
-  background: rgba(13, 13, 13, 0.5);
-  border-radius: 4px;
-  overflow: hidden;
+/* Estilos para el gráfico Stonks */
+.nexus-stonks-card {
+  padding: 16px;
 }
 
-.nexus-chart-mini {
+.nexus-stonks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.nexus-stonks-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-stonks-value {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nexus-stonks-value.up {
+  color: #4CAF50;
+}
+
+.nexus-stonks-value.down {
+  color: #F44336;
+}
+
+.nexus-chart-container-stonks {
+  position: relative;
+  height: 100px;
+  width: 100%;
+}
+
+.nexus-chart-stonks {
   width: 100% !important;
   height: 100% !important;
 }
