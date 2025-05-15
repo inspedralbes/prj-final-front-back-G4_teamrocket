@@ -39,6 +39,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/admin-mods', async (req, res) => {
+  try {
+    const mods = await Mod.findAll({
+      include: [{
+        model: User,
+        attributes: ['username'],
+      }],
+      attributes: ['id', 'title', 'uploaded_at', 'security', 'file_path'],
+      order: [['uploaded_at', 'DESC']]
+    });
+
+    const result = mods.map(mod => ({
+      id: mod.id,
+      title: mod.title,
+      username: mod.User ? mod.User.username : 'Desconocido',
+      uploaded_at: new Date(mod.uploaded_at).toISOString().split('T')[0],
+      security: mod.security,
+      file_path: mod.file_path
+    }));
+
+    res.status(200).json({ mods: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener mods para administración' });
+  }
+});
+
+router.put('/:modId/safe', async (req, res) => {
+  try {
+    const modId = req.params.modId;
+    const { isSafe } = req.body;
+
+    const mod = await Mod.findOne({ where: { id: modId }});
+
+    console.log(isSafe);
+    mod.security = isSafe;
+    mod.save();
+
+    res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
 // Obtener un mod específico por ID
 router.get('/:id', async (req, res) => {
   try {

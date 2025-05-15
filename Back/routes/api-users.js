@@ -20,6 +20,16 @@ const handleFileUpload = (file, directory) => {
   });
 };
 
+router.get('/', async (req, res) => {
+    try {
+        const users = await User.findAll();
+        
+        res.status(200).json({ message: "Obtenido los usuarios", users});
+    } catch (error) {
+        res.status(500).json({ message: "Error intern del servidor"});
+    }
+});
+
 router.post('/login-unity', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -87,7 +97,7 @@ router.post('/login-web', async (req, res) => {
             return res.status(401).json({ message: "Usuari o contrasenya incorrectes" });
         }
   
-        res.status(201).json({ message: "success" });
+        res.status(201).json({ message: "success", email: user.email, admin: user.admin });
     } catch (error) {
         console.error("Error en Inicia sessió:", error);
         res.status(500).json({ message: "Error intern del servidor" });

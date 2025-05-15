@@ -5,7 +5,7 @@ import RegisterView from '../components/RegisterPage.vue'
 import ModsListView from '@/components/ModsListPage.vue'
 import ModDetailView from '@/components/ModDetailPage.vue'
 import PerfilView from '@/components/PerfilPage.vue'
-import { components } from 'vuetify/dist/vuetify-labs.js'
+import AdministrationView from '@/components/AdministrationPage.vue'
 
 const routes = [
   {
@@ -26,7 +26,8 @@ const routes = [
   {
     path: '/perfil',
     name: 'perfil',
-    component: PerfilView
+    component: PerfilView,
+    meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/mods',
@@ -37,6 +38,12 @@ const routes = [
     path: '/mod/:id',
     name: 'mod-detail',
     component: ModDetailView
+  },
+  {
+    path: '/admin',
+    name: 'administraction',
+    component: AdministrationView,
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -44,5 +51,18 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = !!localStorage.getItem('userEmail');
+  const isAdmin = localStorage.getItem('userAdmin') === '1';
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next('/login');
+  } else if (to.meta.requiresAdmin && !isAdmin) {
+    next('/');
+  } else {
+    next();
+  }
+});
 
 export default router

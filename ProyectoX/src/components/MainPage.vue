@@ -59,6 +59,16 @@
       >
         Perfil
       </v-btn>
+      <v-btn
+        v-if="isAdmin"
+        color="#fc503b"
+        class="mr-2"
+        to="/admin"
+        :outlined="true"
+        :ripple="false"
+      >
+        Administration
+      </v-btn>
     </v-app-bar>
 
 
@@ -351,7 +361,9 @@ const characters = reactive([
 const selectedCharacter = ref(null);
 const isCharacterSelected = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
+const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
+console.log(isAdmin.value);
 
 const selectCharacter = (character) => {
   selectedCharacter.value = character;
@@ -442,7 +454,9 @@ const scrollToTop = () => {
 
 const logout = () => {
   localStorage.removeItem('userEmail');
+  localStorage.removeItem('userAdmin');
   userEmail.value = null;
+  isAdmin.value = null;
 }
 </script>
 

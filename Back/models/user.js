@@ -24,6 +24,10 @@ export default (sequelize) => {
       allowNull: true,
       defaultValue: null
     },
+    admin: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
     isOnline: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
