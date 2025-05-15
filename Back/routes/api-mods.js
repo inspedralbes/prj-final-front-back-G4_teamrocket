@@ -31,7 +31,11 @@ router.get('/', async (req, res) => {
       }],
     });
 
-    const listMods = mods.filter(mod => mod.visible === true);
+    console.log(mods.visible);
+
+    const listMods = mods.filter(mod => mod.visible !== false && mod.security !== false);
+
+    console.log(listMods)
 
     res.status(200).json(listMods);
   } catch (error) {
