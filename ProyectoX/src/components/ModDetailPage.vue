@@ -182,20 +182,6 @@
             </div>
           </v-card>
 
-          <!-- Instalaciones recientes (Stonks) -->
-          <v-card variant="outlined" class="nexus-stonks-card">
-            <div class="nexus-stonks-header">
-              <div class="nexus-stonks-title">Instalaciones recientes</div>
-              <div class="nexus-stonks-value" :class="{'up': isTrendingUp, 'down': !isTrendingUp}">
-                <v-icon>{{ isTrendingUp ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
-                {{ trendPercentage }}%
-              </div>
-            </div>
-            <div class="nexus-chart-container-stonks">
-              <canvas ref="stonksChart" class="nexus-chart-stonks"></canvas>
-            </div>
-          </v-card>
-
           <!-- Botón de descarga -->
           <v-btn
             @click="download(mod)" 
@@ -309,7 +295,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCommentsById, getMod, postComment, postDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { listenToModDownloads2 } from '@/services/socketManager';
@@ -329,10 +315,6 @@ const snackbar = ref({
   text: '',
   color: 'success'
 });
-const stonksChart = ref(null);
-let stonksChartInstance = null;
-const trendPercentage = ref(0);
-const isTrendingUp = ref(true);
 
 const newComment = ref({
   email: userEmail,
@@ -344,53 +326,20 @@ const newComment = ref({
 // Función para inicializar el historial de descargas si no existe
 const initDownloadsHistory = () => {
   if (!mod.value.downloads_history) {
-    mod.value.downloads_history = {};
+    // Si no hay historial, creamos uno vacío
+    mod.value.downloads_history = [];
   }
-  
-  // Asegurarse de que tenemos datos para los últimos 7 días
-  const today = new Date();
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    
-    if (!mod.value.downloads_history[dateStr]) {
-      mod.value.downloads_history[dateStr] = 0;
-    }
-  }
-};
-
-// Función para calcular la tendencia
-const calculateTrend = () => {
-  if (!mod.value?.downloads_history) return;
-  
-  const dates = Object.keys(mod.value.downloads_history).sort();
-  if (dates.length < 2) {
-    trendPercentage.value = 0;
-    isTrendingUp.value = true;
-    return;
-  }
-  
-  const firstDate = dates[0];
-  const lastDate = dates[dates.length - 1];
-  
-  const firstValue = mod.value.downloads_history[firstDate] || 0;
-  const lastValue = mod.value.downloads_history[lastDate] || 0;
-  
-  const diff = lastValue - firstValue;
-  trendPercentage.value = Math.abs(Math.round((diff / (firstValue || 1)) * 100));
-  isTrendingUp.value = diff > 0;
 };
 
 const fetchModDetails = async () => {
   loading.value = true;
   try {
     const response = await getMod(route.params.id);
-    mod.value = await response.json();
+    const data = await response.json();
+    mod.value = data.modUser;
+    console.log(mod.value);
     initDownloadsHistory();
-    calculateTrend();
     await fetchComments();
-    initStonksChart();
   } catch (error) {
     console.error('Error al cargar detalles del mod:', error);
   } finally {
@@ -471,116 +420,6 @@ const maskEmail = (email) => {
   return `${maskedName}@${domain}`;
 };
 
-const generateStonksData = () => {
-  if (!mod.value?.downloads_history) return [];
-  
-  // Ordenar las fechas
-  const sortedDates = Object.keys(mod.value.downloads_history)
-    .sort((a, b) => new Date(a) - new Date(b));
-  
-  // Tomar los últimos 7 días
-  const last7Days = sortedDates.slice(-7);
-  
-  return last7Days.map(date => ({
-    date,
-    downloads: mod.value.downloads_history[date] || 0
-  }));
-};
-
-const initStonksChart = () => {
-  if (!stonksChart.value) return;
-  
-  if (stonksChartInstance) {
-    stonksChartInstance.destroy();
-  }
-  
-  const ctx = stonksChart.value.getContext('2d');
-  const chartData = generateStonksData();
-  
-  stonksChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: chartData.map(item => formatChartDate(item.date)),
-      datasets: [{
-        label: 'Instalaciones',
-        data: chartData.map(item => item.downloads),
-        borderColor: isTrendingUp.value ? '#4CAF50' : '#F44336',
-        backgroundColor: isTrendingUp.value ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: isTrendingUp.value ? '#4CAF50' : '#F44336',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 1,
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          enabled: true,
-          backgroundColor: 'rgba(13, 13, 13, 0.9)',
-          bodyColor: '#ffffff',
-          borderColor: '#252525',
-          borderWidth: 1,
-          padding: 8,
-          bodyFont: {
-            size: 10
-          },
-          callbacks: {
-            label: function(context) {
-              return ` ${context.raw} descargas`;
-            },
-            title: function(context) {
-              const date = new Date(chartData[context[0].dataIndex].date);
-              return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: {
-            display: false,
-            drawBorder: false
-          },
-          ticks: {
-            color: 'rgba(255, 255, 255, 0.7)',
-            font: {
-              size: 9
-            }
-          }
-        },
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(255, 255, 255, 0.05)',
-            drawBorder: false
-          },
-          ticks: {
-            color: 'rgba(255, 255, 255, 0.7)',
-            font: {
-              size: 9
-            },
-            padding: 5
-          }
-        }
-      }
-    }
-  });
-};
-
-const formatChartDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-};
-
 const download = async (mod) => {
   try {
     // Registrar la descarga en el backend
@@ -606,15 +445,6 @@ const download = async (mod) => {
     // Incrementar contadores
     mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
     mod.downloads = (mod.downloads || 0) + 1;
-
-    // Recalcular tendencia
-    calculateTrend();
-    
-    // Actualizar el gráfico
-    if (stonksChartInstance) {
-      stonksChartInstance.destroy();
-    }
-    initStonksChart();
 
     snackbar.value = {
       show: true,
@@ -683,23 +513,12 @@ const editComment = async (comment) => {
   }
 }
 
-// Watch for changes in downloads history to update chart
-watch(() => mod.value?.downloads_history, () => {
-  if (stonksChartInstance) {
-    stonksChartInstance.destroy();
-  }
-  initStonksChart();
-}, { deep: true });
-
 onMounted(() => {
   fetchModDetails();
   listenToModDownloads2(mod);
 });
 
 onBeforeUnmount(() => {
-  if (stonksChartInstance) {
-    stonksChartInstance.destroy();
-  }
 });
 </script>
 
@@ -805,8 +624,7 @@ onBeforeUnmount(() => {
 .nexus-stats-card,
 .nexus-creator-card,
 .nexus-tags-card,
-.nexus-files-card,
-.nexus-stonks-card {
+.nexus-files-card {
   background: rgba(13, 13, 13, 0.8);
   border: 1px solid #252525;
   border-radius: 6px;
@@ -909,50 +727,6 @@ onBeforeUnmount(() => {
   font-size: 16px;
   font-weight: 600;
   color: #ffffff;
-}
-
-/* Estilos para el gráfico Stonks */
-.nexus-stonks-card {
-  padding: 16px;
-}
-
-.nexus-stonks-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.nexus-stonks-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.nexus-stonks-value {
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.nexus-stonks-value.up {
-  color: #4CAF50;
-}
-
-.nexus-stonks-value.down {
-  color: #F44336;
-}
-
-.nexus-chart-container-stonks {
-  position: relative;
-  height: 100px;
-  width: 100%;
-}
-
-.nexus-chart-stonks {
-  width: 100% !important;
-  height: 100% !important;
 }
 
 /* Estilos para comentarios */
