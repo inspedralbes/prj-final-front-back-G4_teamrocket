@@ -431,6 +431,7 @@ const comments = ref([]);
 const likes = ref([]);
 const loading = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
+const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
 // Filtros y búsqueda
 const activeTab = ref('new');
@@ -667,7 +668,9 @@ const navigateToMod = (id) => {
 
 const logout = () => {
   localStorage.removeItem('userEmail');
+  localStorage.removeItem('userAdmin');
   userEmail.value = null;
+  isAdmin.value = null;
   window.location.href = '/';
 };
 
