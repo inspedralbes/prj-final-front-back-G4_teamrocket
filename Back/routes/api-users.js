@@ -8,7 +8,7 @@ const router = express.Router(); // Crea un enrutador de Express
 const { User, Mod } = models;
 
 const uploadsDir = path.join('uploads');
-const imageDir = path.join(uploadsDir, 'images');
+const imageDir = path.join(uploadsDir, 'image-profile');
 
 const handleFileUpload = (file, directory) => {
   return new Promise((resolve, reject) => {
