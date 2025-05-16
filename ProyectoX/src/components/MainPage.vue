@@ -1,76 +1,80 @@
 <template>
   <div id="app" class="nexus-style">
-    <!-- Header estilo Nexus Mods -->
-    <v-app-bar v-if="!isCharacterSelected" app color="#0d0d0d" dark elevation="0" height="80" class="nexus-header">
-      <div class="logo-container">
-        <v-img
-          src="@/assets/Logo del Juego de darkness Unseen.png"
-          alt="Logo del Juego"
-          class="logo nexus-logo"
-          width="60"
-          height="60"
-          @click="scrollToTop"
-        ></v-img>
-      </div>
-     
-      <div class="nexus-nav-links">
-        <v-btn
-          color="#fc503b"
-          class="nexus-nav-btn"
-          to="/mods"
-          text
-          :ripple="false"
-        >
-          Mods
-        </v-btn>
-      </div>
-     
-      <v-spacer></v-spacer>
-     
-      <div class="nexus-user-section">
-        <v-btn
-          v-if="!userEmail"
-          color="#fc503b"
-          class="nexus-login-btn"
-          to="/login"
-          text
-          :ripple="false"
-        >
-          Iniciar Sesión
-        </v-btn>
-        <v-btn
-          v-if="userEmail"
-          color="#fc503b"
-          class="nexus-login-btn"
-          @click="logout"
-          text
-          :ripple="false"
-        >
-          Cerrar Sesión
-        </v-btn>
-      </div>
-      <v-btn
-        v-if="userEmail"
-        color="#fc503b"
-        class="mr-2"
-        to="/perfil"
-        :outlined="true"
-        :ripple="false"
-      >
-        Perfil
-      </v-btn>
-      <v-btn
-        v-if="isAdmin"
-        color="#fc503b"
-        class="mr-2"
-        to="/admin"
-        :outlined="true"
-        :ripple="false"
-      >
-        Administration
-      </v-btn>
-    </v-app-bar>
-
+    <!-- Header -->
+<v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
+  <div class="logo-container">
+    <v-img
+      src="@/assets/Logo del Juego de darkness Unseen.png"
+      alt="Logo del Juego"
+      class="logo nexus-logo"
+      width="50"
+      height="50"
+      @click="scrollToTop"
+    ></v-img>
+  </div>
+  
+  <v-spacer></v-spacer>
+  
+  <div class="nexus-user-section">
+    <v-btn
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/mods"
+      text
+      :ripple="false"
+      variant="text"
+    >
+      <v-icon left size="20">mdi-puzzle</v-icon>
+      <span class="btn-text">Mods</span>
+    </v-btn>
+    <v-btn
+      v-if="userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/perfil"
+      text
+      :ripple="false"
+      variant="text"
+    >
+      <v-icon left size="20">mdi-account</v-icon>
+      <span class="btn-text">Perfil</span>
+    </v-btn>
+    <v-btn
+      v-if="!userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/login"
+      text
+      :ripple="false"
+      variant="text"
+    >
+      <span class="btn-text">Iniciar Sesión</span>
+    </v-btn>
+    <v-btn
+      v-if="userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      @click="logout"
+      text
+      :ripple="false"
+      variant="text"
+    >
+      <span class="btn-text">Cerrar Sesión</span>
+    </v-btn>
+    <v-btn
+      v-if="isAdmin"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/admin"
+      text
+      :ripple="false"
+      variant="text"
+    >
+      <v-icon left size="20">mdi-shield-account</v-icon>
+      <span class="btn-text">Admin</span>
+    </v-btn>
+  </div>
+</v-app-bar>
 
     <!-- Banner principal con efecto parallax -->
     <div class="nexus-banner">
@@ -88,7 +92,6 @@
         </v-btn>
       </div>
     </div>
-
 
     <v-container fluid class="pa-0 nexus-container">
       <!-- Sección Acerca del Juego -->
@@ -108,7 +111,6 @@
           </section>
         </v-col>
       </v-row>
-
 
       <!-- Sección Características -->
       <v-row no-gutters>
@@ -172,7 +174,6 @@
               </v-col>
             </v-row>
 
-
             <!-- Detalle del personaje seleccionado -->
             <v-row v-if="isCharacterSelected" class="character-detail-row">
               <v-col cols="12">
@@ -220,7 +221,6 @@
         </v-col>
       </v-row>
 
-
       <!-- Sección de Descarga -->
       <v-row no-gutters>
         <v-col cols="12">
@@ -267,7 +267,6 @@
         </v-col>
       </v-row>
 
-
       <!-- Sección de Contacto -->
       <v-row no-gutters>
         <v-col cols="12">
@@ -286,7 +285,6 @@
           </section>
         </v-col>
       </v-row>
-
 
       <!-- Footer -->
       <v-footer
@@ -489,13 +487,14 @@ const logout = () => {
   border-bottom: 1px solid #fc503b;
   z-index: 1000;
   padding: 0 5%;
-  height: 64px !important; /* Ajustamos la altura para que coincida con PerfilPage.vue */
+  display: flex;
+  align-items: center;
 }
 
 .logo-container {
-  height: 64px;
-  display: flex;
-  align-items: center;
+  margin-right: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .nexus-logo {
@@ -503,21 +502,71 @@ const logout = () => {
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   border: 2px solid #fc503b;
-  width: 40px !important; /* Tamaño más pequeño para ajustarse al header */
-  height: 40px !important;
 }
 
-
 .nexus-logo:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 0 15px #fc503b;
 }
 
-
-.nexus-nav-links {
-  margin-left: 40px;
+.nexus-user-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding-right: 0;
 }
 
+.nexus-login-btn {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: normal;
+  font-size: 0.8125rem !important;
+  height: 36px;
+  min-width: auto !important;
+  padding: 0 10px !important;
+  margin: 0 !important;
+}
+
+.nexus-login-btn .v-btn__content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+.btn-text {
+  font-size: 0.8125rem;
+  letter-spacing: 0.5px;
+}
+
+.nexus-login-btn .v-icon {
+  font-size: 20px;
+  margin-right: 4px;
+}
+
+.nexus-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 20px;
+}
+
+.nexus-nav-btn {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: normal;
+  font-size: 0.8rem;
+  padding: 0 12px;
+  height: 36px;
+}
+
+.nexus-login-btn .v-btn__content,
+.nexus-nav-btn .v-btn__content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 .nexus-nav-btn {
   position: relative;

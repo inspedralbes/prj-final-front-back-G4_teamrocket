@@ -9,13 +9,24 @@
       class="logo nexus-logo"
       width="50"
       height="50"
-      @click="scrollToTop"
+      @click="navigateToMainPage"
     ></v-img>
   </div>
   
   <v-spacer></v-spacer>
   
   <div class="nexus-user-section">
+    <v-btn
+      v-if="userEmail"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/"
+      text
+      :ripple="false"
+    >
+      <v-icon left>mdi-home</v-icon>
+      Inicio
+    </v-btn>
     <v-btn
       v-if="userEmail"
       color="#fc503b"
@@ -47,9 +58,19 @@
     >
       Cerrar Sesión
     </v-btn>
+    <v-btn
+      v-if="isAdmin"
+      color="#fc503b"
+      class="nexus-login-btn"
+      to="/admin"
+      text
+      :ripple="false"
+    >
+      <v-icon left>mdi-shield-account</v-icon>
+      Admin
+    </v-btn>
   </div>
 </v-app-bar>
-
     <!-- Hero Section with Video Background -->
     <section class="nexus-hero" @click="openVideoModal">
       <div class="video-background">
@@ -418,6 +439,9 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { getMods, postMod, postDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
 import { listenToModDownloads, listenToComments, listenToLikes } from '@/services/socketManager';
 
+const navigateToMainPage = () => {
+  window.location.href = '/';
+};
 // Datos reales
 const stats = ref({
   totalDownloads: 0,
@@ -730,9 +754,32 @@ onMounted(() => {
 .nexus-user-section {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .nexus-login-btn {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: normal;
+  font-size: 0.8rem;
+  padding: 0 12px;
+  height: 36px;
+}
+
+.nexus-login-btn .v-btn__content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nexus-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.nexus-nav-btn {
   text-transform: none;
   font-weight: 500;
   letter-spacing: normal;
