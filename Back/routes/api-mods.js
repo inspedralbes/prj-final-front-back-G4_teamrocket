@@ -12,7 +12,6 @@ const { Mod, User } = models;
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
 const imagesDir = path.join(modsDir, 'images');
-const imageDir = path.join(uploadsDir, 'images');
 
 [uploadsDir, modsDir, imagesDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
@@ -31,11 +30,7 @@ router.get('/', async (req, res) => {
       }],
     });
 
-    console.log(mods.visible);
-
     const listMods = mods.filter(mod => mod.visible !== false && mod.security !== false);
-
-    console.log(listMods)
 
     res.status(200).json(listMods);
   } catch (error) {
@@ -67,24 +62,6 @@ router.get('/admin-mods', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al obtener mods para administración' });
-  }
-});
-
-router.put('/:modId/safe', async (req, res) => {
-  try {
-    const modId = req.params.modId;
-    const { isSafe } = req.body;
-
-    const mod = await Mod.findOne({ where: { id: modId }});
-
-    console.log(isSafe);
-    mod.security = isSafe;
-    mod.save();
-
-    res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 
@@ -194,19 +171,34 @@ router.put('/update-mod', async (req, res) => {
   }
 });
 
-router.put('/update-visible', async (req, res) => {
+router.patch('/change-visible/:id', async (req, res) => {
   try {
-    const { id, visible } = req.body;
-
-    const mod = await Mod.findByPk(id);
+    const mod = await Mod.findByPk(req.params.id);
     if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
 
-    mod.visible = visible;
+    mod.admin = !mod.admin;
     await mod.save();
+
     res.status(200).json({ message: 'Visibilidad del mod actualizado correctamente' });
   } catch (error) {
-    console.error('Error en actualizar la visibilidad del mod:', error);
     res.status(500).json({ error: 'Error en actualizar la visibilidad del mod' });
+  }
+});
+
+router.put('/:modId/safe', async (req, res) => {
+  try {
+    const modId = req.params.modId;
+    const { isSafe } = req.body;
+
+    const mod = await Mod.findOne({ where: { id: modId }});
+
+    mod.security = isSafe;
+    mod.save();
+
+    res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 

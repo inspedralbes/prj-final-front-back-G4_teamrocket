@@ -203,10 +203,19 @@
                           color="#fc503b"
                           variant="text"
                           size="small"
-                          @click="updateVisible(mod)"
+                          @click="updateVisible(mod.id)"
                           class="nexus-mod-btn"
                         >
                           <v-icon>{{ mod.visible ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+                        </v-btn>
+                        <v-btn
+                          color="#fc503b"
+                          variant="text"
+                          size="small"
+                          @click="deleteMod(mod.id)"
+                          class="nexus-mod-btn"
+                        >
+                          <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </div>
                     </div>
@@ -414,7 +423,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { loadUserData, putUserProfile, putMod, putVisible } from "../services/communicationManager.js";
+import { loadUserData, putUserProfile, putMod, changeVisible } from "../services/communicationManager.js";
 
 const router = useRouter();
 const user = ref({ mods: [] });
@@ -546,9 +555,9 @@ const openEditDialogMod = (mod) => {
   editMod.value = true;
 }
 
-const updateVisible = async (mod) => {
+const updateVisible = async (modId) => {
   try {
-    const response = await putVisible(mod.id, !mod.visible);
+    const response = await changeVisible(modId);
 
     if(!response.ok) {
       const data = await response.json();
@@ -621,6 +630,14 @@ const updateMod = async () => {
     };
   } finally {
     loading.value = false;
+  }
+}
+
+const deleteMod = async (modId) => {
+  try {
+
+  } catch (err) {
+
   }
 }
 

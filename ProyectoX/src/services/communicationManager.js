@@ -67,6 +67,52 @@ export const getMods = async () => {
     }
 }
 
+export const getUsersAdmin = async () => {
+    try {
+        const response = await fetch('http://localhost:3002/api/users');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+       const data = await response.json();
+       return data.users;
+    } catch (err) {
+        console.error('Error cargando mods de administrador:', err);
+        throw err; // Re-lanzar el error para manejo posterior
+    }   
+}
+
+export const deleteUserAdmin = async (userId) => {
+    try {
+        const response = await fetch(`http://localhost:3002/api/users/delete-user/${userId}`, {
+            method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+    } catch (err) {
+        console.error('Error cargando mods de administrador:', err);
+        throw err; // Re-lanzar el error para manejo posterior
+    }   
+}
+
+export const changeUserAdmin = async (userId) => {
+    try {
+        const response = await fetch(`http://localhost:3002/api/users/toggle-admin/${userId}`, {
+            method: 'PATCH',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+    } catch (err) {
+        console.error('Error cargando mods de administrador:', err);
+        throw err; // Re-lanzar el error para manejo posterior
+    }
+}
+
 export const getModsAdmin = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/admin-mods');
@@ -90,8 +136,8 @@ export const getMod = async (id) => {
 export const postMod = async (formData) => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/new-mod', {
-        method: 'POST',
-        body: formData,
+            method: 'POST',
+            body: formData,
         });
 
         return response;
@@ -114,14 +160,10 @@ export const putMod = async (formData) => {
     }
 }
 
-export const putVisible = async (modId, visible) => {
+export const changeVisible = async (modId) => {
     try {
-        return await fetch('http://localhost:3002/api/mods/update-visible', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: modId, visible })
+        return await fetch(`http://localhost:3002/api/mods/change-visible/${modId}`, {
+            method: 'PATCH',
         });
     } catch (error) {
         console.error('Error al actualizar la visibilidad del mod:', error);

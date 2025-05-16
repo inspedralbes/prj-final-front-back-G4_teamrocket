@@ -30,59 +30,59 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/login-unity', async (req, res) => {
-    try {
-        const { username, password } = req.body;
+// router.post('/login-unity', async (req, res) => {
+//     try {
+//         const { username, password } = req.body;
 
-        // Busca el usuario por nombre
-        const user = await User.findOne({ where: { username } });
+//         // Busca el usuario por nombre
+//         const user = await User.findOne({ where: { username } });
 
-        if(!user) return res.json({ message: "No existeix cap usuari amb aquest email." });
+//         if(!user) return res.json({ message: "No existeix cap usuari amb aquest email." });
 
-        // Compara contraseña ingresada con la guardada (encriptada)
-        if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-            return res.json({ message: "Usuari o contrasenya incorrecta" });
-        }
+//         // Compara contraseña ingresada con la guardada (encriptada)
+//         if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+//             return res.json({ message: "Usuari o contrasenya incorrecta" });
+//         }
 
-        res.status(201).json({ message: "success", email: user.email });
-    } catch (error) {
-        console.error("Error en Inicia sessió:", error);
-        res.status(500).json({ message: "Error intern del servidor" });
-    }
-});
+//         res.status(201).json({ message: "success", email: user.email });
+//     } catch (error) {
+//         console.error("Error en Inicia sessió:", error);
+//         res.status(500).json({ message: "Error intern del servidor" });
+//     }
+// });
 
-// Ruta POST para registrar un nuevo usuario (modo normal)
-router.post('/register-unity', async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
+// // Ruta POST para registrar un nuevo usuario (modo normal)
+// router.post('/register-unity', async (req, res) => {
+//     try {
+//         const { username, email, password } = req.body;
 
-        // Verifica si ya existe un usuario con el mismo nombre
-        const existingUser = await User.findOne({ where: { username } });
-        if (existingUser) {
-            return res.json({ message: "Ja existeix un usuari amb aquest nom" });
-        }
+//         // Verifica si ya existe un usuario con el mismo nombre
+//         const existingUser = await User.findOne({ where: { username } });
+//         if (existingUser) {
+//             return res.json({ message: "Ja existeix un usuari amb aquest nom" });
+//         }
 
-        // Verifica si el correo electrónico ya está en uso
-        const existingEmail = await User.findOne({ where: { email } });
-        if (existingEmail) {
-            return res.json({ message: "El correu electrònic ja està en ús" });
-        }
+//         // Verifica si el correo electrónico ya está en uso
+//         const existingEmail = await User.findOne({ where: { email } });
+//         if (existingEmail) {
+//             return res.json({ message: "El correu electrònic ja està en ús" });
+//         }
 
-        // Encripta la contraseña
-        const hardPassword = await bcrypt.hash(password, 10);
+//         // Encripta la contraseña
+//         const hardPassword = await bcrypt.hash(password, 10);
 
-        // Genera la ruta de carpeta asociada al email para estadísticas
-        // const emailFolder = `/statistics/images/${email.replace(/[@.]/g, "_")}`;
+//         // Genera la ruta de carpeta asociada al email para estadísticas
+//         // const emailFolder = `/statistics/images/${email.replace(/[@.]/g, "_")}`;
 
-        // Crea el nuevo usuario en la base de datos
-        await User.create({ username, email, password_hash: hardPassword });
+//         // Crea el nuevo usuario en la base de datos
+//         await User.create({ username, email, password_hash: hardPassword });
 
-        res.status(201).json({ message: "success", email: email });
-    } catch (error) {
-        console.error("Error en el registra:", error);
-        res.status(500).json({ message: "Error intern del servidor" });
-    }
-});
+//         res.status(201).json({ message: "success", email: email });
+//     } catch (error) {
+//         console.error("Error en el registra:", error);
+//         res.status(500).json({ message: "Error intern del servidor" });
+//     }
+// });
 
 router.post('/login-web', async (req, res) => {
     try {
@@ -186,6 +186,30 @@ router.put('/update-perfil', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Error al actualizar el perfil' });
     }
+});
+
+router.delete('/delete-user/:id', async (req, res) => {
+  try {
+    const deleted = await User.destroy({ where: { id: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.status(200).json({ message: 'Usuario eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el usuario' });
+  }
+});
+
+router.patch('/toggle-admin/:id', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    user.admin = !user.admin;
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al cambiar rol de admin' });
+  }
 });
 
 // router.put('/change-profile-picture', async (req, res) => {
