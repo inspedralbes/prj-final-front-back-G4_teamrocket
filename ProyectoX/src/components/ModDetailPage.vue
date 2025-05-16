@@ -194,6 +194,18 @@
             Descargar mod
           </v-btn>
           
+          <!-- Gráfico de descargas diarias - Versión mejorada -->
+          <v-card variant="outlined" class="nexus-downloads-chart-card">
+            <h3 class="nexus-chart-title">Descargas diarias</h3>
+            <div class="nexus-chart-container">
+              <canvas ref="downloadsChart"></canvas>
+              <div class="nexus-chart-indicator" :class="trendClass" v-if="trendPercentage !== 0">
+                <v-icon :color="trendColor">{{ trendIcon }}</v-icon>
+                {{ trendPercentage }}%
+              </div>
+            </div>
+          </v-card>
+          
           <!-- Información del creador -->
           <v-card variant="outlined" class="nexus-creator-card">
             <div class="nexus-creator-item">
@@ -295,7 +307,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCommentsById, getMod, postComment, postDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { listenToModDownloads2 } from '@/services/socketManager';
@@ -315,6 +327,14 @@ const snackbar = ref({
   text: '',
   color: 'success'
 });
+const downloadsChart = ref(null);
+const chartInstance = ref(null);
+
+// Variables para el indicador de tendencia (estilo Steam)
+const trendPercentage = ref(0);
+const trendColor = ref('success');
+const trendIcon = ref('mdi-arrow-up');
+const trendClass = ref('up');
 
 const newComment = ref({
   email: userEmail,
@@ -323,10 +343,172 @@ const newComment = ref({
   rating: 5
 });
 
-// Función para inicializar el historial de descargas si no existe
+// Función mejorada para calcular la tendencia (7 días como Steam)
+const calculateTrend = (data) => {
+  if (!data || data.length < 2) {
+    trendPercentage.value = 0;
+    trendColor.value = 'warning';
+    trendIcon.value = 'mdi-minus';
+    trendClass.value = 'neutral';
+    return;
+  }
+
+  // Tomar los últimos 7 días o todos si hay menos de 7
+  const recentData = data.length > 7 ? data.slice(-7) : data;
+  const firstValue = recentData[0].totalDownloads;
+  const lastValue = recentData[recentData.length - 1].totalDownloads;
+
+  if (firstValue === 0) {
+    trendPercentage.value = 100;
+    trendColor.value = 'success';
+    trendIcon.value = 'mdi-arrow-up';
+    trendClass.value = 'up';
+    return;
+  }
+
+  const percentageChange = ((lastValue - firstValue) / firstValue) * 100;
+  trendPercentage.value = Math.round(Math.abs(percentageChange));
+
+  if (percentageChange > 0) {
+    trendColor.value = 'success';
+    trendIcon.value = 'mdi-arrow-up';
+    trendClass.value = 'up';
+  } else if (percentageChange < 0) {
+    trendColor.value = 'error';
+    trendIcon.value = 'mdi-arrow-down';
+    trendClass.value = 'down';
+  } else {
+    trendColor.value = 'warning';
+    trendIcon.value = 'mdi-minus';
+    trendClass.value = 'neutral';
+  }
+};
+
+// Función para inicializar el gráfico (estilo Steam)
+const initChart = () => {
+  // Verificar si el canvas existe y está disponible
+  if (!downloadsChart.value) {
+    console.log('Canvas no disponible para el gráfico');
+    return;
+  }
+
+  // Verificar si hay datos disponibles
+  const stats = mod.value?.statsDailyDownloadsMods;
+  if (!stats || !stats.length) {
+    console.log('No hay datos suficientes para el gráfico');
+    return;
+  }
+
+  try {
+    // Verificar si el canvas tiene contexto
+    const ctx = downloadsChart.value.getContext('2d');
+    if (!ctx) {
+      console.error('No se pudo obtener el contexto del canvas');
+      return;
+    }
+    
+    // Ordenar datos por fecha
+    const sortedData = [...mod.value.statsDailyDownloadsMods].sort((a, b) => 
+      new Date(a.date) - new Date(b.date)
+    );
+
+    // Preparar etiquetas y datos
+    const labels = sortedData.map(item => 
+      new Date(item.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+    );
+    const data = sortedData.map(item => item.totalDownloads);
+
+    // Calcular tendencia
+    calculateTrend(sortedData);
+
+    // Destruir instancia anterior si existe
+    if (chartInstance.value) {
+      try {
+        chartInstance.value.destroy();
+      } catch (error) {
+        console.error('Error al destruir el gráfico anterior:', error);
+      }
+      chartInstance.value = null;
+    }
+
+    // Crear nueva instancia con estilo Steam
+    chartInstance.value = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Descargas Diarias',
+          data: data,
+          backgroundColor: '#fc503b',
+          borderColor: '#fc503b',
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            display: false 
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#ffffff',
+            bodyColor: '#e0e0e0',
+            borderColor: '#fc503b',
+            borderWidth: 1,
+            padding: 12,
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ${context.raw}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { 
+              display: false,
+              drawBorder: false
+            },
+            ticks: { 
+              color: '#a0a0a0',
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 7
+            }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { 
+              color: 'rgba(255,255,255,0.05)',
+              drawBorder: false
+            },
+            ticks: { 
+              color: '#a0a0a0',
+              precision: 0
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
+        animation: {
+          duration: 800
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error al inicializar el gráfico:', error);
+    if (chartInstance.value) {
+      chartInstance.value = null;
+    }
+  }
+};
+
 const initDownloadsHistory = () => {
   if (!mod.value.downloads_history) {
-    // Si no hay historial, creamos uno vacío
     mod.value.downloads_history = [];
   }
 };
@@ -337,11 +519,26 @@ const fetchModDetails = async () => {
     const response = await getMod(route.params.id);
     const data = await response.json();
     mod.value = data.modUser;
-    console.log(mod.value);
+    
+    if (data.statsDailyDownloadsMods) {
+      mod.value.statsDailyDownloadsMods = data.statsDailyDownloadsMods;
+    }
+    
     initDownloadsHistory();
     await fetchComments();
+    
+    if (downloadsChart.value) {
+      nextTick(() => {
+        initChart();
+      });
+    }
   } catch (error) {
     console.error('Error al cargar detalles del mod:', error);
+    snackbar.value = {
+      show: true,
+      text: 'Error al cargar detalles del mod',
+      color: 'error'
+    };
   } finally {
     loading.value = false;
   }
@@ -394,7 +591,6 @@ const submitComment = async () => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Fecha desconocida';
-  
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('es-ES', {
     year: 'numeric',
@@ -422,10 +618,8 @@ const maskEmail = (email) => {
 
 const download = async (mod) => {
   try {
-    // Registrar la descarga en el backend
     await postDownloadMod(route.params.id);
 
-    // Simular la descarga
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
     link.setAttribute('download', '');
@@ -433,22 +627,10 @@ const download = async (mod) => {
     document.body.appendChild(link);
     link.click();
     link.remove();
-
-    // Actualizar estadísticas locales
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Inicializar downloads_history si no existe
-    if (!mod.downloads_history) {
-      mod.downloads_history = {};
-    }
-    
-    // Incrementar contadores
-    mod.downloads_history[today] = (mod.downloads_history[today] || 0) + 1;
-    mod.downloads = (mod.downloads || 0) + 1;
-
+      
     snackbar.value = {
       show: true,
-      text: `¡Descarga iniciada!`,
+      text: '¡Descarga iniciada!',
       color: 'info'
     };
   } catch (error) {
@@ -466,7 +648,7 @@ const deleteComment = async (comment) => {
     const response = await deleteCommentMongodb(comment._id);
 
     if(!response.ok) {
-      const errorData = response.json();
+      const errorData = await response.json();
       console.error("Error al eliminar comentario:", errorData.error);
       return;
     }
@@ -488,7 +670,7 @@ const toggleEdit = (comment) => {
     newContent.value = comment.content;
   }
   isEditing.value = !isEditing.value;
-}
+};
 
 const editComment = async (comment) => {
   try {
@@ -511,15 +693,35 @@ const editComment = async (comment) => {
   } catch (error) {
     console.error("Error al editar comentario:", error);
   }
-}
+};
+
+// Observar cambios en los datos de descargas
+watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
+  if (newVal && downloadsChart.value) {
+    nextTick(() => {
+      initChart();
+    });
+  }
+}, { deep: true });
 
 onMounted(() => {
   fetchModDetails();
+  
+  // Inicializar el gráfico cuando el componente esté montado
+  nextTick(() => {
+    if (downloadsChart.value) {
+      initChart();
+    }
+  });
   listenToModDownloads2(mod);
 });
 
 onBeforeUnmount(() => {
+  if (chartInstance.value) {
+    chartInstance.value.destroy();
+  }
 });
+
 </script>
 
 <style scoped>
@@ -624,13 +826,16 @@ onBeforeUnmount(() => {
 .nexus-stats-card,
 .nexus-creator-card,
 .nexus-tags-card,
-.nexus-files-card {
-  background: rgba(13, 13, 13, 0.8);
-  border: 1px solid #252525;
-  border-radius: 6px;
-  margin-bottom: 16px;
+.nexus-files-card,
+
+.nexus-downloads-chart-card {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
   padding: 16px;
+  margin-bottom: 16px;
 }
+
 
 .nexus-stats-item {
   display: flex;
@@ -656,6 +861,81 @@ onBeforeUnmount(() => {
   margin-bottom: 16px;
   text-transform: none;
   font-weight: 500;
+}
+
+/* Estilos para el gráfico de descargas */
+.nexus-downloads-chart-card {
+  background: rgba(13, 13, 13, 0.8);
+  border: 1px solid #252525;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.nexus-chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-chart-container {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+.nexus-chart-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.nexus-chart-indicator.up {
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.nexus-chart-indicator.down {
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.nexus-chart-indicator.neutral {
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+
+.nexus-chart-arrow {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(13, 13, 13, 0.7);
+}
+
+.nexus-chart-arrow.up {
+  color: #4caf50;
+}
+
+.nexus-chart-arrow.down {
+  color: #f44336;
 }
 
 .nexus-creator-item {

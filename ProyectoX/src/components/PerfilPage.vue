@@ -37,369 +37,377 @@
       </div>
     </v-app-bar>
 
-    <v-container class="nexus-main-container">
-      <!-- Perfil del usuario -->
-      <div class="nexus-profile-section">
-        <div class="nexus-profile-left">
-          <div class="nexus-avatar-container" @click="triggerFileInput">
-            <v-avatar class="nexus-profile-avatar" size="160">
-              <v-img :src="'http://localhost:3002' + user.avatar" />
-            </v-avatar>
-            <div class="nexus-avatar-overlay">
-              <v-icon size="32">mdi-camera</v-icon>
-              <span>Cambiar foto</span>
-            </div>
-            <input 
-              type="file" 
-              ref="avatarInput"
-              @change="handleAvatarChange"
-              accept="image/*"
-              style="display: none"
-            />
-          </div>
-        </div>
+    <!-- Contenido principal con padding-top para evitar que el header fijo tape contenido -->
+    <div class="nexus-content-wrapper">
+      <v-container class="nexus-main-container">
+        <!-- Portada/Banner al estilo GitHub -->
+        <div class="nexus-profile-banner"></div>
         
-        <div class="nexus-profile-right">
-          <div class="nexus-profile-info">
-            <h1 class="nexus-profile-username">{{ user.username }}</h1>
-            <p class="nexus-profile-email">{{ user.email }}</p>
-            
-            <div class="nexus-profile-stats">
-              <div class="nexus-stat-item">
-                <div class="nexus-stat-value">{{ user.mods?.length || 0 }}</div>
-                <div class="nexus-stat-label">Mods</div>
+        <!-- Sección de perfil con avatar posicionado sobre el banner -->
+        <div class="nexus-profile-section">
+          <div class="nexus-profile-left">
+            <div class="nexus-avatar-container" @click="triggerFileInput">
+              <v-avatar class="nexus-profile-avatar" size="160">
+                <v-img :src="'http://localhost:3002' + user.avatar" />
+              </v-avatar>
+              <div class="nexus-avatar-overlay">
+                <v-icon size="32">mdi-camera</v-icon>
+                <span>Cambiar foto</span>
               </div>
-              <div class="nexus-stat-item">
-                <div class="nexus-stat-value">{{ totalDownloads }}</div>
-                <div class="nexus-stat-label">Descargas</div>
-              </div>
-              <div class="nexus-stat-item">
-                <div class="nexus-stat-value">0</div>
-                <div class="nexus-stat-label">Likes</div>
-              </div>
+              <input 
+                type="file" 
+                ref="avatarInput"
+                @change="handleAvatarChange"
+                accept="image/*"
+                style="display: none"
+              />
             </div>
-            
-            <v-btn 
-              color="#fc503b" 
-              variant="outlined"
-              @click="editPerfil = true"
-              class="nexus-edit-btn"
-            >
-              <v-icon left>mdi-pencil</v-icon>
-              Editar perfil
-            </v-btn>
           </div>
-        </div>
-      </div>
-
-      <!-- Diálogo para editar perfil -->
-      <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog">
-        <v-card>
-          <v-card-title class="nexus-dialog-title">
-            <v-icon icon="mdi-account-edit" class="mr-2"></v-icon>
-            Editar Perfil
-          </v-card-title>
-          <v-card-text>
-            <v-text-field 
-              v-model="newInformationUser.username" 
-              label="Nombre de usuario" 
-              variant="outlined"
-              class="nexus-input"
-            />
-            <v-divider class="my-4"></v-divider>
-            <v-text-field 
-              v-model="newInformationUser.newPassword" 
-              label="Nueva contraseña" 
-              type="password" 
-              variant="outlined"
-              class="nexus-input"
-            />
-            <v-text-field 
-              v-model="newInformationUser.confirmPassword" 
-              label="Confirmar contraseña" 
-              type="password" 
-              variant="outlined"
-              class="nexus-input"
-            />
-          </v-card-text>
-          <v-card-actions class="nexus-dialog-actions">
-            <v-spacer />
-            <v-btn 
-              variant="outlined"
-              @click="editPerfil = false"
-              class="nexus-btn"
-            >
-              Cancelar
-            </v-btn>
-            <v-btn 
-              color="#fc503b" 
-              :loading="loading" 
-              @click="updateProfile"
-              class="nexus-btn"
-            >
-              Guardar cambios
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <!-- Tabs de navegación -->
-      <v-tabs v-model="tab" color="#fc503b" class="nexus-tabs">
-        <v-tab value="mods">
-          <v-icon left>mdi-puzzle</v-icon>
-          Mis Mods
-        </v-tab>
-        <v-tab value="activity">
-          <v-icon left>mdi-chart-line</v-icon>
-          Estadísticas
-        </v-tab>
-        <v-tab value="settings">
-          <v-icon left>mdi-cog</v-icon>
-          Configuración
-        </v-tab>
-      </v-tabs>
-
-      <v-window v-model="tab" class="nexus-tab-content">
-        <v-window-item value="mods">
-          <!-- Lista de Mods -->
-          <div class="nexus-mods-container">
-            <div class="nexus-mods-header">
-              <h2 class="nexus-mods-title">Mis Mods</h2>
+          
+          <div class="nexus-profile-right">
+            <div class="nexus-profile-info">
+              <h1 class="nexus-profile-username">{{ user.username }}</h1>
+              <p class="nexus-profile-email">{{ user.email }}</p>
+              
+              <div class="nexus-profile-stats">
+                <div class="nexus-stat-item">
+                  <div class="nexus-stat-value">{{ user.mods?.length || 0 }}</div>
+                  <div class="nexus-stat-label">Mods</div>
+                </div>
+                <div class="nexus-stat-item">
+                  <div class="nexus-stat-value">{{ totalDownloads }}</div>
+                  <div class="nexus-stat-label">Descargas</div>
+                </div>
+                <div class="nexus-stat-item">
+                  <div class="nexus-stat-value">0</div>
+                  <div class="nexus-stat-label">Likes</div>
+                </div>
+              </div>
+              
               <v-btn 
                 color="#fc503b" 
-                to="/upload-mod"
-                class="nexus-new-mod-btn"
+                variant="outlined"
+                @click="editPerfil = true"
+                class="nexus-edit-btn"
               >
-                <v-icon left>mdi-plus</v-icon>
-                Nuevo Mod
+                <v-icon left>mdi-pencil</v-icon>
+                Editar perfil
               </v-btn>
             </div>
-            
-            <div v-if="user.mods?.length === 0" class="nexus-no-mods">
-              <div class="nexus-no-mods-content">
-                <v-icon color="#fc503b" size="64">mdi-puzzle-remove-outline</v-icon>
-                <h3>No tienes mods subidos</h3>
-                <p>Comienza a compartir tus creaciones con la comunidad</p>
+          </div>
+        </div>
+
+        <!-- Tabs de navegación fijados debajo del perfil -->
+        <div class="nexus-tabs-container">
+          <v-tabs v-model="tab" color="#fc503b" class="nexus-tabs">
+            <v-tab value="mods">
+              <v-icon left>mdi-puzzle</v-icon>
+              Mis Mods
+            </v-tab>
+            <v-tab value="activity">
+              <v-icon left>mdi-chart-line</v-icon>
+              Estadísticas
+            </v-tab>
+            <v-tab value="settings">
+              <v-icon left>mdi-cog</v-icon>
+              Configuración
+            </v-tab>
+          </v-tabs>
+        </div>
+
+        <v-window v-model="tab" class="nexus-tab-content">
+          <v-window-item value="mods">
+            <!-- Lista de Mods -->
+            <div class="nexus-mods-container">
+              <div class="nexus-mods-header">
+                <h2 class="nexus-mods-title">Mis Mods</h2>
                 <v-btn 
                   color="#fc503b" 
                   to="/upload-mod"
-                  class="nexus-btn"
+                  class="nexus-new-mod-btn"
                 >
-                  <v-icon left>mdi-upload</v-icon>
-                  Subir tu primer mod
+                  <v-icon left>mdi-plus</v-icon>
+                  Nuevo Mod
                 </v-btn>
               </div>
-            </div>
-
-            <div v-else class="nexus-mods-grid">
-              <div v-for="mod in user.mods" :key="mod.id" class="nexus-mod-card">
-                <div class="nexus-mod-image-container">
-                  <img 
-                    v-if="mod.image" 
-                    :src="`http://localhost:3002${mod.image}`" 
-                    alt="Imagen del mod" 
-                    class="nexus-mod-image" 
-                  />
-                  <div v-else class="nexus-mod-image-placeholder">
-                    <v-icon size="48" color="#fc503b">mdi-puzzle</v-icon>
-                  </div>
+              
+              <div v-if="user.mods?.length === 0" class="nexus-no-mods">
+                <div class="nexus-no-mods-content">
+                  <v-icon color="#fc503b" size="64">mdi-puzzle-remove-outline</v-icon>
+                  <h3>No tienes mods subidos</h3>
+                  <p>Comienza a compartir tus creaciones con la comunidad</p>
+                  <v-btn 
+                    color="#fc503b" 
+                    to="/upload-mod"
+                    class="nexus-btn"
+                  >
+                    <v-icon left>mdi-upload</v-icon>
+                    Subir tu primer mod
+                  </v-btn>
                 </div>
-                
-                <div class="nexus-mod-details">
-                  <div class="nexus-mod-header">
-                    <h3 class="nexus-mod-title">{{ mod.title }}</h3>
-                    <div class="nexus-mod-visibility">
-                      <v-chip 
-                        small 
-                        :color="mod.visible ? 'success' : 'grey'" 
-                        text-color="white"
-                      >
-                        {{ mod.visible ? 'Público' : 'Privado' }}
-                      </v-chip>
+              </div>
+
+              <div v-else class="nexus-mods-grid">
+                <div v-for="mod in user.mods" :key="mod.id" class="nexus-mod-card">
+                  <div class="nexus-mod-image-container">
+                    <img 
+                      v-if="mod.image" 
+                      :src="`http://localhost:3002${mod.image}`" 
+                      alt="Imagen del mod" 
+                      class="nexus-mod-image" 
+                    />
+                    <div v-else class="nexus-mod-image-placeholder">
+                      <v-icon size="48" color="#fc503b">mdi-puzzle</v-icon>
                     </div>
                   </div>
                   
-                  <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
-                  
-                  <div class="nexus-mod-footer">
-                    <div class="nexus-mod-stats">
-                      <div class="nexus-mod-stat">
-                        <v-icon small>mdi-download</v-icon>
-                        {{ mod.downloads || 0 }} descargas
-                      </div>
-                      <div class="nexus-mod-stat">
-                        <v-icon small>mdi-calendar</v-icon>
-                        {{ formatDate(mod.uploaded_at) }}
+                  <div class="nexus-mod-details">
+                    <div class="nexus-mod-header">
+                      <h3 class="nexus-mod-title">{{ mod.title }}</h3>
+                      <div class="nexus-mod-visibility">
+                        <v-chip 
+                          small 
+                          :color="mod.visible ? 'success' : 'grey'" 
+                          text-color="white"
+                        >
+                          {{ mod.visible ? 'Público' : 'Privado' }}
+                        </v-chip>
                       </div>
                     </div>
                     
-                    <div class="nexus-mod-actions">
-                      <v-btn
-                        color="#fc503b"
-                        variant="text"
-                        size="small"
-                        @click="openEditDialogMod(mod)"
-                        class="nexus-mod-btn"
-                      >
-                        Editar
-                      </v-btn>
-                      <v-btn
-                        color="#fc503b"
-                        variant="text"
-                        size="small"
-                        @click="updateVisible(mod)"
-                        class="nexus-mod-btn"
-                      >
-                        <v-icon>{{ mod.visible ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
-                      </v-btn>
+                    <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
+                    
+                    <div class="nexus-mod-footer">
+                      <div class="nexus-mod-stats">
+                        <div class="nexus-mod-stat">
+                          <v-icon small>mdi-download</v-icon>
+                          {{ mod.downloads || 0 }} descargas
+                        </div>
+                        <div class="nexus-mod-stat">
+                          <v-icon small>mdi-calendar</v-icon>
+                          {{ formatDate(mod.uploaded_at) }}
+                        </div>
+                      </div>
+                      
+                      <div class="nexus-mod-actions">
+                        <v-btn
+                          color="#fc503b"
+                          variant="text"
+                          size="small"
+                          @click="openEditDialogMod(mod)"
+                          class="nexus-mod-btn"
+                        >
+                          Editar
+                        </v-btn>
+                        <v-btn
+                          color="#fc503b"
+                          variant="text"
+                          size="small"
+                          @click="updateVisible(mod)"
+                          class="nexus-mod-btn"
+                        >
+                          <v-icon>{{ mod.visible ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+                        </v-btn>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </v-window-item>
-        
-        <v-window-item value="activity">
-          <div class="nexus-activity-container">
-            <h2 class="nexus-section-title">Estadísticas</h2>
-            <div class="nexus-stats-cards">
-              <v-card class="nexus-stat-card">
-                <v-card-title>Descargas totales</v-card-title>
-                <v-card-text>
-                  <div class="nexus-stat-value">{{ totalDownloads }}</div>
-                </v-card-text>
-              </v-card>
-              
-              <v-card class="nexus-stat-card">
-                <v-card-title>Mods populares</v-card-title>
-                <v-card-text>
-                  <div v-if="topMods.length > 0">
-                    <div v-for="mod in topMods" :key="mod.id" class="nexus-popular-mod">
-                      <span class="nexus-popular-mod-name">{{ mod.title }}</span>
-                      <span class="nexus-popular-mod-downloads">{{ mod.downloads }} descargas</span>
+          </v-window-item>
+          
+          <v-window-item value="activity">
+            <div class="nexus-activity-container">
+              <h2 class="nexus-section-title">Estadísticas</h2>
+              <div class="nexus-stats-cards">
+                <v-card class="nexus-stat-card">
+                  <v-card-title>Descargas totales</v-card-title>
+                  <v-card-text>
+                    <div class="nexus-stat-value">{{ totalDownloads }}</div>
+                  </v-card-text>
+                </v-card>
+                
+                <v-card class="nexus-stat-card">
+                  <v-card-title>Mods populares</v-card-title>
+                  <v-card-text>
+                    <div v-if="topMods.length > 0">
+                      <div v-for="mod in topMods" :key="mod.id" class="nexus-popular-mod">
+                        <span class="nexus-popular-mod-name">{{ mod.title }}</span>
+                        <span class="nexus-popular-mod-downloads">{{ mod.downloads }} descargas</span>
+                      </div>
                     </div>
-                  </div>
-                  <div v-else class="nexus-no-stats">
-                    No hay datos suficientes
-                  </div>
+                    <div v-else class="nexus-no-stats">
+                      No hay datos suficientes
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </div>
+            </div>
+          </v-window-item>
+          
+          <v-window-item value="settings">
+            <div class="nexus-settings-container">
+              <h2 class="nexus-section-title">Configuración de la cuenta</h2>
+              <v-card class="nexus-settings-card">
+                <v-card-text>
+                  <v-list>
+                    <v-list-item @click="editPerfil = true">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-account</v-icon>
+                      </template>
+                      <v-list-item-title>Editar perfil</v-list-item-title>
+                      <template v-slot:append>
+                        <v-icon>mdi-chevron-right</v-icon>
+                      </template>
+                    </v-list-item>
+                    
+                    <v-divider></v-divider>
+                    
+                    <v-list-item @click="changePasswordDialog = true">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-lock</v-icon>
+                      </template>
+                      <v-list-item-title>Cambiar contraseña</v-list-item-title>
+                      <template v-slot:append>
+                        <v-icon>mdi-chevron-right</v-icon>
+                      </template>
+                    </v-list-item>
+                    
+                    <v-divider></v-divider>
+                    
+                    <v-list-item @click="logout">
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-logout</v-icon>
+                      </template>
+                      <v-list-item-title class="text-error">Cerrar sesión</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
                 </v-card-text>
               </v-card>
             </div>
-          </div>
-        </v-window-item>
-        
-        <v-window-item value="settings">
-          <div class="nexus-settings-container">
-            <h2 class="nexus-section-title">Configuración de la cuenta</h2>
-            <v-card class="nexus-settings-card">
-              <v-card-text>
-                <v-list>
-                  <v-list-item @click="editPerfil = true">
-                    <template v-slot:prepend>
-                      <v-icon>mdi-account</v-icon>
-                    </template>
-                    <v-list-item-title>Editar perfil</v-list-item-title>
-                    <template v-slot:append>
-                      <v-icon>mdi-chevron-right</v-icon>
-                    </template>
-                  </v-list-item>
-                  
-                  <v-divider></v-divider>
-                  
-                  <v-list-item @click="changePasswordDialog = true">
-                    <template v-slot:prepend>
-                      <v-icon>mdi-lock</v-icon>
-                    </template>
-                    <v-list-item-title>Cambiar contraseña</v-list-item-title>
-                    <template v-slot:append>
-                      <v-icon>mdi-chevron-right</v-icon>
-                    </template>
-                  </v-list-item>
-                  
-                  <v-divider></v-divider>
-                  
-                  <v-list-item @click="logout">
-                    <template v-slot:prepend>
-                      <v-icon color="error">mdi-logout</v-icon>
-                    </template>
-                    <v-list-item-title class="text-error">Cerrar sesión</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-            </v-card>
-          </div>
-        </v-window-item>
-      </v-window>
+          </v-window-item>
+        </v-window>
 
-      <!-- Diálogo para editar mod -->
-      <v-dialog v-model="editMod" max-width="600" class="nexus-dialog">
-        <v-card>
-          <v-card-title class="nexus-dialog-title">
-            <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-            Editar Mod
-          </v-card-title>
-          <v-card-text>
+        <!-- Diálogo para editar mod -->
+        <v-dialog v-model="editMod" max-width="600" class="nexus-dialog">
+          <v-card>
+            <v-card-title class="nexus-dialog-title">
+              <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+              Editar Mod
+            </v-card-title>
+            <v-card-text>
+                <v-text-field 
+                  v-model="newInformationMod.title" 
+                  label="Título del Mod" 
+                  variant="outlined"
+                  class="nexus-input"
+                />
+                <v-textarea 
+                  v-model="newInformationMod.description" 
+                  label="Descripción" 
+                  variant="outlined"
+                  class="nexus-input"
+                  rows="3"
+                />
+                <v-file-input 
+                  v-model="newInformationMod.modFile" 
+                  label="Archivo del Mod (deja en blanco para no cambiar)" 
+                  variant="outlined"
+                  class="nexus-input"
+                  prepend-icon="mdi-paperclip"
+                />
+            </v-card-text>
+            <v-card-actions class="nexus-dialog-actions">
+              <v-spacer />
+              <v-btn 
+                variant="outlined"
+                @click="editMod = false"
+                class="nexus-btn"
+              >
+                Cancelar
+              </v-btn>
+              <v-btn 
+                color="#fc503b" 
+                :loading="loading" 
+                @click="updateMod"
+                class="nexus-btn"
+              >
+                Actualizar mod
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- Diálogo para editar perfil -->
+        <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog">
+          <v-card>
+            <v-card-title class="nexus-dialog-title">
+              <v-icon icon="mdi-account-edit" class="mr-2"></v-icon>
+              Editar Perfil
+            </v-card-title>
+            <v-card-text>
               <v-text-field 
-                v-model="newInformationMod.title" 
-                label="Título del Mod" 
+                v-model="newInformationUser.username" 
+                label="Nombre de usuario" 
                 variant="outlined"
                 class="nexus-input"
               />
-              <v-textarea 
-                v-model="newInformationMod.description" 
-                label="Descripción" 
+              <v-divider class="my-4"></v-divider>
+              <v-text-field 
+                v-model="newInformationUser.newPassword" 
+                label="Nueva contraseña" 
+                type="password" 
                 variant="outlined"
                 class="nexus-input"
-                rows="3"
               />
-              <v-file-input 
-                v-model="newInformationMod.modFile" 
-                label="Archivo del Mod (deja en blanco para no cambiar)" 
+              <v-text-field 
+                v-model="newInformationUser.confirmPassword" 
+                label="Confirmar contraseña" 
+                type="password" 
                 variant="outlined"
                 class="nexus-input"
-                prepend-icon="mdi-paperclip"
               />
-          </v-card-text>
-          <v-card-actions class="nexus-dialog-actions">
-            <v-spacer />
-            <v-btn 
-              variant="outlined"
-              @click="editMod = false"
-              class="nexus-btn"
-            >
-              Cancelar
-            </v-btn>
-            <v-btn 
-              color="#fc503b" 
-              :loading="loading" 
-              @click="updateMod"
-              class="nexus-btn"
-            >
-              Actualizar mod
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+            </v-card-text>
+            <v-card-actions class="nexus-dialog-actions">
+              <v-spacer />
+              <v-btn 
+                variant="outlined"
+                @click="editPerfil = false"
+                class="nexus-btn"
+              >
+                Cancelar
+              </v-btn>
+              <v-btn 
+                color="#fc503b" 
+                :loading="loading" 
+                @click="updateProfile"
+                class="nexus-btn"
+              >
+                Guardar cambios
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-      <v-snackbar
-        v-model="snackbar.show"
-        :color="snackbar.color"
-        timeout="3000"
-        class="nexus-snackbar"
-      >
-      {{ snackbar.text }}
-      <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="snackbar.show = false"
-          class="nexus-btn"
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          timeout="3000"
+          class="nexus-snackbar"
         >
-          Cerrar
-        </v-btn>
-      </template>
-      </v-snackbar>
-    </v-container>
+        {{ snackbar.text }}
+        <template v-slot:actions>
+          <v-btn
+            variant="text"
+            @click="snackbar.show = false"
+            class="nexus-btn"
+          >
+            Cerrar
+          </v-btn>
+        </template>
+        </v-snackbar>
+      </v-container>
+    </div>
   </div>
 </template>
 
@@ -643,10 +651,15 @@ onMounted(fetchUser);
   min-height: 100vh;
 }
 
+/* Contenedor principal con padding para evitar que el header fijo tape el contenido */
+.nexus-content-wrapper {
+  padding-top: 60px; /* Misma altura que el header */
+}
+
 .nexus-main-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 15px 40px;
+  padding: 0 15px 40px;
 }
 
 /* Header */
@@ -686,20 +699,34 @@ onMounted(fetchUser);
   letter-spacing: normal;
 }
 
+/* Banner al estilo GitHub */
+.nexus-profile-banner {
+  height: 200px;
+  background: linear-gradient(to right, #0d0d0d, #1a1a1a);
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #252525;
+  margin-bottom: -80px; /* Esto hará que el avatar se superponga al banner */
+  position: relative;
+}
+
 /* Profile Section */
 .nexus-profile-section {
   display: flex;
   gap: 32px;
   margin-bottom: 32px;
-  padding: 24px 0;
+  padding: 0 24px;
+  position: relative;
 }
 
 .nexus-profile-left {
   flex: 0 0 auto;
+  position: relative;
+  margin-top: -20px; /* Para ajustar la posición y que sobresalga del banner */
 }
 
 .nexus-profile-right {
   flex: 1;
+  padding-top: 80px; /* Espacio para evitar solapamiento con el avatar */
 }
 
 .nexus-avatar-container {
@@ -707,6 +734,7 @@ onMounted(fetchUser);
   cursor: pointer;
   border-radius: 50%;
   transition: all 0.3s;
+  z-index: 10;
 }
 
 .nexus-avatar-container:hover .nexus-avatar-overlay {
@@ -733,6 +761,7 @@ onMounted(fetchUser);
 .nexus-profile-avatar {
   border: 3px solid #fc503b;
   box-shadow: 0 0 20px rgba(252, 80, 59, 0.3);
+  background-color: #0d0d0d; /* Fondo para que no se vea a través */
 }
 
 .nexus-profile-info {
@@ -779,14 +808,25 @@ onMounted(fetchUser);
   font-weight: 500;
 }
 
-/* Tabs */
+/* Tabs al estilo GitHub */
+.nexus-tabs-container {
+  border-bottom: 1px solid #252525;
+  background: #161616;
+  padding: 0 24px;
+  margin-bottom: 24px;
+  border-radius: 0 0 8px 8px;
+  position: sticky;
+  top: 60px; /* Misma altura que el header */
+  z-index: 900;
+}
+
 .nexus-tabs {
   background: transparent !important;
-  margin-bottom: 24px;
 }
 
 .nexus-tab-content {
   background: transparent;
+  padding: 0 24px;
 }
 
 /* Mods Section */

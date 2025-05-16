@@ -228,7 +228,8 @@ router.get('/download/:id', async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const result = await dailyDownloadsMods.findOneAndUpdate(
+    // Cambiar dailyDownloadsMods por DailyDownloadsMods (con mayúscula)
+    const result = await DailyDownloadsMods.findOneAndUpdate(
       { date: today, modId: modId },
       { $inc: { totalDownloads: 1 } },
       { upsert: true, new: true, setDefaultsOnInsert: true }

@@ -489,14 +489,22 @@ const logout = () => {
   border-bottom: 1px solid #fc503b;
   z-index: 1000;
   padding: 0 5%;
+  height: 64px !important; /* Ajustamos la altura para que coincida con PerfilPage.vue */
 }
 
+.logo-container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
 
 .nexus-logo {
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   border: 2px solid #fc503b;
+  width: 40px !important; /* Tamaño más pequeño para ajustarse al header */
+  height: 40px !important;
 }
 
 
@@ -512,18 +520,37 @@ const logout = () => {
 
 
 .nexus-nav-btn {
+  position: relative;
   font-weight: 600;
   letter-spacing: 0.5px;
   margin: 0 10px;
   text-transform: uppercase;
   font-size: 0.9rem;
   transition: all 0.3s;
+  overflow: hidden;
+  padding: 10px 20px;
 }
 
+.nexus-nav-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #fc503b;
+  transition: all 0.3s;
+  transform: translateX(-50%);
+}
+
+.nexus-nav-btn:hover::after {
+  width: 80%;
+}
 
 .nexus-nav-btn:hover {
   color: #fff !important;
   text-shadow: 0 0 8px #fc503b;
+  transform: translateY(-2px);
 }
 
 
@@ -585,9 +612,27 @@ const logout = () => {
   text-transform: uppercase;
   margin-bottom: 20px;
   text-shadow: 0 0 20px rgba(252, 80, 59, 0.7);
-  animation: pulse 3s infinite;
+  animation: text-glow 3s infinite;
+  position: relative;
+  display: inline-block;
 }
 
+@keyframes text-glow {
+  0% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
+  50% { text-shadow: 0 0 30px rgba(252, 80, 59, 1), 0 0 40px rgba(252, 80, 59, 0.5); }
+  100% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
+}
+
+.banner-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #fc503b, transparent);
+}
 
 .banner-subtitle {
   font-size: 1.5rem;
@@ -603,24 +648,54 @@ const logout = () => {
 }
 
 
+/* Mejora del botón de descarga principal */
 .nexus-download-btn {
   background-color: #fc503b !important;
   color: white !important;
   font-weight: bold;
   letter-spacing: 1px;
-  padding: 15px 30px !important;
+  padding: 0 30px !important; /* Eliminamos padding vertical para controlarlo con height */
+  height: 50px !important; /* Altura fija para el botón */
+  line-height: 50px !important; /* Alineamos el texto verticalmente */
   border-radius: 4px;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(252, 80, 59, 0.3);
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
+.nexus-download-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: all 0.6s;
+}
 
 .nexus-download-btn:hover {
   background-color: #e04635 !important;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(252, 80, 59, 0.4) !important;
 }
 
+.nexus-download-btn:hover::after {
+  left: 100%;
+}
+
+.nexus-download-btn .v-btn__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
 /* Secciones generales */
 .nexus-section {
@@ -723,6 +798,48 @@ const logout = () => {
   position: relative;
   height: 100%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.nexus-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #fc503b, transparent);
+  transform: scaleX(0);
+  transition: transform 0.4s;
+}
+
+.nexus-card.on-hover::before {
+  transform: scaleX(1);
+}
+
+.nexus-card-title {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  color: #fc503b !important;
+  padding-bottom: 0 !important;
+  transition: all 0.3s;
+}
+
+.nexus-card-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+
+.nexus-card.on-hover .nexus-card-title::after {
+  width: 100%;
 }
 
 
@@ -778,14 +895,6 @@ const logout = () => {
 }
 
 
-.nexus-card-title {
-  font-size: 1.3rem !important;
-  font-weight: 600 !important;
-  color: #fc503b !important;
-  padding-bottom: 0 !important;
-  transition: all 0.3s;
-}
-
 
 .nexus-card.on-hover .nexus-card-title {
   color: white !important;
@@ -811,13 +920,27 @@ const logout = () => {
   background-color: rgba(252, 80, 59, 0.1);
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: pulse-shadow 2s infinite;
 }
+
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(252, 80, 59, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(252, 80, 59, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 80, 59, 0);
+  }
+}
+
 
 
 .nav-arrow:hover {
   transform: scale(1.1);
   background-color: rgba(252, 80, 59, 0.2);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  animation-play-state: paused;
 }
 
 
@@ -1077,14 +1200,38 @@ const logout = () => {
   color: #e0e0e0;
   font-size: 1.5rem;
   transition: all 0.3s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(30, 30, 30, 0.5);
+  overflow: hidden;
+}
+
+.social-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(252, 80, 59, 0.5) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 
 .social-icon:hover {
-  color: #fc503b;
-  transform: scale(1.2);
+  color: #fff;
+  transform: translateY(-5px);
 }
 
+.social-icon:hover::before {
+  opacity: 1;
+}
 
 .nexus-link {
   color: #fc503b;
