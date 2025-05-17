@@ -102,16 +102,14 @@ export const changeUserAdmin = async (userId) => {
     }
 }
 
-export const getMods = async () => {
+// Hecho
+export const getAllMods = async () => {
     try {
-        const response = await fetch('http://localhost:3002/api/mods');
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        return await response.json();
+        return await fetch(urlBackend + '/api/mods', {
+            method: 'GET',
+        });
     } catch (err) {
-        console.error('Error cargando mods:', err);
-        throw err;
+        return null;
     }
 }
 
@@ -135,29 +133,26 @@ export const getMod = async (id) => {
     return await fetch(`http://localhost:3002/api/mods/${id}`);
 }
 
+// Hecho
 export const postMod = async (formData) => {
     try {
-        const response = await fetch('http://localhost:3002/api/mods/new-mod', {
+        return await fetch(urlBackend + '/api/mods/new-mod', {
             method: 'POST',
             body: formData,
         });
-
-        return response;
     } catch (error) {
-        console.error('Error al subir mod:', error);
+        return null;
     }
 }
-
 
 //Hecho
 export const putMod = async (formData) => {
     try {
-        return await fetch('http://localhost:3002/api/mods/update-mod', {
+        return await fetch(urlBackend + '/api/mods/update-mod', {
             method: 'PUT',
             body: formData
         });
     } catch (error) {
-        console.error('Error al actualizar mod:', error);
         return null;
     }
 }
@@ -165,15 +160,28 @@ export const putMod = async (formData) => {
 // Hecho
 export const deleteModSequelize = async (modId) => {
     try {
-        return await fetch(`http://localhost:3002/api/mods/delete-mod/${modId}`, {
+        return await fetch(urlBackend + `/api/mods/delete-mod/${modId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
     } catch (error) {
-        console.error('Error al eliminar el mod:', error);
         return null
+    }
+}
+
+// Hecho
+export const patchDownloadMod = async (modId) => {
+    try {
+        return await fetch(urlBackend + `/api/mods/download/${modId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        return null;
     }
 }
 
@@ -187,7 +195,6 @@ export const changeVisible = async (modId) => {
         }
         });
     } catch (error) {
-        console.error('Error al actualizar la visibilidad del mod:', error);
         return null
     }
 }
@@ -208,10 +215,6 @@ export const postComment = async (newComment) => {
         },
         body: JSON.stringify(newComment.value)
     });
-}
-
-export const postDownloadMod = async (modId) => {
-    await fetch(`http://localhost:3002/api/mods/download/${modId}`);
 }
 
 export const putComment = async (commentId, newContent) => {

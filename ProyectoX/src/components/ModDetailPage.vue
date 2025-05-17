@@ -280,7 +280,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCommentsById, getMod, postComment, postDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
+import { getCommentsById, getMod, postComment, patchDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
 import { listenToModDownloads2 } from '@/services/socketManager';
 import Chart from 'chart.js/auto';
 
@@ -589,7 +589,7 @@ const maskEmail = (email) => {
 
 const download = async (mod) => {
   try {
-    await postDownloadMod(route.params.id);
+    await patchDownloadMod(route.params.id);
 
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
@@ -667,13 +667,13 @@ const editComment = async (comment) => {
 };
 
 // Observar canvis en les dades de descàrregues
-watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
-  if (newVal && downloadsChart.value) {
-    nextTick(() => {
-      initChart();
-    });
-  }
-}, { deep: true });
+// watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
+//   if (newVal && downloadsChart.value) {
+//     nextTick(() => {
+//       initChart();
+//     });
+//   }
+// }, { deep: true });
 
 onMounted(() => {
   fetchModDetails();

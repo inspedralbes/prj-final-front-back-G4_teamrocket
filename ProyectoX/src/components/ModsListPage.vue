@@ -418,7 +418,7 @@
 
     <!-- Upload Success Snackbar -->
     <v-snackbar v-model="uploadSuccess" color="success" timeout="3000">
-      Mod subido correctamente!
+      {{ successMessage }}
       <template v-slot:actions>
         <v-btn variant="text" @click="uploadSuccess = false">Cerrar</v-btn>
       </template>
@@ -426,7 +426,7 @@
 
     <!-- Upload Error Snackbar -->
     <v-snackbar v-model="uploadError" color="error" timeout="3000">
-      Error al subir el mod: {{ errorMessage }}
+      {{ errorMessage }}
       <template v-slot:actions>
         <v-btn variant="text" @click="uploadError = false">Cerrar</v-btn>
       </template>
@@ -436,7 +436,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { getMods, postMod, postDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
+import { getAllMods, postMod, patchDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
 import { listenToModDownloads, listenToComments, listenToLikes } from '@/services/socketManager';
 
 const navigateToMainPage = () => {
@@ -473,6 +473,7 @@ const formValid = ref(false);
 const uploadSuccess = ref(false);
 const uploadError = ref(false);
 const errorMessage = ref('');
+const successMessage = ref('');
 
 // Formateadores
 const formatNumber = (num) => {
@@ -518,17 +519,33 @@ const isToggled = (modId) => {
   return likes.value.some(like => like.modId === modId && like.email === userEmail.value);
 };
 
-// Funciones de mods
+// Hecho
 const fetchMods = async () => {
-  try {
     loading.value = true;
-    mods.value = await getMods();
+
+  try {
+    const response = await getAllMods();
+
+    if (!response) {
+      console.error('No se recibió respuesta del servidor');
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = data.error || 'Error en obtenir tots els mods';
+      loading.value = false;
+      return;
+    }
+
+    mods.value = data;
     
     // Calcular estadísticas
     stats.value = {
       totalDownloads: mods.value.reduce((sum, mod) => sum + (mod.downloads || 0), 0),
       totalMods: mods.value.length,
-      totalMembers: 0, // Esto deberías obtenerlo del backend
+      totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size,
       totalRewards: 0 // Esto deberías obtenerlo del backend
     };
   } catch (error) {
@@ -629,6 +646,7 @@ const toggleLike = async (modId) => {
   }
 };
 
+// Hecho
 const uploadMod = async () => {
   if (!formValid.value) return;
   if (!modFile.value || !imageFile.value) return;
@@ -643,45 +661,75 @@ const uploadMod = async () => {
   
   try {
     const response = await postMod(formData);
-    const newMod = await response.json();
-    
-    // Agregar el nuevo mod a la lista
-    mods.value.unshift(newMod);
-    
-    // Mostrar feedback
+
+    if(!response) {
+      errorMessage.value = 'Error de xarxa o problema al servidor';
+      uploadError.value = true;
+      uploading.value = false;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = data.error || 'Error en pujar el mod'
+      uploading.value = false;
+      return;
+    }
+
+    successMessage.value = data.message || 'Mod subido correctamente';
     uploadSuccess.value = true;
     closeDialog();
     
-    // Recargar mods para asegurarnos de tener los datos actualizados
     await fetchMods();
   } catch (error) {
-    console.error('Error uploading mod:', error);
-    errorMessage.value = error.message || 'Error desconocido';
+    console.error('Error en uploadMod:', error);
+    errorMessage.value = 'Error en pujar el mod';
     uploadError.value = true;
   } finally {
     uploading.value = false;
   }
 };
 
-// Funciones de mod
+// Hecho
 const downloadMod = async (mod) => {
-  if (!mod.file_path) return;
+  if (!mod || !mod.file_path) {
+    errorMessage.value = 'El mod no té un fitxer associat';
+    uploadError.value = true;
+    return;
+  }
   
   try {
-    // Registrar la descarga en el backend
-    await postDownloadMod(mod.id);
+    const response = await patchDownloadMod(mod.id);
+
+    if(!response) {
+      errorMessage.value = 'Error de xarxa o problema al servidor';
+      uploadError.value = true;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = data.error || 'Error en descarregar el mod'
+      uploading.value = false;
+      return;
+    }
+
+    successMessage.value = data.message || 'Descàrrega exitosa';
+    uploadSuccess.value = true;
     
     // Descargar el archivo
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
-    link.setAttribute('download', '');
+    link.setAttribute('download', `${mod.title || 'mod'}.zip`);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    document.body.removeChild(link);
   } catch (error) {
     console.error('Error downloading mod:', error);
-    errorMessage.value = 'Error al descargar el mod';
+    errorMessage.value = 'Error en descarregar el mod';
     uploadError.value = true;
   }
 };

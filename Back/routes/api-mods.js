@@ -20,7 +20,7 @@ const imagesDir = path.join(modsDir, 'images');
   }
 });
 
-// Obtener todos los mods
+// Hecho
 router.get('/', async (req, res) => {
   try {
     const mods = await Mod.findAll({
@@ -107,25 +107,24 @@ const handleFileUpload = (file, directory) => {
   });
 };
 
-// Crear un nuevo mod
+// Hecho
 router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
 
     if (!req.files || !req.files.modFile || !req.files.imageFile) {
-      return res.status(400).json({ message: "No se han subido los archivos requeridos (mod o imagen)" });
+      return res.status(400).json({ error: "No se han subido los archivos requeridos (mod o imagen)" });
     }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
-    // Guardar el archivo del mod
+
     const modPath = await handleFileUpload(req.files.modFile, modsDir);
-    // Guardar la imagen usando el mismo nombre
     const imagePath = await handleFileUpload(req.files.imageFile, imagesDir);
-    // Guardar en la base de datos
-    const newMod = await Mod.create({
+    
+    await Mod.create({
       title,
       description,
       file_path: modPath,
@@ -133,6 +132,7 @@ router.post('/new-mod', async (req, res) => {
       uploaded_by: user.id
     });
     
+    // MongoDB
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -142,8 +142,9 @@ router.post('/new-mod', async (req, res) => {
       { upsert: true }
     );
 
-    res.status(201).json(newMod);
+    res.status(201).json({ message: 'Mod subido exitosamente'});
   } catch (error) {
+    console.log('Error al actualizar estadísticas:', error);
     res.status(500).json({ error: 'Error al crear el mod' });
   }
 });
@@ -225,7 +226,8 @@ router.delete('/delete-mod/:id', async (req, res) => {
   }
 });
 
-router.get('/download/:id', async (req, res) => {
+// Hecho
+router.patch('/download/:id', async (req, res) => {
   try {
     const modId = req.params.id;
     const mod = await Mod.findByPk(modId);
@@ -243,16 +245,13 @@ router.get('/download/:id', async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Cambiar dailyDownloadsMods por DailyDownloadsMods (con mayúscula)
-    const result = await DailyDownloadsMods.findOneAndUpdate(
+    await DailyDownloadsMods.findOneAndUpdate(
       { date: today, modId: modId },
       { $inc: { totalDownloads: 1 } },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    console.log(result);
-
-    res.status(200).json({ message: 'Descarga registrada' });
+    res.status(200).json({ message: 'Descarga existosa' });
   } catch (error) {
     console.error('Error al registrar descarga:', error);
     res.status(500).json({ error: 'Error al registrar descarga' });
