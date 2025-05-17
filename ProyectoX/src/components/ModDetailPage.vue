@@ -1,6 +1,6 @@
 <template>
   <div class="nexus-detail-page">
-    <!-- Botón de volver -->
+    <!-- Botó de tornar -->
     <v-btn 
       @click="$router.back()" 
       prepend-icon="mdi-arrow-left" 
@@ -11,28 +11,28 @@
       Tornar a la llista
     </v-btn>
     
-    <!-- Contenido principal -->
+    <!-- Contingut principal -->
     <v-card v-if="mod" class="nexus-mod-detail">
-      <!-- Encabezado -->
+      <!-- Capçalera -->
       <div class="nexus-mod-header">
         <h1 class="nexus-mod-title">{{ mod.title }}</h1>
-        <div class="nexus-mod-author">por {{ mod.uploaded_by || 'Anónimo' }}</div>
+        <div class="nexus-mod-author">per {{ mod.uploaded_by || 'Anònim' }}</div>
       </div>
       
       <v-divider class="nexus-divider"></v-divider>
       
       <div class="nexus-mod-content">
-        <!-- Columna izquierda -->
+        <!-- Columna esquerra -->
         <div class="nexus-main-column">
-          <!-- Descripción -->
+          <!-- Descripció -->
           <div class="nexus-section">
-            <h2 class="nexus-section-title">Descripción</h2>
+            <h2 class="nexus-section-title">Descripció</h2>
             <div class="nexus-mod-description">{{ mod.description }}</div>
           </div>
           
-          <!-- Actualizaciones -->
+          <!-- Actualitzacions -->
           <div class="nexus-section" v-if="mod.uploaded_at">
-            <h2 class="nexus-section-title">Actualizaciones</h2>
+            <h2 class="nexus-section-title">Actualitzacions</h2>
             <div class="nexus-update-info">
               <div class="nexus-update-item">
                 <span class="nexus-update-label">Última actualització:</span>
@@ -45,19 +45,19 @@
             </div>
           </div>
           
-          <!-- Comentarios -->
+          <!-- Comentaris -->
           <div class="nexus-section">
-            <h2 class="nexus-section-title">Comentarios</h2>
+            <h2 class="nexus-section-title">Comentaris</h2>
             
-            <!-- Formulario para añadir comentarios -->
+            <!-- Formulari per afegir comentaris -->
             <v-card variant="outlined" class="nexus-comment-form">
               <h3 class="nexus-comment-form-title">Afegeix un comentari</h3>
               
               <v-form @submit.prevent="submitComment" v-model="formValid">
                 <v-textarea
                   v-model="newComment.content"
-                  label="Comentario"
-                  :rules="[v => !!v || 'Comentari és requerit']"
+                  label="Comentari"
+                  :rules="[v => !!v || 'El comentari és obligatori']"
                   required
                   counter
                   rows="3"
@@ -88,7 +88,7 @@
               </v-form>
             </v-card>
             
-            <!-- Lista de comentarios -->
+            <!-- Llista de comentaris -->
             <div v-if="comments.length > 0" class="nexus-comments-list">
               <v-card 
                 v-for="(comment, index) in comments" 
@@ -115,12 +115,12 @@
                   <v-textarea
                     v-model="newContent"
                     rows="2"
-                    label="Editar comentario"
+                    label="Editar comentari"
                     variant="outlined"
                   ></v-textarea>
                   <div class="nexus-comment-edit-actions">
-                    <v-btn color="#fc503b" @click="editComment(comment)" size="small">Guardar</v-btn>
-                    <v-btn variant="text" @click="isEditing = false" size="small">Cancelar</v-btn>
+                    <v-btn color="#fc503b" @click="editComment(comment)" size="small">Desar</v-btn>
+                    <v-btn variant="text" @click="isEditing = false" size="small">Cancel·lar</v-btn>
                   </div>
                 </div>
 
@@ -135,7 +135,7 @@
                       @click="toggleEdit(comment)"
                       class="nexus-comment-action-btn"
                     >
-                      {{ isEditing ? 'Cancelar' : 'Editar' }}
+                      {{ isEditing ? 'Cancel·lar' : 'Editar' }}
                     </v-btn>
                     <v-btn 
                       variant="text" 
@@ -153,14 +153,14 @@
             
             <div v-else class="nexus-no-comments">
               <v-icon size="large" color="grey">mdi-comment-outline</v-icon>
-              <p>No hi ha comentaris encara. ¡Sé el primer a opinar!</p>
+              <p>Encara no hi ha comentaris. Sigues el primer a opinar!</p>
             </div>
           </div>
         </div>
         
-        <!-- Columna derecha -->
+        <!-- Columna dreta -->
         <div class="nexus-sidebar">
-          <!-- Estadísticas -->
+          <!-- Estadístiques -->
           <v-card variant="outlined" class="nexus-stats-card">
             <div class="nexus-stats-item">
               <div class="nexus-stats-label">Endorsements</div>
@@ -170,19 +170,19 @@
             <v-divider class="nexus-stats-divider"></v-divider>
             
             <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Total descàrregues</div>
+              <div class="nexus-stats-label">Descàrregues totals</div>
               <div class="nexus-stats-value">{{ mod.downloads || 0 }}</div>
             </div>
             
             <v-divider class="nexus-stats-divider"></v-divider>
             
             <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Versión</div>
+              <div class="nexus-stats-label">Versió</div>
               <div class="nexus-stats-value">1.3</div>
             </div>
           </v-card>
 
-          <!-- Botón de descarga -->
+          <!-- Botó de descàrrega -->
           <v-btn
             @click="download(mod)" 
             block 
@@ -191,10 +191,10 @@
             prepend-icon="mdi-download"
             class="nexus-download-btn"
           >
-            Baixar mod
+            Descarregar mod
           </v-btn>
           
-          <!-- Gráfico de descargas diarias - Versión mejorada -->
+          <!-- Gràfic de descàrregues diàries -->
           <v-card variant="outlined" class="nexus-downloads-chart-card">
             <h3 class="nexus-chart-title">Descàrregues diàries</h3>
             <div class="nexus-chart-container">
@@ -206,85 +206,56 @@
             </div>
           </v-card>
           
-          <!-- Información del creador -->
+          <!-- Informació del creador -->
           <v-card variant="outlined" class="nexus-creator-card">
             <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Creado por</span>
-              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anónimo' }}</span>
+              <span class="nexus-creator-label">Creat per</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
             </div>
             
             <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Subido por</span>
-              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anónimo' }}</span>
+              <span class="nexus-creator-label">Pujat per</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
             </div>
             
             <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Escaneo de virus</span>
+              <span class="nexus-creator-label">Escaneig de virus</span>
               <span class="nexus-creator-value nexus-virus-safe">
                 <v-icon color="success">mdi-check-circle</v-icon>
-                Seguro
+                Segur
               </span>
             </div>
           </v-card>
           
-          <!-- Tags -->
+          <!-- Etiquetes -->
           <v-card variant="outlined" class="nexus-tags-card">
-            <h3 class="nexus-tags-title">Tags para este mod</h3>
+            <h3 class="nexus-tags-title">Etiquetes per aquest mod</h3>
             <div class="nexus-tags-list">
-              <v-chip v-for="(tag, index) in ['Mapa', 'Interfaz', 'Mejora']" :key="index" class="nexus-tag">
+              <v-chip v-for="(tag, index) in ['Mapa', 'Interfície', 'Millora']" :key="index" class="nexus-tag">
                 {{ tag }}
               </v-chip>
             </div>
             <v-btn variant="text" color="#fc503b" size="small" class="nexus-add-tag-btn">
-              + Añadir tag
+              + Afegir etiqueta
             </v-btn>
           </v-card>
-          
-          <!-- Estadísticas de archivos -->
-          <v-card variant="outlined" class="nexus-files-card">
-            <div class="nexus-files-grid">
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">DESCRIPCIÓN</div>
-                <div class="nexus-files-value">1</div>
-              </div>
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">ARCHIVOS</div>
-                <div class="nexus-files-value">1</div>
-              </div>
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">IMÁGENES</div>
-                <div class="nexus-files-value">9</div>
-              </div>
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">VIDEOS</div>
-                <div class="nexus-files-value">1</div>
-              </div>
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">POSTS</div>
-                <div class="nexus-files-value">85</div>
-              </div>
-              <div class="nexus-files-item">
-                <div class="nexus-files-label">BUGS</div>
-                <div class="nexus-files-value">0</div>
-              </div>
-            </div>
-          </v-card>
+
         </div>
       </div>
     </v-card>
     
-    <!-- Loading/Error states -->
+    <!-- Estats de carrega/error -->
     <v-card v-else class="nexus-loading-card">
       <v-card-text class="nexus-loading-content">
         <v-progress-circular indeterminate color="#fc503b" v-if="loading"></v-progress-circular>
         <div v-else class="nexus-error-message">
           <v-icon color="error" size="large">mdi-alert-circle</v-icon>
-          <p>Mod no encontrado</p>
+          <p>Mod no trobat</p>
         </div>
       </v-card-text>
     </v-card>
     
-    <!-- Snackbar para mensajes -->
+    <!-- Snackbar per a missatges -->
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
@@ -299,7 +270,7 @@
           @click="snackbar.show = false"
           :color="snackbar.color === 'error' ? 'white' : ''"
         >
-          Cerrar
+          Tancar
         </v-btn>
       </template>
     </v-snackbar>
@@ -330,7 +301,7 @@ const snackbar = ref({
 const downloadsChart = ref(null);
 const chartInstance = ref(null);
 
-// Variables para el indicador de tendencia (estilo Steam)
+// Variables per a l'indicador de tendència (estil Steam)
 const trendPercentage = ref(0);
 const trendColor = ref('success');
 const trendIcon = ref('mdi-arrow-up');
@@ -343,7 +314,7 @@ const newComment = ref({
   rating: 5
 });
 
-// Función mejorada para calcular la tendencia (7 días como Steam)
+// Funció millorada per calcular la tendència (7 dies com Steam)
 const calculateTrend = (data) => {
   if (!data || data.length < 2) {
     trendPercentage.value = 0;
@@ -353,7 +324,7 @@ const calculateTrend = (data) => {
     return;
   }
 
-  // Tomar los últimos 7 días o todos si hay menos de 7
+  // Agafar els últims 7 dies o tots si n'hi ha menys de 7
   const recentData = data.length > 7 ? data.slice(-7) : data;
   const firstValue = recentData[0].totalDownloads;
   const lastValue = recentData[recentData.length - 1].totalDownloads;
@@ -384,60 +355,60 @@ const calculateTrend = (data) => {
   }
 };
 
-// Función para inicializar el gráfico (estilo Steam)
+// Funció per inicialitzar el gràfic (estil Steam)
 const initChart = () => {
-  // Verificar si el canvas existe y está disponible
+  // Verificar si el canvas existeix i està disponible
   if (!downloadsChart.value) {
-    console.log('Canvas no disponible para el gráfico');
+    console.log('Canvas no disponible per al gràfic');
     return;
   }
 
-  // Verificar si hay datos disponibles
+  // Verificar si hi ha dades disponibles
   const stats = mod.value?.statsDailyDownloadsMods;
   if (!stats || !stats.length) {
-    console.log('No hay datos suficientes para el gráfico');
+    console.log('No hi ha dades suficients per al gràfic');
     return;
   }
 
   try {
-    // Verificar si el canvas tiene contexto
+    // Verificar si el canvas té context
     const ctx = downloadsChart.value.getContext('2d');
     if (!ctx) {
-      console.error('No se pudo obtener el contexto del canvas');
+      console.error('No es pot obtenir el context del canvas');
       return;
     }
     
-    // Ordenar datos por fecha
+    // Ordenar dades per data
     const sortedData = [...mod.value.statsDailyDownloadsMods].sort((a, b) => 
       new Date(a.date) - new Date(b.date)
     );
 
-    // Preparar etiquetas y datos
+    // Preparar etiquetes i dades
     const labels = sortedData.map(item => 
-      new Date(item.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+      new Date(item.date).toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' })
     );
     const data = sortedData.map(item => item.totalDownloads);
 
-    // Calcular tendencia
+    // Calcular tendència
     calculateTrend(sortedData);
 
-    // Destruir instancia anterior si existe
+    // Destruir instància anterior si existeix
     if (chartInstance.value) {
       try {
         chartInstance.value.destroy();
       } catch (error) {
-        console.error('Error al destruir el gráfico anterior:', error);
+        console.error('Error en destruir el gràfic anterior:', error);
       }
       chartInstance.value = null;
     }
 
-    // Crear nueva instancia con estilo Steam
+    // Crear nova instància amb estil Steam
     chartInstance.value = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-          label: 'Descargas Diarias',
+          label: 'Descàrregues Diàries',
           data: data,
           backgroundColor: '#fc503b',
           borderColor: '#fc503b',
@@ -500,7 +471,7 @@ const initChart = () => {
       }
     });
   } catch (error) {
-    console.error('Error al inicializar el gráfico:', error);
+    console.error('Error en inicialitzar el gràfic:', error);
     if (chartInstance.value) {
       chartInstance.value = null;
     }
@@ -533,10 +504,10 @@ const fetchModDetails = async () => {
       });
     }
   } catch (error) {
-    console.error('Error al cargar detalles del mod:', error);
+    console.error('Error en carregar detalls del mod:', error);
     snackbar.value = {
       show: true,
-      text: 'Error al cargar detalles del mod',
+      text: 'Error en carregar detalls del mod',
       color: 'error'
     };
   } finally {
@@ -549,10 +520,10 @@ const fetchComments = async () => {
     const response = await getCommentsById(route.params.id);
     comments.value = await response.json();
   } catch (error) {
-    console.error('Error al cargar comentarios:', error);
+    console.error('Error en carregar comentaris:', error);
     snackbar.value = {
       show: true,
-      text: 'Error al cargar comentarios',
+      text: 'Error en carregar comentaris',
       color: 'error'
     };
   }
@@ -572,16 +543,16 @@ const submitComment = async () => {
     
     snackbar.value = {
       show: true,
-      text: '¡Comentario publicado correctamente!',
+      text: 'Comentari publicat correctament!',
       color: 'success'
     };
     
     await fetchComments();
   } catch (error) {
-    console.error('Error al publicar comentario:', error);
+    console.error('Error en publicar comentari:', error);
     snackbar.value = {
       show: true,
-      text: 'Error al publicar comentario',
+      text: 'Error en publicar comentari',
       color: 'error'
     };
   } finally {
@@ -590,9 +561,9 @@ const submitComment = async () => {
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Fecha desconocida';
+  if (!dateString) return 'Data desconeguda';
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('es-ES', {
+  return new Intl.DateTimeFormat('ca-ES', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -630,14 +601,14 @@ const download = async (mod) => {
       
     snackbar.value = {
       show: true,
-      text: '¡Descarga iniciada!',
+      text: 'Descàrrega iniciada!',
       color: 'info'
     };
   } catch (error) {
-    console.error('Error al descargar:', error);
+    console.error('Error en descarregar:', error);
     snackbar.value = {
       show: true,
-      text: 'Error al iniciar la descarga',
+      text: 'Error en iniciar la descàrrega',
       color: 'error'
     };
   }
@@ -649,19 +620,19 @@ const deleteComment = async (comment) => {
 
     if(!response.ok) {
       const errorData = await response.json();
-      console.error("Error al eliminar comentario:", errorData.error);
+      console.error("Error en eliminar comentari:", errorData.error);
       return;
     }
 
     snackbar.value = {
       show: true,
-      text: '¡Comentario eliminado correctamente!',
+      text: 'Comentari eliminat correctament!',
       color: 'success'
     };
 
     await fetchComments();
   } catch (error) {
-    console.error("Error al eliminar comentario:", error);
+    console.error("Error en eliminar comentari:", error);
   }
 };
 
@@ -684,18 +655,18 @@ const editComment = async (comment) => {
 
     snackbar.value = {
       show: true,
-      text: '¡Comentario actualizado correctamente!',
+      text: 'Comentari actualitzat correctament!',
       color: 'success'
     };
 
     comment.content = newContent.value;
     isEditing.value = false;
   } catch (error) {
-    console.error("Error al editar comentario:", error);
+    console.error("Error en editar comentari:", error);
   }
 };
 
-// Observar cambios en los datos de descargas
+// Observar canvis en les dades de descàrregues
 watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
   if (newVal && downloadsChart.value) {
     nextTick(() => {
@@ -707,7 +678,7 @@ watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
 onMounted(() => {
   fetchModDetails();
   
-  // Inicializar el gráfico cuando el componente esté montado
+  // Inicialitzar el gràfic quan el component estigui muntat
   nextTick(() => {
     if (downloadsChart.value) {
       initChart();

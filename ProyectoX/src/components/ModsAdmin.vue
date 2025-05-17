@@ -1,16 +1,19 @@
 <template>
   <div class="nexus-mods-admin">
-    <!-- Encabezado con efecto de luminosidad -->
+    <!-- Fondo Three.js -->
+    <div id="threejs-background" ref="threeContainer"></div>
+    
+    <!-- Capçalera amb efecte de lluminositat -->
     <div class="admin-header glow-effect">
       <div class="header-content">
         <v-icon color="#fc503b" size="32" class="mr-3">mdi-puzzle</v-icon>
         <h2 class="admin-title">
-          Gestión de Mods
+          Gestió de Mods
           <div class="title-underline"></div>
         </h2>
       </div>
       
-      <!-- Filtros premium -->
+      <!-- Filtres premium -->
       <div class="filters-container">
         <v-btn-toggle
           v-model="selectedFilter"
@@ -18,7 +21,7 @@
           class="nexus-filter-toggle"
           color="#fc503b"
         >
-          <v-tooltip location="bottom" text="Mostrar todos los mods">
+          <v-tooltip location="bottom" text="Mostrar tots els mods">
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -26,12 +29,12 @@
                 class="filter-btn"
               >
                 <v-icon left>mdi-format-list-bulleted</v-icon>
-                Todos los mods
+                Tots els mods
               </v-btn>
             </template>
           </v-tooltip>
 
-          <v-tooltip location="bottom" text="Mostrar solo mods verificados">
+          <v-tooltip location="bottom" text="Mostrar només mods verificats">
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -39,12 +42,12 @@
                 class="filter-btn"
               >
                 <v-icon left>mdi-shield-check</v-icon>
-                Mods seguros
+                Mods segurs
               </v-btn>
             </template>
           </v-tooltip>
 
-          <v-tooltip location="bottom" text="Mostrar mods pendientes de revisión">
+          <v-tooltip location="bottom" text="Mostrar mods pendents de revisió">
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -52,7 +55,7 @@
                 class="filter-btn"
               >
                 <v-icon left>mdi-alert</v-icon>
-                Mods no seguros
+                Mods no segurs
               </v-btn>
             </template>
           </v-tooltip>
@@ -60,7 +63,7 @@
 
         <v-text-field
           v-model="searchQuery"
-          placeholder="Buscar mods..."
+          placeholder="Cercar mods..."
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           density="compact"
@@ -71,7 +74,7 @@
       </div>
     </div>
 
-    <!-- Tarjeta de tabla con efecto de elevación -->
+    <!-- Targeta de taula amb efecte d'elevació -->
     <v-card 
       class="mods-table-card elevation-8"
       :class="{ 'loading': isLoading }"
@@ -81,7 +84,7 @@
         <div v-for="i in 5" :key="i" class="skeleton-row"></div>
       </div>
 
-      <!-- Tabla de mods -->
+      <!-- Taula de mods -->
       <v-data-table
         v-else
         :headers="headers"
@@ -89,10 +92,10 @@
         :search="searchQuery"
         class="mods-table"
         :loading="isLoading"
-        loading-text="Cargando mods..."
-        no-data-text="No se encontraron mods"
+        loading-text="Carregant mods..."
+        no-data-text="No s'han trobat mods"
       >
-        <!-- Columna de seguridad con animación -->
+        <!-- Columna de seguretat amb animació -->
         <template v-slot:item.security="{ item }">
           <v-fade-transition>
             <v-switch
@@ -105,14 +108,14 @@
             >
               <template v-slot:label>
                 <span :class="item.security ? 'text-success' : 'text-warning'">
-                  {{ item.security ? 'Verificado' : 'Pendiente' }}
+                  {{ item.security ? 'Verificat' : 'Pendent' }}
                 </span>
               </template>
             </v-switch>
           </v-fade-transition>
         </template>
 
-        <!-- Columna de acciones con efecto hover -->
+        <!-- Columna d'accions amb efecte hover -->
         <template v-slot:item.actions="{ item }">
           <div class="actions-container">
             <v-btn
@@ -125,13 +128,13 @@
               @click="logDownload(item.id)"
             >
               <v-icon left>mdi-download</v-icon>
-              Descargar
-              <v-tooltip activator="parent" location="top">Descargar archivo</v-tooltip>
+              Descarregar
+              <v-tooltip activator="parent" location="top">Descarregar arxiu</v-tooltip>
             </v-btn>
           </div>
         </template>
 
-        <!-- Columna de fecha formateada -->
+        <!-- Columna de data formatejada -->
         <template v-slot:item.uploaded_at="{ item }">
           <v-tooltip location="top">
             <template v-slot:activator="{ props }">
@@ -141,18 +144,18 @@
           </v-tooltip>
         </template>
 
-        <!-- Mensaje cuando no hay resultados -->
+        <!-- Missatge quan no hi ha resultats -->
         <template v-slot:no-results>
           <div class="no-results">
             <v-icon color="#fc503b" size="48">mdi-magnify-close</v-icon>
-            <h3>No se encontraron mods</h3>
-            <p>Intenta con otros términos de búsqueda</p>
+            <h3>No s'han trobat mods</h3>
+            <p>Prova amb altres termes de cerca</p>
           </div>
         </template>
       </v-data-table>
     </v-card>
 
-    <!-- Notificación de estado -->
+    <!-- Notificació d'estat -->
     <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
       {{ notificationMessage }}
     </v-snackbar>
@@ -160,9 +163,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import * as THREE from 'three';
 import { getModsAdmin } from '@/services/communicationManager';
 
+// Variables d'estat
 const mods = ref([]);
 const selectedFilter = ref('all');
 const searchQuery = ref('');
@@ -170,13 +175,132 @@ const isLoading = ref(true);
 const showNotification = ref(false);
 const notificationMessage = ref('');
 const notificationColor = ref('');
+const threeContainer = ref(null);
 
+// Variables Three.js
+let scene, camera, renderer, particles, raycaster, mouse;
+let animationId = null;
+let hoveredParticle = null;
+
+const initThreeJS = () => {
+  // Escena
+  scene = new THREE.Scene();
+  scene.background = null;
+
+  // Càmera
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  threeContainer.value.appendChild(renderer.domElement);
+
+  // Crear partícules
+  createParticles();
+
+  // Animació
+  const animate = () => {
+    animationId = requestAnimationFrame(animate);
+    
+    // Rotació suau
+    if (particles) {
+      particles.rotation.x += 0.0002;
+      particles.rotation.y += 0.0003;
+    }
+    
+    renderer.render(scene, camera);
+  };
+
+  animate();
+  window.addEventListener('resize', handleResize);
+};
+
+const createParticles = () => {
+  const particleCount = 150;
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+  const sizes = new Float32Array(particleCount);
+
+  // Crear textura per a partícules rodones
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, 'rgba(252,80,59,1)');
+  gradient.addColorStop(0.7, 'rgba(252,80,59,0.8)');
+  gradient.addColorStop(1, 'rgba(252,80,59,0)');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(32, 32, 32, 0, Math.PI * 2);
+  ctx.fill();
+
+  const particleTexture = new THREE.CanvasTexture(canvas);
+
+  // Posicions i colors
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 100;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+    // Colors en tons vermells/taronja
+    colors[i * 3] = 0.9 + Math.random() * 0.1;
+    colors[i * 3 + 1] = 0.2 + Math.random() * 0.2;
+    colors[i * 3 + 2] = 0.1 + Math.random() * 0.1;
+
+    sizes[i] = 1.5;
+  }
+
+  const particlesGeometry = new THREE.BufferGeometry();
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 1.5,
+    vertexColors: true,
+    transparent: true,
+    alphaMap: particleTexture,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true,
+    depthWrite: false
+  });
+
+  particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+};
+
+const handleResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+const cleanUpThreeJS = () => {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+  }
+  window.removeEventListener('resize', handleResize);
+  if (renderer) {
+    renderer.dispose();
+  }
+  if (threeContainer.value && threeContainer.value.firstChild) {
+    threeContainer.value.removeChild(threeContainer.value.firstChild);
+  }
+};
+
+// Capçaleres de la taula
 const headers = [
-  { title: 'Título', key: 'title', width: '25%' },
+  { title: 'Títol', key: 'title', width: '25%' },
   { title: 'Autor', key: 'username', width: '20%' },
-  { title: 'Estado', key: 'security', align: 'center', width: '15%' },
-  { title: 'Fecha de subida', key: 'uploaded_at', width: '20%' },
-  { title: 'Acciones', key: 'actions', align: 'center', sortable: false, width: '20%' }
+  { title: 'Estat', key: 'security', align: 'center', width: '15%' },
+  { title: 'Data de pujada', key: 'uploaded_at', width: '20%' },
+  { title: 'Accions', key: 'actions', align: 'center', sortable: false, width: '20%' }
 ];
 
 const filteredMods = computed(() => {
@@ -198,7 +322,7 @@ const logDownload = async (modId) => {
       method: 'POST'
     });
   } catch (err) {
-    console.error("Error al registrar descarga", err);
+    console.error("Error en registrar la descàrrega", err);
   }
 };
 
@@ -214,14 +338,14 @@ const toggleSafety = async (mod) => {
     if (response.ok) {
       showNotification.value = true;
       notificationMessage.value = mod.security 
-        ? 'Mod marcado como seguro' 
-        : 'Mod marcado como no seguro';
+        ? 'Mod marcat com a segur' 
+        : 'Mod marcat com a no segur';
       notificationColor.value = 'success';
     }
   } catch (err) {
-    console.error("Error al actualizar la seguridad del mod", err);
+    console.error("Error en actualitzar la seguretat del mod", err);
     mod.security = !mod.security;
-    notificationMessage.value = 'Error al actualizar';
+    notificationMessage.value = 'Error en actualitzar';
     notificationColor.value = 'error';
     showNotification.value = true;
   } finally {
@@ -234,41 +358,57 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   
-  // Si es de hoy, mostrar solo la hora
+  // Si és d'avui, mostrar només l'hora
   if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
   }
   
-  // Si es de este año, mostrar día y mes
+  // Si és d'aquest any, mostrar dia i mes
   if (date.getFullYear() === now.getFullYear()) {
-    return date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('ca-ES', { month: 'short', day: 'numeric' });
   }
   
-  // Para fechas más antiguas
-  return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+  // Per a dates més antigues
+  return date.toLocaleDateString('ca-ES', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
 onMounted(async () => {
   try {
     mods.value = await getModsAdmin();
+    initThreeJS();
   } catch (err) {
-    console.error("Error al cargar mods", err);
-    notificationMessage.value = 'Error al cargar mods';
+    console.error("Error en carregar mods", err);
+    notificationMessage.value = 'Error en carregar mods';
     notificationColor.value = 'error';
     showNotification.value = true;
   } finally {
     isLoading.value = false;
   }
 });
+
+onBeforeUnmount(() => {
+  cleanUpThreeJS();
+});
 </script>
 
 <style scoped>
 .nexus-mods-admin {
   padding: 20px;
-  background-color: transparent;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Encabezado con efecto */
+#threejs-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Capçalera amb efecte */
 .admin-header {
   background-color: rgba(25, 25, 25, 0.9);
   border-radius: 8px;
@@ -277,6 +417,7 @@ onMounted(async () => {
   border: 1px solid #333;
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .glow-effect::before {
@@ -312,7 +453,7 @@ onMounted(async () => {
   border-radius: 3px;
 }
 
-/* Filtros premium */
+/* Filtres premium */
 .filters-container {
   display: flex;
   flex-wrap: wrap;
@@ -352,13 +493,15 @@ onMounted(async () => {
   color: #fc503b !important;
 }
 
-/* Tarjeta de tabla */
+/* Targeta de taula */
 .mods-table-card {
   background-color: rgba(25, 25, 25, 0.9) !important;
   border: 1px solid #333;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .mods-table-card:hover {
@@ -393,7 +536,7 @@ onMounted(async () => {
   background-color: rgba(252, 80, 59, 0.05) !important;
 }
 
-/* Acciones */
+/* Accions */
 .actions-container {
   display: flex;
   justify-content: center;

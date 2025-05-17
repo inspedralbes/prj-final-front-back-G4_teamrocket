@@ -94,7 +94,7 @@
             <v-col cols="12" md="8">
               <h1 class="nexus-hero-title">Darkness Unseen Mods</h1>
               <p class="nexus-hero-subtitle">
-                Transforma la teva experiència d'horror amb mods que milloren els gràfics, afegeixen nous elements de joc i contingut escalofrant.
+                Transforma la teva experiència d'horror amb mods que milloren els gràfics, afegeixen nous elements de joc i contingut escalofriant.
               </p>
               <div class="nexus-hero-buttons">
                 <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar tots els mods</v-btn>

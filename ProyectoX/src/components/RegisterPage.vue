@@ -22,14 +22,14 @@
             </div>
            
             <v-card-title class="nexus-register-title">
-              CREAR CUENTA
+              CREAR COMPTE
             </v-card-title>
            
             <v-card-text class="nexus-register-content">
               <v-text-field
                 v-model="username"
                 :rules="usernameRules"
-                label="Nombre de Usuario"
+                label="Nom d'usuari"
                 required
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
@@ -42,7 +42,7 @@
               <v-text-field
                 v-model="email"
                 :rules="emailRules"
-                label="Correo Electrónico"
+                label="Correu electrònic"
                 required
                 prepend-inner-icon="mdi-email"
                 variant="outlined"
@@ -71,7 +71,7 @@
               <v-text-field
                 v-model="confirmPassword"
                 :rules="confirmPasswordRules"
-                label="Confirmar Contraseña"
+                label="Confirmar contrasenya"
                 type="password"
                 required
                 prepend-inner-icon="mdi-lock-check"
@@ -90,12 +90,12 @@
                 :loading="loading"
                 class="nexus-register-btn mb-3"
               >
-                CREAR CUENTA
+                CREAR COMPTE
               </v-btn>
 
 
               <div class="nexus-register-footer">
-                <p class="nexus-register-text">¿Ya tienes una cuenta?</p>
+                <p class="nexus-register-text">¿Ja tens un compte?</p>
                 <v-btn
                   variant="text"
                   to="/login"
@@ -104,7 +104,7 @@
                   :ripple="false"
                   size="small"
                 >
-                  Inicia sesión aquí
+                  Inicia sessió aquí
                 </v-btn>
               </div>
             </v-card-text>
@@ -131,28 +131,28 @@ const confirmPassword = ref('');
 
 
 const usernameRules = [
-  v => !!v || 'Nombre de usuario es requerido',
-  v => (v && v.length >= 3) || 'Mínimo 3 caracteres'
+  v => !!v || "Nom d'usuari és requerit",
+  v => (v && v.length >= 3) || 'Mínim 3 caràcters'
 ];
 
 
 const emailRules = [
-  v => !!v || 'Email es requerido',
-  v => /.+@.+\..+/.test(v) || 'Email debe ser válido'
+  v => !!v || 'Email és requerit',
+  v => /.+@.+\..+/.test(v) || 'Email ha de ser vàlid'
 ];
 
 
 const passwordRules = [
-  v => !!v || 'Contraseña es requerida',
-  v => (v && v.length >= 6) || 'Mínimo 6 caracteres',
-  v => /[0-9]/.test(v) || 'Debe incluir al menos un número',
-  v => /[a-zA-Z]/.test(v) || 'Debe incluir al menos una letra'
+  v => !!v || 'Contrasenya és requerida',
+  v => (v && v.length >= 6) || 'Mínim 6 caràcters',
+  v => /[0-9]/.test(v) || "Ha d'incloure almenys un número",
+  v => /[a-zA-Z]/.test(v) || "Ha d'incloure com a mínim una lletra"
 ];
 
 
 const confirmPasswordRules = [
-  v => !!v || 'Confirma tu contraseña',
-  v => v === password.value || 'Las contraseñas no coinciden'
+  v => !!v || 'Confirma la teva contrasenya',
+  v => v === password.value || 'Les contrasenyes no coincideixen'
 ];
 
 
@@ -168,7 +168,7 @@ const register = async () => {
     // Redireccionar al usuario a la página de inicio de sesión o principal
     router.push('/');
   } catch (error) {
-    console.error('Error al registrar usuario:', error);
+    console.error('Error en registrar usuari:', error);
     // Aquí podrías manejar errores, como mostrar un mensaje al usuario
   } finally {
     loading.value = false;

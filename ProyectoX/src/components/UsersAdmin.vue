@@ -1,10 +1,13 @@
 <template>
   <div class="nexus-users-admin">
+    <!-- Contenedor para Three.js -->
+    <div id="threejs-background" ref="threeContainer"></div>
+    
     <!-- Sección de Estadísticas -->
     <v-card class="stats-card">
       <div class="stats-header">
         <v-icon color="#fc503b" size="28" class="mr-2">mdi-chart-bar</v-icon>
-        <h3 class="stats-title">Estadísticas de Usuarios</h3>
+        <h3 class="stats-title">Estadístiques d'Usuaris</h3>
       </div>
       <v-divider class="stats-divider"></v-divider>
       <div class="stats-grid">
@@ -20,11 +23,11 @@
       <div class="management-header">
         <div class="header-left">
           <v-icon color="#fc503b" size="28" class="mr-2">mdi-account-cog</v-icon>
-          <h3 class="management-title">Gestión de Usuarios</h3>
+          <h3 class="management-title">Gestió d'Usuaris</h3>
         </div>
         <v-text-field
           v-model="searchUsers"
-          label="Buscar usuarios..."
+          label="Cercar usuaris..."
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           density="compact"
@@ -42,13 +45,13 @@
         <template v-slot:item.admin="{ item }">
           <v-chip :color="item.admin ? 'red' : 'grey'" small>
             <v-icon left small>{{ item.admin ? 'mdi-shield-account' : 'mdi-account' }}</v-icon>
-            {{ item.admin ? 'Admin' : 'Usuario' }}
+            {{ item.admin ? 'Admin' : 'Usuari' }}
           </v-chip>
         </template>
 
         <template v-slot:item.actions="{ item }">
           <div class="actions-container">
-            <v-tooltip text="Eliminar usuario" location="top">
+            <v-tooltip text="Eliminar usuari" location="top">
               <template v-slot:activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -63,7 +66,7 @@
               </template>
             </v-tooltip>
 
-            <v-tooltip :text="item.admin ? 'Quitar admin' : 'Hacer admin'" location="top">
+            <v-tooltip :text="item.admin ? 'Treure admin' : 'Fer admin'" location="top">
               <template v-slot:activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -85,24 +88,205 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import * as THREE from 'three';
 import { getUsersAdmin, deleteUserAdmin, changeUserAdmin } from '@/services/communicationManager';
 
+// Variables de estado
 const users = ref([]);
 const searchUsers = ref('');
+const threeContainer = ref(null);
 
+// Variables para Three.js
+let scene, camera, renderer, particles, lines;
+let animationId = null;
+
+// Configuración de Three.js
+const initThreeJS = () => {
+  // Escena
+  scene = new THREE.Scene();
+  scene.background = null;
+
+  // Cámara
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  threeContainer.value.appendChild(renderer.domElement);
+
+  // Crear partículas
+  createParticles();
+
+  // Animación
+  const animate = () => {
+    animationId = requestAnimationFrame(animate);
+    
+    // Rotar partículas
+    if (particles) {
+      particles.rotation.x += 0.0003;
+      particles.rotation.y += 0.0005;
+    }
+    
+    // Actualizar conexiones
+    updateConnections();
+    
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+  // Manejar redimensionamiento
+  window.addEventListener('resize', handleResize);
+};
+
+const createParticles = () => {
+  const particleCount = 300;
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+
+  // Crear geometría de partículas
+  for (let i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 100;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+    // Colores en tonos rojos/anaranjados
+    colors[i * 3] = 0.9 + Math.random() * 0.1;     // R
+    colors[i * 3 + 1] = 0.2 + Math.random() * 0.2; // G
+    colors[i * 3 + 2] = 0.1 + Math.random() * 0.1; // B
+  }
+
+  const particlesGeometry = new THREE.BufferGeometry();
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.8,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.7,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true
+  });
+
+  particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  scene.add(particles);
+
+  // Crear geometría para líneas de conexión
+  const lineGeometry = new THREE.BufferGeometry();
+  const linePositions = new Float32Array(particleCount * 3 * 2); // Cada partícula puede conectarse con otra
+  lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  
+  const lineMaterial = new THREE.LineBasicMaterial({
+    color: 0xfc503b,
+    transparent: true,
+    opacity: 0.15,
+    linewidth: 0.5
+  });
+
+  lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+  scene.add(lines);
+};
+
+const updateConnections = () => {
+  if (!particles || !lines) return;
+
+  const positions = particles.geometry.attributes.position.array;
+  const linePositions = lines.geometry.attributes.position.array;
+  const particleCount = positions.length / 3;
+  const maxDistance = 25;
+  
+  let index = 0;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const x1 = positions[i * 3];
+    const y1 = positions[i * 3 + 1];
+    const z1 = positions[i * 3 + 2];
+    
+    let closestDistance = maxDistance;
+    let closestIndex = -1;
+    
+    // Encontrar la partícula más cercana
+    for (let j = 0; j < particleCount; j++) {
+      if (i === j) continue;
+      
+      const x2 = positions[j * 3];
+      const y2 = positions[j * 3 + 1];
+      const z2 = positions[j * 3 + 2];
+      
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      const dz = z1 - z2;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      
+      if (dist < closestDistance) {
+        closestDistance = dist;
+        closestIndex = j;
+      }
+    }
+    
+    // Dibujar línea si hay una partícula cercana
+    if (closestIndex !== -1) {
+      linePositions[index++] = x1;
+      linePositions[index++] = y1;
+      linePositions[index++] = z1;
+      
+      linePositions[index++] = positions[closestIndex * 3];
+      linePositions[index++] = positions[closestIndex * 3 + 1];
+      linePositions[index++] = positions[closestIndex * 3 + 2];
+    } else {
+      // No dibujar línea (poner ambos puntos en la misma posición)
+      linePositions[index++] = x1;
+      linePositions[index++] = y1;
+      linePositions[index++] = z1;
+      
+      linePositions[index++] = x1;
+      linePositions[index++] = y1;
+      linePositions[index++] = z1;
+    }
+  }
+  
+  lines.geometry.attributes.position.needsUpdate = true;
+};
+
+const handleResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+const cleanUpThreeJS = () => {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+  }
+  window.removeEventListener('resize', handleResize);
+  if (renderer) {
+    renderer.dispose();
+  }
+  if (threeContainer.value && threeContainer.value.firstChild) {
+    threeContainer.value.removeChild(threeContainer.value.firstChild);
+  }
+};
+
+// Lógica del componente
 const stats = computed(() => [
-  { title: 'Usuarios totales', value: users.value.length, color: 'stat-total' },
-  { title: 'Administradores', value: users.value.filter(u => u.admin).length, color: 'stat-admin' },
-  { title: 'Usuarios normales', value: users.value.filter(u => !u.admin).length, color: 'stat-normal' }
+  { title: 'Usuaris totals', value: users.value.length, color: 'stat-total' },
+  { title: 'Administradors', value: users.value.filter(u => u.admin).length, color: 'stat-admin' },
+  { title: 'Usuaris normals', value: users.value.filter(u => !u.admin).length, color: 'stat-normal' }
 ]);
 
 const userHeaders = [
   { title: 'ID', key: 'id', width: '80px' },
-  { title: 'Nombre de usuario', key: 'username' },
+  { title: 'Nom d\'usuari', key: 'username' },
   { title: 'Email', key: 'email' },
   { title: 'Rol', key: 'admin', align: 'center' },
-  { title: 'Acciones', key: 'actions', align: 'center', sortable: false }
+  { title: 'Accions', key: 'actions', align: 'center', sortable: false }
 ];
 
 const filteredUsers = computed(() => {
@@ -121,7 +305,7 @@ const deleteUser = async (userId) => {
     await deleteUserAdmin(userId);
     fetchUsers();
   } catch (error) {
-    console.error('Error al eliminar usuario:', error);
+    console.error('Error en eliminar usuari:', error);
   }
 };
 
@@ -130,24 +314,45 @@ const changeAdmin = async (userId) => {
     await changeUserAdmin(userId);
     fetchUsers();
   } catch (error) {
-    console.error('Error al cambiar rol:', error);
+    console.error('Error en canviar rol:', error);
   }
 };
 
-fetchUsers();
+onMounted(() => {
+  fetchUsers();
+  initThreeJS();
+});
+
+onBeforeUnmount(() => {
+  cleanUpThreeJS();
+});
 </script>
 
 <style scoped>
 .nexus-users-admin {
   padding: 20px;
+  position: relative;
+  overflow-x: hidden;
 }
 
-.stats-card {
-  background-color: rgba(25, 25, 25, 0.9) !important;
-  border: 1px solid #333;
-  border-radius: 8px;
+#threejs-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stats-card,
+.management-card {
+  position: relative;
+  z-index: 1;
+  background-color: rgba(25, 25, 25, 0.85) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(252, 80, 59, 0.2);
   margin-bottom: 25px;
-  overflow: hidden;
 }
 
 .stats-header {
@@ -180,6 +385,7 @@ fetchUsers();
   border-radius: 6px;
   text-align: center;
   transition: transform 0.3s ease;
+  background-color: rgba(30, 30, 30, 0.8) !important;
 }
 
 .stat-card:hover {
@@ -209,13 +415,6 @@ fetchUsers();
   color: #b0b0b0;
   font-size: 0.9rem;
   margin-top: 8px;
-}
-
-.management-card {
-  background-color: rgba(25, 25, 25, 0.9) !important;
-  border: 1px solid #333;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
 .management-header {
