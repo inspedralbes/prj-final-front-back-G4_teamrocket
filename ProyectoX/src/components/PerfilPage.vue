@@ -423,7 +423,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { loadUserData, putUserProfile, putMod, changeVisible } from "../services/communicationManager.js";
+import { loadUserData, putUserProfile, putMod, changeVisible, deleteModSequelize } from "../services/communicationManager.js";
 
 const router = useRouter();
 const user = ref({ mods: [] });
@@ -555,39 +555,48 @@ const openEditDialogMod = (mod) => {
   editMod.value = true;
 }
 
+// Hecho
 const updateVisible = async (modId) => {
   try {
     const response = await changeVisible(modId);
 
-    if(!response.ok) {
-      const data = await response.json();
+    if(!response) {
       snackbar.value = {
         show: true,
-        text: data.error,
+        text: 'Error de red o problema en el servidor',
         color: 'error'
       };
       return;
     }
 
     const data = await response.json();
+
+    if (!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error al actualizar visibilidad',
+        color: 'error'
+      };
+      return;
+    }
+
     snackbar.value = {
       show: true,
-      text: data.message,
+      text: data.message || 'Visibilidad actualizada correctamente',
       color: 'success'
     };
-    
-    // Actualizar el estado local sin recargar toda la página
-    mod.visible = !mod.visible;
+
+    fetchUser();
   } catch (error) {
-    console.error(error);
     snackbar.value = {
       show: true,
-      text: 'Error al actualizar la visibilidad del mod',
+      text: 'Error inesperado al actualizar la visibilidad del mod',
       color: 'error'
     };
   } 
 }
 
+// Hecho
 const updateMod = async () => {
   loading.value = true;
 
@@ -602,8 +611,19 @@ const updateMod = async () => {
   try {
     const response = await putMod(formData);
 
+    if (!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de red o problema en el servidor',
+        color: 'error'
+      }
+      loading.value = false;
+      return;
+    }
+
+    const data = await response.json();
+
     if (!response.ok) {
-      const data = await response.json();
       snackbar.value = {
         show: true,
         text: data.error,
@@ -612,7 +632,6 @@ const updateMod = async () => {
       return;
     }
 
-    const data = await response.json();
     snackbar.value = {
       show: true,
       text: data.message,
@@ -633,11 +652,44 @@ const updateMod = async () => {
   }
 }
 
+// Hecho
 const deleteMod = async (modId) => {
   try {
+    const response = await deleteModSequelize(modId);
 
+    if (!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de red o problema en el servidor',
+        color: 'error'
+      }
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error al eliminar el mod',
+        color: 'error'
+      };
+      return;
+    }
+
+    snackbar.value = {
+      show: true,
+      text: data.message || 'Mod existosamente eliminado',
+      color: 'success'
+    }
+
+    fetchUser();
   } catch (err) {
-
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperado al eliminar el mod',
+      color: 'error'
+    }
   }
 }
 
@@ -654,6 +706,7 @@ const formatDate = (dateString) => {
 
 const logout = () => {
   localStorage.removeItem('userEmail');
+  localStorage.removeItem('userAdmin');
   router.push('/');
 };
 

@@ -1,8 +1,10 @@
+const urlBackend = "http://localhost:3002";
+
 export const postRegister = async (username, email, password) => {
     const userData = { username: username.value, email: email.value, password: password.value }
 
     try {
-        const response = await fetch("http://localhost:3002/api/users/register-web", {
+        const response = await fetch(urlBackend + "/api/users/register-web", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }, // Establece que el cuerpo de la solicitud será en formato JSON
             body: JSON.stringify(userData), // Convierte los datos del usuario a JSON
@@ -35,7 +37,7 @@ export const postLogin = async (email, password) => {
 
 export async function loadUserData(email) {
     try {
-        return await fetch('http://localhost:3002/api/users/user-data', {
+        return await fetch(urlBackend + '/api/users/user-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,19 +54,6 @@ export const putUserProfile = async (formData) => {
         method: 'PUT',
         body: formData
     });
-}
-
-export const getMods = async () => {
-    try {
-        const response = await fetch('http://localhost:3002/api/mods');
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        return await response.json();
-    } catch (err) {
-        console.error('Error cargando mods:', err);
-        throw err;
-    }
 }
 
 export const getUsersAdmin = async () => {
@@ -113,6 +102,19 @@ export const changeUserAdmin = async (userId) => {
     }
 }
 
+export const getMods = async () => {
+    try {
+        const response = await fetch('http://localhost:3002/api/mods');
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return await response.json();
+    } catch (err) {
+        console.error('Error cargando mods:', err);
+        throw err;
+    }
+}
+
 export const getModsAdmin = async () => {
     try {
         const response = await fetch('http://localhost:3002/api/mods/admin-mods');
@@ -146,27 +148,47 @@ export const postMod = async (formData) => {
     }
 }
 
+
+//Hecho
 export const putMod = async (formData) => {
     try {
         return await fetch('http://localhost:3002/api/mods/update-mod', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: formData
         });
     } catch (error) {
-        console.error('Error al subir actulizar mod:', error);
+        console.error('Error al actualizar mod:', error);
+        return null;
     }
 }
 
+// Hecho
+export const deleteModSequelize = async (modId) => {
+    try {
+        return await fetch(`http://localhost:3002/api/mods/delete-mod/${modId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        console.error('Error al eliminar el mod:', error);
+        return null
+    }
+}
+
+// Hecho
 export const changeVisible = async (modId) => {
     try {
         return await fetch(`http://localhost:3002/api/mods/change-visible/${modId}`, {
             method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+        }
         });
     } catch (error) {
         console.error('Error al actualizar la visibilidad del mod:', error);
+        return null
     }
 }
 

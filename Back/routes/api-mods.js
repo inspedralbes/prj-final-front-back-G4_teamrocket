@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
-import DailyNewMods from '../MongoDB/models/dailyNewMods.js';
+import DailyNewMods from '../MongoDB/models/dailyModStats.js';
 import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
 import { getIO } from '../app.js';
 
@@ -148,6 +148,7 @@ router.post('/new-mod', async (req, res) => {
   }
 });
 
+// Hecho
 router.put('/update-mod', async (req, res) => {
   try {
     const { id, title, description } = req.body;
@@ -171,17 +172,18 @@ router.put('/update-mod', async (req, res) => {
   }
 });
 
+// Hecho
 router.patch('/change-visible/:id', async (req, res) => {
   try {
     const mod = await Mod.findByPk(req.params.id);
     if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
 
-    mod.admin = !mod.admin;
+    mod.visible = !mod.visible;
     await mod.save();
 
     res.status(200).json({ message: 'Visibilidad del mod actualizado correctamente' });
   } catch (error) {
-    res.status(500).json({ error: 'Error en actualizar la visibilidad del mod' });
+    res.status(500).json({ error: 'Error al actualizar la visibilidad del mod' });
   }
 });
 
@@ -199,6 +201,27 @@ router.put('/:modId/safe', async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+//Hecho
+router.delete('/delete-mod/:id', async (req, res) => {
+  try {
+    const deleted = await Mod.destroy({ where: { id: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await DailyNewMods.findOneAndUpdate(
+      { date: today },
+      { $inc: { deletedMods: 1 } },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: 'Mod eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Mod existosamente eliminado' });
   }
 });
 

@@ -17,6 +17,7 @@ import api_users from './routes/api-users.js';
 import api_mods from './routes/api-mods.js';
 import api_comments from './MongoDB/routes/api-comments.js';
 import api_likes from './MongoDB/routes/api-likes.js';
+import api_stats from './MongoDB/routes/api-stats.js';
 
 // Carga variables de entorno desde .env
 dotenv.config();
@@ -42,13 +43,14 @@ app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);
 app.use("/api/comments", api_comments);
 app.use("/api/likes", api_likes);
+app.use("/api/stats", api_stats);
 
 let io;
 
 io = new SocketIOServer(server, {
   cors: {
     origin: "http://localhost:7001",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
 });
