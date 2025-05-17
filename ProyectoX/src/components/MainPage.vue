@@ -1,123 +1,123 @@
 <template>
   <div id="app" class="nexus-style">
     <!-- Header -->
-<v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
-  <div class="logo-container">
-    <v-img
-      src="@/assets/Logo del Juego de darkness Unseen.png"
-      alt="Logo del Juego"
-      class="logo nexus-logo"
-      width="50"
-      height="50"
-      @click="scrollToTop"
-    ></v-img>
-  </div>
-  
-  <v-spacer></v-spacer>
-  
-  <div class="nexus-user-section">
-    <v-btn
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/mods"
-      text
-      :ripple="false"
-      variant="text"
-    >
-      <v-icon left size="20">mdi-puzzle</v-icon>
-      <span class="btn-text">Mods</span>
-    </v-btn>
-    <v-btn
-      v-if="userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/perfil"
-      text
-      :ripple="false"
-      variant="text"
-    >
-      <v-icon left size="20">mdi-account</v-icon>
-      <span class="btn-text">Perfil</span>
-    </v-btn>
-    <v-btn
-      v-if="!userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/login"
-      text
-      :ripple="false"
-      variant="text"
-    >
-      <span class="btn-text">Iniciar Sesión</span>
-    </v-btn>
-    <v-btn
-      v-if="userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      @click="logout"
-      text
-      :ripple="false"
-      variant="text"
-    >
-      <span class="btn-text">Cerrar Sesión</span>
-    </v-btn>
-    <v-btn
-      v-if="isAdmin"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/admin"
-      text
-      :ripple="false"
-      variant="text"
-    >
-      <v-icon left size="20">mdi-shield-account</v-icon>
-      <span class="btn-text">Admin</span>
-    </v-btn>
-  </div>
-</v-app-bar>
+    <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
+      <div class="logo-container">
+        <v-img
+          src="@/assets/Logo del Juego de darkness Unseen.png"
+          alt="Logo del Joc"
+          class="logo nexus-logo"
+          width="50"
+          height="50"
+          @click="scrollToTop"
+        ></v-img>
+      </div>
+      
+      <v-spacer></v-spacer>
+      
+      <div class="nexus-user-section">
+        <v-btn
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/mods"
+          text
+          :ripple="false"
+          variant="text"
+        >
+          <v-icon left size="20">mdi-puzzle</v-icon>
+          <span class="btn-text">Mods</span>
+        </v-btn>
+        <v-btn
+          v-if="userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/perfil"
+          text
+          :ripple="false"
+          variant="text"
+        >
+          <v-icon left size="20">mdi-account</v-icon>
+          <span class="btn-text">Perfil</span>
+        </v-btn>
+        <v-btn
+          v-if="!userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/login"
+          text
+          :ripple="false"
+          variant="text"
+        >
+          <span class="btn-text">Iniciar Sessió</span>
+        </v-btn>
+        <v-btn
+          v-if="userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          @click="logout"
+          text
+          :ripple="false"
+          variant="text"
+        >
+          <span class="btn-text">Tancar Sessió</span>
+        </v-btn>
+        <v-btn
+          v-if="isAdmin"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/admin"
+          text
+          :ripple="false"
+          variant="text"
+        >
+          <v-icon left size="20">mdi-shield-account</v-icon>
+          <span class="btn-text">Admin</span>
+        </v-btn>
+      </div>
+    </v-app-bar>
 
-    <!-- Banner principal con efecto parallax -->
+    <!-- Banner principal amb efecte parallax -->
     <div class="nexus-banner">
       <div class="parallax-bg"></div>
       <div class="banner-content">
         <h1 class="banner-title">DARKNESS UNSEEN</h1>
-        <p class="banner-subtitle">Sumérgete en el horror que acecha en las sombras</p>
+        <p class="banner-subtitle">Submergeix-te en l'horror que s'alça en les ombres</p>
         <v-btn
           color="#fc503b"
           x-large
           class="nexus-download-btn"
           elevation="4"
         >
-          DESCARGAR AHORA
+          DESCARREGA ARA
         </v-btn>
       </div>
     </div>
 
     <v-container fluid class="pa-0 nexus-container">
-      <!-- Sección Acerca del Juego -->
+      <!-- Secció Sobre el Joc -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="about" class="section about nexus-section">
             <div class="section-header">
-              <h2 class="section-title">ACERCA DEL JUEGO</h2>
+              <h2 class="section-title">SOBRE EL JOC</h2>
               <div class="title-decoration"></div>
             </div>
             <p class="about-description nexus-text">
-              En "Darkness Unseen", te enfrentarás a un mundo lleno de misterios, desafíos y peligros ocultos en cada esquina.
-              Este juego ofrece una experiencia inmersiva llena de aventuras y emociones.
-              ¡Prepárate para vivir la mejor experiencia en tu PC!
+              A "Darkness Unseen", et trobaràs en un món ple de misteris, reptes i perills amagats a cada cantonada.
+              Aquest joc ofereix una experiència immersiva plena d'aventures i emocions.
+              Prepara't per viure la millor experiència al teu PC!
             </p>
             <div class="nexus-divider"></div>
           </section>
         </v-col>
       </v-row>
 
-      <!-- Sección Características -->
+      <!-- Secció Personatges -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="features" class="section features nexus-section">
             <div class="section-header">
-              <h2 class="section-title">PERSONAJES</h2>
+              <h2 class="section-title">PERSONATGES</h2>
             </div>
            
             <div v-if="isCharacterSelected" class="character-navigation">
@@ -174,7 +174,7 @@
               </v-col>
             </v-row>
 
-            <!-- Detalle del personaje seleccionado -->
+            <!-- Detall del personatge seleccionat -->
             <v-row v-if="isCharacterSelected" class="character-detail-row">
               <v-col cols="12">
                 <v-card class="character-detail nexus-detail-card" style="overflow-y: hidden;">
@@ -204,10 +204,10 @@
                       <v-card-subtitle class="nexus-detail-subtitle">"{{ selectedCharacter.quote }}"</v-card-subtitle>
                       <v-card-text class="nexus-detail-content">
                         <v-list-item class="nexus-detail-item">
-                          <v-list-item-title><span class="detail-label">Nombre:</span> {{ selectedCharacter.name }}</v-list-item-title>
+                          <v-list-item-title><span class="detail-label">Nom:</span> {{ selectedCharacter.name }}</v-list-item-title>
                         </v-list-item>
                         <v-list-item class="nexus-detail-item">
-                          <v-list-item-title><span class="detail-label">País/Región:</span> {{ selectedCharacter.region }}</v-list-item-title>
+                          <v-list-item-title><span class="detail-label">País/Regió:</span> {{ selectedCharacter.region }}</v-list-item-title>
                         </v-list-item>
                         <div class="nexus-detail-divider"></div>
                         <p class="nexus-detail-description">{{ selectedCharacter.description }}</p>
@@ -221,44 +221,44 @@
         </v-col>
       </v-row>
 
-      <!-- Sección de Descarga -->
+      <!-- Secció de Descàrrega -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="download" class="section download nexus-section nexus-download-section">
             <div class="section-header">
-              <h2 class="section-title">DESCARGA EL JUEGO</h2>
+              <h2 class="section-title">DESCARREGA EL JOC</h2>
               <div class="title-decoration"></div>
             </div>
-            <p class="nexus-text">Haz clic en el botón de abajo para descargar el instalador del juego.</p>
+            <p class="nexus-text">Fes clic al botó de sota per descarregar l'instal·lador del joc.</p>
             <v-btn
               color="#fc503b"
               x-large
               class="nexus-download-btn mt-4"
               elevation="4"
             >
-              DESCARGAR PARA WINDOWS
+              DESCARREGA PER A WINDOWS
             </v-btn>
             <div class="system-requirements">
-              <h3 class="requirements-title">REQUISITOS DEL SISTEMA</h3>
+              <h3 class="requirements-title">REQUISITS DEL SISTEMA</h3>
               <div class="requirements-grid">
                 <div class="requirements-col">
-                  <h4>MÍNIMOS</h4>
+                  <h4>MÍNIMS</h4>
                   <ul>
                     <li>SO: Windows 10 64-bit</li>
-                    <li>Procesador: Intel Core i5-4460</li>
-                    <li>Memoria: 8 GB RAM</li>
-                    <li>Gráficos: NVIDIA GTX 760</li>
-                    <li>Almacenamiento: 30 GB</li>
+                    <li>Processador: Intel Core i5-4460</li>
+                    <li>Memòria: 8 GB RAM</li>
+                    <li>Gràfics: NVIDIA GTX 760</li>
+                    <li>Emmagatzematge: 30 GB</li>
                   </ul>
                 </div>
                 <div class="requirements-col">
-                  <h4>RECOMENDADOS</h4>
+                  <h4>RECOMANATS</h4>
                   <ul>
                     <li>SO: Windows 10/11 64-bit</li>
-                    <li>Procesador: Intel Core i7-8700K</li>
-                    <li>Memoria: 16 GB RAM</li>
-                    <li>Gráficos: NVIDIA GTX 1070</li>
-                    <li>Almacenamiento: 30 GB SSD</li>
+                    <li>Processador: Intel Core i7-8700K</li>
+                    <li>Memòria: 16 GB RAM</li>
+                    <li>Gràfics: NVIDIA GTX 1070</li>
+                    <li>Emmagatzematge: 30 GB SSD</li>
                   </ul>
                 </div>
               </div>
@@ -267,15 +267,15 @@
         </v-col>
       </v-row>
 
-      <!-- Sección de Contacto -->
+      <!-- Secció de Contacte -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="contact" class="section contact nexus-section">
             <div class="section-header">
-              <h2 class="section-title">CONTACTO</h2>
+              <h2 class="section-title">CONTACTE</h2>
               <div class="title-decoration"></div>
             </div>
-            <p class="nexus-text">¿Tienes preguntas o necesitas ayuda? Escríbenos a <a href="mailto:soporte@tujuego.com" class="nexus-link">soporte@tujuego.com</a>.</p>
+            <p class="nexus-text">Tens preguntes o necessites ajuda? Escriu-nos a <a href="mailto:soporte@tujuego.com" class="nexus-link">soporte@tujoc.com</a>.</p>
             <div class="social-links">
               <a href="#" class="social-icon"><v-icon>mdi-twitter</v-icon></a>
               <a href="#" class="social-icon"><v-icon>mdi-facebook</v-icon></a>
@@ -295,29 +295,27 @@
         <v-row justify="center" no-gutters>
           <v-col class="text-center" cols="12">
             <div class="footer-links">
-              <a href="#" class="footer-link">Términos de Servicio</a>
-              <a href="#" class="footer-link">Política de Privacidad</a>
+              <a href="#" class="footer-link">Termes de Servei</a>
+              <a href="#" class="footer-link">Política de Privacitat</a>
               <a href="#" class="footer-link">DMCA</a>
               <a href="#" class="footer-link">FAQ</a>
             </div>
             <div class="copyright">
-              &copy; {{ new Date().getFullYear() }} DARKNESS UNSEEN. Todos los derechos reservados.
+              &copy; {{ new Date().getFullYear() }} DARKNESS UNSEEN. Tots els drets reservats.
             </div>
           </v-col>
         </v-row>
       </v-footer>
     </v-container>
    
-    <!-- Efecto de partículas para fondo -->
+    <!-- Efecte de partícules per a fons -->
     <div id="particles-js" class="particles-container"></div>
   </div>
 </template>
 
-
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
 
 const router = useRouter();
 const characters = reactive([
@@ -325,36 +323,35 @@ const characters = reactive([
     image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/ca2f1ca1.png",
     nickname: "Papi",
     name: "Raúl Díaz",
-    region: "México",
-    quote: "¿Nos tomamos unas copas?",
-    description: "Papi creció en un barrio pobre de Oakvale, con amigos de todas las clases sociales. Jefe de una empresa de seguridad, siempre cuida de su equipo, tanto en operaciones como cuando es hora de celebrar."
+    region: "Mèxic",
+    quote: "Ens prenem unes copes?",
+    description: "Papi va créixer en un barri pobre d'Oakvale, amb amics de totes les classes socials. Cap d'una empresa de seguretat, sempre cuida del seu equip, tant en operacions com quan és hora de celebrar."
   },
   {
     image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/7cfa16e3.png",
     nickname: "Espina Escarlata",
     name: "Gabriela Valentina",
-    region: "España",
-    quote: "El conocimiento es poder, pero el poder corrompe... ¿y qué más da?",
-    description: "Gabriela, conocida como Espina Escarlata, es una estratega astuta y peligrosa que combina inteligencia con seducción para conseguir lo que quiere."
+    region: "Espanya",
+    quote: "El coneixement és poder, però el poder corromp... i què més dóna?",
+    description: "Gabriela, coneguda com a Espina Escarlata, és una estratega astuta i perillosa que combina intel·ligència amb seducció per aconseguir el que vol."
   },
   {
     image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/e7986260.png",
-    nickname: "El Capitán",
+    nickname: "El Capità",
     name: "Luis Salazar",
-    region: "Colombia",
-    quote: "Mantén la cabeza fría y los enemigos lejos de casa.",
-    description: "Luis es un exmilitar con un fuerte sentido del deber y la justicia. Ahora lidera operaciones clandestinas para proteger a su comunidad."
+    region: "Colòmbia",
+    quote: "Manté el cap fred i els enemics lluny de casa.",
+    description: "Luis és un exmilitar amb un fort sentit del deure i la justícia. Ara lidera operacions clandestines per protegir la seva comunitat."
   },
   {
     image:"https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/bc5dd673.png",
     nickname: "Belladona",
     name: "Ana Levitska",
-    region: "Rusia",
-    quote: "La belleza es mi arma más letal.",
-    description: "Ana, conocida como Belladona, es una experta en espionaje que utiliza su encanto y habilidades para infiltrarse en los lugares más inaccesibles."
+    region: "Rússia",
+    quote: "La bellesa és la meva arma més letal.",
+    description: "Ana, coneguda com a Belladona, és una experta en espionatge que utilitza el seu encant i habilitats per infiltrar-se en els llocs més inaccessibles."
   }
 ]);
-
 
 const selectedCharacter = ref(null);
 const isCharacterSelected = ref(false);
@@ -372,12 +369,10 @@ const selectCharacter = (character) => {
   });
 };
 
-
 const deselectCharacter = () => {
   selectedCharacter.value = null;
   isCharacterSelected.value = false;
 };
-
 
 const selectPreviousCharacter = () => {
   const currentIndex = characters.indexOf(selectedCharacter.value);
@@ -386,7 +381,6 @@ const selectPreviousCharacter = () => {
   }
 };
 
-
 const selectNextCharacter = () => {
   const currentIndex = characters.indexOf(selectedCharacter.value);
   if (currentIndex < characters.length - 1) {
@@ -394,15 +388,13 @@ const selectNextCharacter = () => {
   }
 };
 
-
 onMounted(() => {
-  // Efecto de aparición de secciones
+  // Efecte d'aparició de seccions
   const sections = document.querySelectorAll('.nexus-section');
   const options = {
     root: null,
     threshold: 0.1,
   };
-
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -412,13 +404,11 @@ onMounted(() => {
     });
   }, options);
 
-
   sections.forEach((section) => {
     observer.observe(section);
   });
 
-
-  // Inicializar partículas.js si está disponible
+  // Inicialitzar partícules.js si està disponible
   if (window.particlesJS) {
     window.particlesJS('particles-js', {
       particles: {
@@ -441,14 +431,12 @@ onMounted(() => {
   }
 });
 
-
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
   });
 };
-
 
 const logout = () => {
   localStorage.removeItem('userEmail');

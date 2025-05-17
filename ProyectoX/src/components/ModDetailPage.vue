@@ -8,7 +8,7 @@
       color="#fc503b"
       class="nexus-back-btn"
     >
-      Volver a la lista
+      Tornar a la llista
     </v-btn>
     
     <!-- Contenido principal -->
@@ -35,11 +35,11 @@
             <h2 class="nexus-section-title">Actualizaciones</h2>
             <div class="nexus-update-info">
               <div class="nexus-update-item">
-                <span class="nexus-update-label">Última actualización:</span>
+                <span class="nexus-update-label">Última actualització:</span>
                 <span class="nexus-update-value">{{ formatDate(mod.updated_at || mod.uploaded_at) }}</span>
               </div>
               <div class="nexus-update-item">
-                <span class="nexus-update-label">Subida original:</span>
+                <span class="nexus-update-label">Pujada original:</span>
                 <span class="nexus-update-value">{{ formatDate(mod.uploaded_at) }}</span>
               </div>
             </div>
@@ -51,13 +51,13 @@
             
             <!-- Formulario para añadir comentarios -->
             <v-card variant="outlined" class="nexus-comment-form">
-              <h3 class="nexus-comment-form-title">Añadir un comentario</h3>
+              <h3 class="nexus-comment-form-title">Afegeix un comentari</h3>
               
               <v-form @submit.prevent="submitComment" v-model="formValid">
                 <v-textarea
                   v-model="newComment.content"
                   label="Comentario"
-                  :rules="[v => !!v || 'Comentario es requerido']"
+                  :rules="[v => !!v || 'Comentari és requerit']"
                   required
                   counter
                   rows="3"
@@ -66,7 +66,7 @@
                 ></v-textarea>
                 
                 <div class="nexus-rating-section">
-                  <label class="nexus-rating-label">Valoración</label>
+                  <label class="nexus-rating-label">Valoració</label>
                   <v-rating
                     v-model="newComment.rating"
                     color="amber"
@@ -83,7 +83,7 @@
                   :loading="submitting"
                   class="nexus-comment-submit"
                 >
-                  Publicar comentario
+                  Publicar comentari
                 </v-btn>
               </v-form>
             </v-card>
@@ -153,7 +153,7 @@
             
             <div v-else class="nexus-no-comments">
               <v-icon size="large" color="grey">mdi-comment-outline</v-icon>
-              <p>No hay comentarios aún. ¡Sé el primero en opinar!</p>
+              <p>No hi ha comentaris encara. ¡Sé el primer a opinar!</p>
             </div>
           </div>
         </div>
@@ -170,7 +170,7 @@
             <v-divider class="nexus-stats-divider"></v-divider>
             
             <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Total descargas</div>
+              <div class="nexus-stats-label">Total descàrregues</div>
               <div class="nexus-stats-value">{{ mod.downloads || 0 }}</div>
             </div>
             
@@ -191,12 +191,12 @@
             prepend-icon="mdi-download"
             class="nexus-download-btn"
           >
-            Descargar mod
+            Baixar mod
           </v-btn>
           
           <!-- Gráfico de descargas diarias - Versión mejorada -->
           <v-card variant="outlined" class="nexus-downloads-chart-card">
-            <h3 class="nexus-chart-title">Descargas diarias</h3>
+            <h3 class="nexus-chart-title">Descàrregues diàries</h3>
             <div class="nexus-chart-container">
               <canvas ref="downloadsChart"></canvas>
               <div class="nexus-chart-indicator" :class="trendClass" v-if="trendPercentage !== 0">

@@ -32,7 +32,7 @@
           text
           :ripple="false"
         >
-          Cerrar Sesión
+          Tancar Sessió
         </v-btn>
       </div>
     </v-app-bar>
@@ -52,7 +52,7 @@
               </v-avatar>
               <div class="nexus-avatar-overlay">
                 <v-icon size="32">mdi-camera</v-icon>
-                <span>Cambiar foto</span>
+                <span>Canviar foto</span>
               </div>
               <input 
                 type="file" 
@@ -127,22 +127,22 @@
                   class="nexus-new-mod-btn"
                 >
                   <v-icon left>mdi-plus</v-icon>
-                  Nuevo Mod
+                  Nou Mod
                 </v-btn>
               </div>
               
               <div v-if="user.mods?.length === 0" class="nexus-no-mods">
                 <div class="nexus-no-mods-content">
                   <v-icon color="#fc503b" size="64">mdi-puzzle-remove-outline</v-icon>
-                  <h3>No tienes mods subidos</h3>
-                  <p>Comienza a compartir tus creaciones con la comunidad</p>
+                  <h3>No tens mods pujats</h3>
+                  <p>Comença a compartir les teves creacions amb la comunitat</p>
                   <v-btn 
                     color="#fc503b" 
                     to="/upload-mod"
                     class="nexus-btn"
                   >
                     <v-icon left>mdi-upload</v-icon>
-                    Subir tu primer mod
+                    Pujar el teu primer mod
                   </v-btn>
                 </div>
               </div>
@@ -170,7 +170,7 @@
                           :color="mod.visible ? 'success' : 'grey'" 
                           text-color="white"
                         >
-                          {{ mod.visible ? 'Público' : 'Privado' }}
+                          {{ mod.visible ? 'Públic' : 'Privat' }}
                         </v-chip>
                       </div>
                     </div>

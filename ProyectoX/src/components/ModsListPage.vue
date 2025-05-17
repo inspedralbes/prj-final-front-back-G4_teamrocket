@@ -25,7 +25,7 @@
       :ripple="false"
     >
       <v-icon left>mdi-home</v-icon>
-      Inicio
+      Inici
     </v-btn>
     <v-btn
       v-if="userEmail"
@@ -46,7 +46,7 @@
       text
       :ripple="false"
     >
-      Iniciar Sesión
+      Iniciar Sessió
     </v-btn>
     <v-btn
       v-if="userEmail"
@@ -56,7 +56,7 @@
       text
       :ripple="false"
     >
-      Cerrar Sesión
+      Tancar Sessió
     </v-btn>
     <v-btn
       v-if="isAdmin"
@@ -94,10 +94,10 @@
             <v-col cols="12" md="8">
               <h1 class="nexus-hero-title">Darkness Unseen Mods</h1>
               <p class="nexus-hero-subtitle">
-                Transforma tu experiencia de terror con mods que mejoran gráficos, añaden nuevos elementos de juego y contenido escalofriante.
+                Transforma la teva experiència d'horror amb mods que milloren els gràfics, afegeixen nous elements de joc i contingut escalofrant.
               </p>
               <div class="nexus-hero-buttons">
-                <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar todos los mods</v-btn>
+                <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar tots els mods</v-btn>
                 <v-btn 
                   color="#fc503b" 
                   variant="outlined" 
@@ -105,7 +105,7 @@
                   @click.stop="openUploadDialog"
                   :disabled="!userEmail"
                 >
-                  Subir mod
+                  Pujar mod
                 </v-btn>
               </div>
             </v-col>
@@ -123,19 +123,19 @@
               <div class="bepinex-cube">
                 <a href="https://github.com/BepInEx/BepInEx" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-github</v-icon>
-                  <span>Instrucciones: BepInEx en GitHub</span>
+                  <span>Instruccions: BepInEx a GitHub</span>
                 </a>
               </div>
               <div class="bepinex-cube">
                 <a href="https://github.com/BepInEx/BepInEx/archive/refs/heads/master.zip" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-zip-box</v-icon>
-                  <span>Descargar BepInEx (.zip)</span>
+                  <span>Baixar BepInEx (.zip)</span>
                 </a>
               </div>
               <div class="bepinex-cube">
                 <a href="#" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-play-circle</v-icon>
-                  <span>Ver video tutorial (próximamente)</span>
+                  <span>Veure tutorial en vídeo (pròximament)</span>
                 </a>
               </div>
             </div>
@@ -149,12 +149,12 @@
       <v-container>
         <v-row>
           <v-col cols="12">
-            <h2 class="nexus-stats-title">Mods y colecciones para Darkness Unseen</h2>
+            <h2 class="nexus-stats-title">Mods i col·leccions per Darkness Unseen</h2>
           </v-col>
           <v-col cols="6" sm="3">
             <div class="nexus-stat-item">
               <div class="nexus-stat-value">{{ formatNumber(stats.totalDownloads) }}</div>
-              <div class="nexus-stat-label">Descargas</div>
+              <div class="nexus-stat-label">Descàrregues</div>
             </div>
           </v-col>
           <v-col cols="6" sm="3">
@@ -166,13 +166,13 @@
           <v-col cols="6" sm="3">
             <div class="nexus-stat-item">
               <div class="nexus-stat-value">{{ formatNumber(stats.totalMembers) }}</div>
-              <div class="nexus-stat-label">Miembros</div>
+              <div class="nexus-stat-label">Membres</div>
             </div>
           </v-col>
           <v-col cols="6" sm="3">
             <div class="nexus-stat-item">
               <div class="nexus-stat-value">${{ formatNumber(stats.totalRewards) }}</div>
-              <div class="nexus-stat-label">Recompensas</div>
+              <div class="nexus-stat-label">Recompenses</div>
             </div>
           </v-col>
         </v-row>
@@ -184,10 +184,10 @@
       <!-- Filter Tabs -->
       <div class="nexus-filter-tabs">
         <v-tabs v-model="activeTab" grow>
-          <v-tab value="new">Nuevos</v-tab>
-          <v-tab value="updated">Actualizados</v-tab>
-          <v-tab value="trending">Tendencia</v-tab>
-          <v-tab value="popular">Populares</v-tab>
+          <v-tab value="new">Nous</v-tab>
+          <v-tab value="updated">Actualitzats</v-tab>
+          <v-tab value="trending">Tendència</v-tab>
+          <v-tab value="popular">Populars</v-tab>
           <v-tab value="surprise">Sorpresa</v-tab>
         </v-tabs>
       </div>
@@ -196,7 +196,7 @@
       <div class="nexus-search-sort">
         <v-text-field
           v-model="search"
-          label="Buscar mods..."
+          label="Cercar mods..."
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
           density="compact"
@@ -305,7 +305,7 @@
       <v-card class="nexus-dialog">
         <v-card-title class="nexus-dialog-title">
           <v-icon icon="mdi-cloud-upload" class="mr-2"></v-icon>
-          Subir Mod
+          Pujar Mod
         </v-card-title>
         <v-card-text>
           <v-form ref="uploadForm" @submit.prevent="uploadMod" v-model="formValid">
