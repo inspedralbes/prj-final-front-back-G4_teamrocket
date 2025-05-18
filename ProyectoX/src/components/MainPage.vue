@@ -12,9 +12,9 @@
           @click="scrollToTop"
         ></v-img>
       </div>
-      
+     
       <v-spacer></v-spacer>
-      
+     
       <div class="nexus-user-section">
         <v-btn
           color="#fc503b"
@@ -76,6 +76,7 @@
       </div>
     </v-app-bar>
 
+
     <!-- Banner principal amb efecte parallax -->
     <div class="nexus-banner">
       <div class="parallax-bg"></div>
@@ -92,6 +93,7 @@
         </v-btn>
       </div>
     </div>
+
 
     <v-container fluid class="pa-0 nexus-container">
       <!-- Secció Sobre el Joc -->
@@ -112,114 +114,6 @@
         </v-col>
       </v-row>
 
-      <!-- Secció Personatges -->
-      <v-row no-gutters>
-        <v-col cols="12">
-          <section id="features" class="section features nexus-section">
-            <div class="section-header">
-              <h2 class="section-title">PERSONATGES</h2>
-            </div>
-           
-            <div v-if="isCharacterSelected" class="character-navigation">
-              <v-btn
-                icon
-                color="#fc503b"
-                class="nav-arrow prev-arrow"
-                :disabled="characters.indexOf(selectedCharacter) === 0"
-                @click="selectPreviousCharacter"
-              >
-                <v-icon>mdi-chevron-left</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                color="#fc503b"
-                class="nav-arrow next-arrow"
-                :disabled="characters.indexOf(selectedCharacter) === characters.length - 1"
-                @click="selectNextCharacter"
-              >
-                <v-icon>mdi-chevron-right</v-icon>
-              </v-btn>
-            </div>
-           
-            <v-row v-if="!isCharacterSelected" class="mt-4 nexus-grid">
-              <v-col
-                v-for="character in characters"
-                :key="character.name"
-                cols="12"
-                sm="6"
-                md="3"
-              >
-                <v-hover v-slot="{ hover }">
-                  <v-card
-                    class="character-card nexus-card"
-                    :elevation="hover ? 12 : 4"
-                    :class="{ 'on-hover': hover }"
-                    @click="selectCharacter(character)"
-                  >
-                    <div class="card-image-container">
-                      <v-img
-                        :src="character.image"
-                        :alt="character.name"
-                        class="character-image"
-                        height="180"
-                        cover
-                      ></v-img>
-                      <div class="card-overlay" :class="{ 'overlay-hover': hover }"></div>
-                    </div>
-                    <v-card-title class="nexus-card-title">{{ character.nickname }}</v-card-title>
-                    <v-card-text class="nexus-card-text">{{ character.quote }}</v-card-text>
-                    <div class="nexus-card-footer"></div>
-                  </v-card>
-                </v-hover>
-              </v-col>
-            </v-row>
-
-            <!-- Detall del personatge seleccionat -->
-            <v-row v-if="isCharacterSelected" class="character-detail-row">
-              <v-col cols="12">
-                <v-card class="character-detail nexus-detail-card" style="overflow-y: hidden;">
-                  <v-btn
-                    icon
-                    color="#fc503b"
-                    class="close-btn nexus-close-btn"
-                    @click="deselectCharacter"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                  <v-row>
-                    <v-col cols="12" md="4" class="detail-image-col">
-                      <div class="detail-image-container">
-                        <v-img
-                          :src="selectedCharacter.image"
-                          :alt="selectedCharacter.name"
-                          class="character-detail-image"
-                          height="400"
-                          contain
-                        ></v-img>
-                        <div class="detail-image-frame"></div>
-                      </div>
-                    </v-col>
-                    <v-col cols="12" md="8" class="detail-content-col">
-                      <v-card-title class="nexus-detail-title">{{ selectedCharacter.nickname }}</v-card-title>
-                      <v-card-subtitle class="nexus-detail-subtitle">"{{ selectedCharacter.quote }}"</v-card-subtitle>
-                      <v-card-text class="nexus-detail-content">
-                        <v-list-item class="nexus-detail-item">
-                          <v-list-item-title><span class="detail-label">Nom:</span> {{ selectedCharacter.name }}</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item class="nexus-detail-item">
-                          <v-list-item-title><span class="detail-label">País/Regió:</span> {{ selectedCharacter.region }}</v-list-item-title>
-                        </v-list-item>
-                        <div class="nexus-detail-divider"></div>
-                        <p class="nexus-detail-description">{{ selectedCharacter.description }}</p>
-                      </v-card-text>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-            </v-row>
-          </section>
-        </v-col>
-      </v-row>
 
       <!-- Secció de Descàrrega -->
       <v-row no-gutters>
@@ -267,6 +161,7 @@
         </v-col>
       </v-row>
 
+
       <!-- Secció de Contacte -->
       <v-row no-gutters>
         <v-col cols="12">
@@ -279,12 +174,12 @@
             <div class="social-links">
               <a href="#" class="social-icon"><v-icon>mdi-twitter</v-icon></a>
               <a href="#" class="social-icon"><v-icon>mdi-facebook</v-icon></a>
-              <a href="#" class="social-icon"><v-icon>mdi-discord</v-icon></a>
               <a href="#" class="social-icon"><v-icon>mdi-youtube</v-icon></a>
             </div>
           </section>
         </v-col>
       </v-row>
+
 
       <!-- Footer -->
       <v-footer
@@ -313,80 +208,19 @@
   </div>
 </template>
 
+
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-const router = useRouter();
-const characters = reactive([
-  {
-    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/ca2f1ca1.png",
-    nickname: "Papi",
-    name: "Raúl Díaz",
-    region: "Mèxic",
-    quote: "Ens prenem unes copes?",
-    description: "Papi va créixer en un barri pobre d'Oakvale, amb amics de totes les classes socials. Cap d'una empresa de seguretat, sempre cuida del seu equip, tant en operacions com quan és hora de celebrar."
-  },
-  {
-    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/7cfa16e3.png",
-    nickname: "Espina Escarlata",
-    name: "Gabriela Valentina",
-    region: "Espanya",
-    quote: "El coneixement és poder, però el poder corromp... i què més dóna?",
-    description: "Gabriela, coneguda com a Espina Escarlata, és una estratega astuta i perillosa que combina intel·ligència amb seducció per aconseguir el que vol."
-  },
-  {
-    image: "https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/e7986260.png",
-    nickname: "El Capità",
-    name: "Luis Salazar",
-    region: "Colòmbia",
-    quote: "Manté el cap fred i els enemics lluny de casa.",
-    description: "Luis és un exmilitar amb un fort sentit del deure i la justícia. Ara lidera operacions clandestines per protegir la seva comunitat."
-  },
-  {
-    image:"https://yottacdn.akamaized.net/yottapfres/common/assets/frontend/game_home/home/mafia2/img/bc5dd673.png",
-    nickname: "Belladona",
-    name: "Ana Levitska",
-    region: "Rússia",
-    quote: "La bellesa és la meva arma més letal.",
-    description: "Ana, coneguda com a Belladona, és una experta en espionatge que utilitza el seu encant i habilitats per infiltrar-se en els llocs més inaccessibles."
-  }
-]);
 
-const selectedCharacter = ref(null);
-const isCharacterSelected = ref(false);
+const router = useRouter();
 const userEmail = ref(localStorage.getItem('userEmail'));
 const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
+
 console.log(isAdmin.value);
 
-const selectCharacter = (character) => {
-  selectedCharacter.value = character;
-  isCharacterSelected.value = true;
-  window.scrollTo({
-    top: document.getElementById('features').offsetTop - 80,
-    behavior: 'smooth'
-  });
-};
-
-const deselectCharacter = () => {
-  selectedCharacter.value = null;
-  isCharacterSelected.value = false;
-};
-
-const selectPreviousCharacter = () => {
-  const currentIndex = characters.indexOf(selectedCharacter.value);
-  if (currentIndex > 0) {
-    selectCharacter(characters[currentIndex - 1]);
-  }
-};
-
-const selectNextCharacter = () => {
-  const currentIndex = characters.indexOf(selectedCharacter.value);
-  if (currentIndex < characters.length - 1) {
-    selectCharacter(characters[currentIndex + 1]);
-  }
-};
 
 onMounted(() => {
   // Efecte d'aparició de seccions
@@ -396,6 +230,7 @@ onMounted(() => {
     threshold: 0.1,
   };
 
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -404,9 +239,11 @@ onMounted(() => {
     });
   }, options);
 
+
   sections.forEach((section) => {
     observer.observe(section);
   });
+
 
   // Inicialitzar partícules.js si està disponible
   if (window.particlesJS) {
@@ -431,12 +268,14 @@ onMounted(() => {
   }
 });
 
+
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
   });
 };
+
 
 const logout = () => {
   localStorage.removeItem('userEmail');
@@ -479,11 +318,13 @@ const logout = () => {
   align-items: center;
 }
 
+
 .logo-container {
   margin-right: 20px;
   cursor: pointer;
   flex-shrink: 0;
 }
+
 
 .nexus-logo {
   border-radius: 50%;
@@ -492,10 +333,12 @@ const logout = () => {
   border: 2px solid #fc503b;
 }
 
+
 .nexus-logo:hover {
   transform: scale(1.05);
   box-shadow: 0 0 15px #fc503b;
 }
+
 
 .nexus-user-section {
   display: flex;
@@ -504,6 +347,7 @@ const logout = () => {
   margin-left: auto;
   padding-right: 0;
 }
+
 
 .nexus-login-btn {
   text-transform: none;
@@ -516,6 +360,7 @@ const logout = () => {
   margin: 0 !important;
 }
 
+
 .nexus-login-btn .v-btn__content {
   display: flex;
   align-items: center;
@@ -523,15 +368,18 @@ const logout = () => {
   padding: 0;
 }
 
+
 .btn-text {
   font-size: 0.8125rem;
   letter-spacing: 0.5px;
 }
 
+
 .nexus-login-btn .v-icon {
   font-size: 20px;
   margin-right: 4px;
 }
+
 
 .nexus-nav-links {
   display: flex;
@@ -539,6 +387,7 @@ const logout = () => {
   gap: 8px;
   margin-left: 20px;
 }
+
 
 .nexus-nav-btn {
   text-transform: none;
@@ -549,12 +398,14 @@ const logout = () => {
   height: 36px;
 }
 
+
 .nexus-login-btn .v-btn__content,
 .nexus-nav-btn .v-btn__content {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 
 .nexus-nav-btn {
   position: relative;
@@ -568,6 +419,7 @@ const logout = () => {
   padding: 10px 20px;
 }
 
+
 .nexus-nav-btn::after {
   content: '';
   position: absolute;
@@ -580,9 +432,11 @@ const logout = () => {
   transform: translateX(-50%);
 }
 
+
 .nexus-nav-btn:hover::after {
   width: 80%;
 }
+
 
 .nexus-nav-btn:hover {
   color: #fff !important;
@@ -654,11 +508,13 @@ const logout = () => {
   display: inline-block;
 }
 
+
 @keyframes text-glow {
   0% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
   50% { text-shadow: 0 0 30px rgba(252, 80, 59, 1), 0 0 40px rgba(252, 80, 59, 0.5); }
   100% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
 }
+
 
 .banner-title::after {
   content: '';
@@ -670,6 +526,7 @@ const logout = () => {
   height: 3px;
   background: linear-gradient(90deg, transparent, #fc503b, transparent);
 }
+
 
 .banner-subtitle {
   font-size: 1.5rem;
@@ -691,9 +548,9 @@ const logout = () => {
   color: white !important;
   font-weight: bold;
   letter-spacing: 1px;
-  padding: 0 30px !important; /* Eliminamos padding vertical para controlarlo con height */
-  height: 50px !important; /* Altura fija para el botón */
-  line-height: 50px !important; /* Alineamos el texto verticalmente */
+  padding: 0 30px !important;
+  height: 50px !important;
+  line-height: 50px !important;
   border-radius: 4px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
@@ -706,6 +563,7 @@ const logout = () => {
   justify-content: center !important;
 }
 
+
 .nexus-download-btn::after {
   content: '';
   position: absolute;
@@ -717,15 +575,18 @@ const logout = () => {
   transition: all 0.6s;
 }
 
+
 .nexus-download-btn:hover {
   background-color: #e04635 !important;
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 12px 24px rgba(252, 80, 59, 0.4) !important;
 }
 
+
 .nexus-download-btn:hover::after {
   left: 100%;
 }
+
 
 .nexus-download-btn .v-btn__content {
   display: flex;
@@ -733,6 +594,7 @@ const logout = () => {
   justify-content: center;
   width: 100%;
 }
+
 
 /* Secciones generales */
 .nexus-section {
@@ -817,346 +679,6 @@ const logout = () => {
   width: 200px;
   background: linear-gradient(to right, transparent, #fc503b, transparent);
   margin: 40px auto;
-}
-
-
-/* Tarjetas de personajes */
-.nexus-grid {
-  padding: 0 5%;
-}
-
-
-.nexus-card {
-  background-color: rgba(30, 30, 30, 0.9) !important;
-  border-radius: 12px !important;
-  overflow: hidden;
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 1px solid #333;
-  position: relative;
-  height: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-}
-
-.nexus-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, #fc503b, transparent);
-  transform: scaleX(0);
-  transition: transform 0.4s;
-}
-
-.nexus-card.on-hover::before {
-  transform: scaleX(1);
-}
-
-.nexus-card-title {
-  position: relative;
-  display: inline-block;
-  font-size: 1.3rem !important;
-  font-weight: 600 !important;
-  color: #fc503b !important;
-  padding-bottom: 0 !important;
-  transition: all 0.3s;
-}
-
-.nexus-card-title::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: #fff;
-  transition: width 0.3s ease;
-}
-
-.nexus-card.on-hover .nexus-card-title::after {
-  width: 100%;
-}
-
-
-.nexus-card.on-hover {
-  transform: translateY(-10px) scale(1.03) !important;
-  box-shadow: 0 10px 30px rgba(252, 80, 59, 0.3) !important;
-  border-color: #fc503b;
-  background-color: rgba(30, 30, 30, 0.95) !important;
-}
-
-
-.card-image-container {
-  position: relative;
-  overflow: hidden;
-}
-
-
-.character-image {
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
-  opacity: 1;
-  transform-origin: center;
-  margin-top: 20px;
-}
-
-
-.nexus-card.on-hover .character-image {
-  transform: scale(1.15) rotate(2deg);
-  opacity: 0.95;
-}
-
-
-.nexus-card.on-hover .character-image {
-  transform: scale(1.1);
-}
-
-
-.card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  opacity: 0.7;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.overlay-hover {
-  opacity: 0.5;
-  background: linear-gradient(to top, rgba(252, 80, 59, 0.4), transparent);
-  transform: translateY(-5px);
-}
-
-
-
-.nexus-card.on-hover .nexus-card-title {
-  color: white !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-
-.character-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 40px 0;
-  padding: 0 40px;
-  position: relative;
-  z-index: 3;
-}
-
-
-.nav-arrow {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: rgba(252, 80, 59, 0.1);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: pulse-shadow 2s infinite;
-}
-
-@keyframes pulse-shadow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(252, 80, 59, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(252, 80, 59, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(252, 80, 59, 0);
-  }
-}
-
-
-
-.nav-arrow:hover {
-  transform: scale(1.1);
-  background-color: rgba(252, 80, 59, 0.2);
-  animation-play-state: paused;
-}
-
-
-.nav-arrow:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-
-.prev-arrow {
-  transform: rotate(180deg);
-}
-
-
-.next-arrow {
-  transform: rotate(0deg);
-}
-
-
-.nexus-card-footer {
-  height: 4px;
-  background: #fc503b;
-  width: 0;
-  transition: width 0.3s;
-}
-
-
-.nexus-card.on-hover .nexus-card-footer {
-  width: 100%;
-}
-
-
-/* Detalle del personaje */
-.nexus-detail-card {
-  background-color: rgba(26, 26, 26, 0.95) !important;
-  border-radius: 16px !important;
-  border: 1px solid #333;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.nexus-detail-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
-}
-
-
-.nexus-detail-card:hover {
-  transform: translateY(-5px);
-}
-
-
-.nexus-close-btn {
-  position: absolute !important;
-  top: 15px !important;
-  right: 15px !important;
-  z-index: 2;
-  background-color: rgba(13, 13, 13, 0.7) !important;
-}
-
-
-.detail-image-col {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-.detail-image-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: 30px;
-  background: linear-gradient(rgba(13, 13, 13, 0.2), transparent);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.detail-image-container:hover {
-  background: linear-gradient(rgba(13, 13, 13, 0.3), transparent);
-}
-
-
-.detail-image-frame {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 2px solid #fc503b;
-  border-radius: 4px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-
-.character-detail-image {
-  border-radius: 8px;
-  z-index: 0;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.character-detail-image:hover {
-  transform: scale(1.05);
-}
-
-
-.detail-content-col {
-  padding: 40px !important;
-  text-align: left;
-}
-
-
-.nexus-detail-title {
-  font-size: 2.5rem !important;
-  color: #fc503b !important;
-  font-weight: 700 !important;
-  padding-left: 0 !important;
-  background: linear-gradient(45deg, transparent, rgba(252, 80, 59, 0.2), transparent);
-  background-size: 200% 100%;
-  background-position: 100%;
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.nexus-detail-title:hover {
-  background-position: 0;
-  transform: translateX(5px);
-  color: white !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-
-.nexus-detail-title:hover {
-  background-position: 0;
-}
-
-
-.nexus-detail-subtitle {
-  font-size: 1.2rem !important;
-  color: #b0b0b0 !important;
-  font-style: italic !important;
-  padding-left: 0 !important;
-  margin-bottom: 20px !important;
-}
-
-
-.nexus-detail-content {
-  padding: 0 !important;
-}
-
-
-.nexus-detail-item {
-  padding: 5px 0 !important;
-  margin: 0 !important;
-}
-
-
-.detail-label {
-  color: #fc503b;
-  font-weight: 600;
-  margin-right: 10px;
-}
-
-
-.nexus-detail-divider {
-  height: 1px;
-  background: linear-gradient(to right, #fc503b, transparent);
-  margin: 20px 0;
-}
-
-
-.nexus-detail-description {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #e0e0e0;
 }
 
 
@@ -1248,6 +770,7 @@ const logout = () => {
   overflow: hidden;
 }
 
+
 .social-icon::before {
   content: '';
   position: absolute;
@@ -1266,9 +789,11 @@ const logout = () => {
   transform: translateY(-5px);
 }
 
+
 .social-icon:hover::before {
   opacity: 1;
 }
+
 
 .nexus-link {
   color: #fc503b;

@@ -76,11 +76,11 @@
                 </div>
                 <div class="nexus-stat-item">
                   <div class="nexus-stat-value">{{ totalDownloads }}</div>
-                  <div class="nexus-stat-label">Descargas</div>
+                  <div class="nexus-stat-label">Descàrregues</div>
                 </div>
                 <div class="nexus-stat-item">
                   <div class="nexus-stat-value">0</div>
-                  <div class="nexus-stat-label">Likes</div>
+                  <div class="nexus-stat-label">M'agrada</div>
                 </div>
               </div>
               
@@ -102,15 +102,15 @@
           <v-tabs v-model="tab" color="#fc503b" class="nexus-tabs">
             <v-tab value="mods">
               <v-icon left>mdi-puzzle</v-icon>
-              Mis Mods
+              Els meus Mods
             </v-tab>
             <v-tab value="activity">
               <v-icon left>mdi-chart-line</v-icon>
-              Estadísticas
+              Estadístiques
             </v-tab>
             <v-tab value="settings">
               <v-icon left>mdi-cog</v-icon>
-              Configuración
+              Configuració
             </v-tab>
           </v-tabs>
         </div>
@@ -120,7 +120,7 @@
             <!-- Lista de Mods -->
             <div class="nexus-mods-container">
               <div class="nexus-mods-header">
-                <h2 class="nexus-mods-title">Mis Mods</h2>
+                <h2 class="nexus-mods-title">Els meus Mods</h2>
                 <v-btn 
                   color="#fc503b" 
                   to="/upload-mod"
@@ -142,7 +142,7 @@
                     class="nexus-btn"
                   >
                     <v-icon left>mdi-upload</v-icon>
-                    Pujar el teu primer mod
+                    Puja el teu primer mod
                   </v-btn>
                 </div>
               </div>
@@ -153,7 +153,7 @@
                     <img 
                       v-if="mod.image" 
                       :src="`http://localhost:3002${mod.image}`" 
-                      alt="Imagen del mod" 
+                      alt="Imatge del mod" 
                       class="nexus-mod-image" 
                     />
                     <div v-else class="nexus-mod-image-placeholder">
@@ -181,7 +181,7 @@
                       <div class="nexus-mod-stats">
                         <div class="nexus-mod-stat">
                           <v-icon small>mdi-download</v-icon>
-                          {{ mod.downloads || 0 }} descargas
+                          {{ mod.downloads || 0 }} descàrregues
                         </div>
                         <div class="nexus-mod-stat">
                           <v-icon small>mdi-calendar</v-icon>
@@ -227,26 +227,26 @@
           
           <v-window-item value="activity">
             <div class="nexus-activity-container">
-              <h2 class="nexus-section-title">Estadísticas</h2>
+              <h2 class="nexus-section-title">Estadístiques</h2>
               <div class="nexus-stats-cards">
                 <v-card class="nexus-stat-card">
-                  <v-card-title>Descargas totales</v-card-title>
+                  <v-card-title>Descàrregues totals</v-card-title>
                   <v-card-text>
                     <div class="nexus-stat-value">{{ totalDownloads }}</div>
                   </v-card-text>
                 </v-card>
                 
                 <v-card class="nexus-stat-card">
-                  <v-card-title>Mods populares</v-card-title>
+                  <v-card-title>Mods populars</v-card-title>
                   <v-card-text>
                     <div v-if="topMods.length > 0">
                       <div v-for="mod in topMods" :key="mod.id" class="nexus-popular-mod">
                         <span class="nexus-popular-mod-name">{{ mod.title }}</span>
-                        <span class="nexus-popular-mod-downloads">{{ mod.downloads }} descargas</span>
+                        <span class="nexus-popular-mod-downloads">{{ mod.downloads }} descàrregues</span>
                       </div>
                     </div>
                     <div v-else class="nexus-no-stats">
-                      No hay datos suficientes
+                      No hi ha dades suficients
                     </div>
                   </v-card-text>
                 </v-card>
@@ -256,7 +256,7 @@
           
           <v-window-item value="settings">
             <div class="nexus-settings-container">
-              <h2 class="nexus-section-title">Configuración de la cuenta</h2>
+              <h2 class="nexus-section-title">Configuració del compte</h2>
               <v-card class="nexus-settings-card">
                 <v-card-text>
                   <v-list>
@@ -276,7 +276,7 @@
                       <template v-slot:prepend>
                         <v-icon>mdi-lock</v-icon>
                       </template>
-                      <v-list-item-title>Cambiar contraseña</v-list-item-title>
+                      <v-list-item-title>Canviar contrasenya</v-list-item-title>
                       <template v-slot:append>
                         <v-icon>mdi-chevron-right</v-icon>
                       </template>
@@ -288,7 +288,7 @@
                       <template v-slot:prepend>
                         <v-icon color="error">mdi-logout</v-icon>
                       </template>
-                      <v-list-item-title class="text-error">Cerrar sesión</v-list-item-title>
+                      <v-list-item-title class="text-error">Tancar sessió</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-card-text>
@@ -307,20 +307,20 @@
             <v-card-text>
                 <v-text-field 
                   v-model="newInformationMod.title" 
-                  label="Título del Mod" 
+                  label="Títol del Mod" 
                   variant="outlined"
                   class="nexus-input"
                 />
                 <v-textarea 
                   v-model="newInformationMod.description" 
-                  label="Descripción" 
+                  label="Descripció" 
                   variant="outlined"
                   class="nexus-input"
                   rows="3"
                 />
                 <v-file-input 
                   v-model="newInformationMod.modFile" 
-                  label="Archivo del Mod (deja en blanco para no cambiar)" 
+                  label="Arxiu del Mod (deixa en blanc per no canviar)" 
                   variant="outlined"
                   class="nexus-input"
                   prepend-icon="mdi-paperclip"
@@ -333,7 +333,7 @@
                 @click="editMod = false"
                 class="nexus-btn"
               >
-                Cancelar
+                Cancel·lar
               </v-btn>
               <v-btn 
                 color="#fc503b" 
@@ -341,7 +341,7 @@
                 @click="updateMod"
                 class="nexus-btn"
               >
-                Actualizar mod
+                Actualitzar mod
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -357,21 +357,21 @@
             <v-card-text>
               <v-text-field 
                 v-model="newInformationUser.username" 
-                label="Nombre de usuario" 
+                label="Nom d'usuari" 
                 variant="outlined"
                 class="nexus-input"
               />
               <v-divider class="my-4"></v-divider>
               <v-text-field 
                 v-model="newInformationUser.newPassword" 
-                label="Nueva contraseña" 
+                label="Nova contrasenya" 
                 type="password" 
                 variant="outlined"
                 class="nexus-input"
               />
               <v-text-field 
                 v-model="newInformationUser.confirmPassword" 
-                label="Confirmar contraseña" 
+                label="Confirmar contrasenya" 
                 type="password" 
                 variant="outlined"
                 class="nexus-input"
@@ -384,7 +384,7 @@
                 @click="editPerfil = false"
                 class="nexus-btn"
               >
-                Cancelar
+                Cancel·lar
               </v-btn>
               <v-btn 
                 color="#fc503b" 
@@ -392,7 +392,7 @@
                 @click="updateProfile"
                 class="nexus-btn"
               >
-                Guardar cambios
+                Guardar canvis
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -411,7 +411,7 @@
             @click="snackbar.show = false"
             class="nexus-btn"
           >
-            Cerrar
+            Tancar
           </v-btn>
         </template>
         </v-snackbar>
@@ -469,7 +469,7 @@ const topMods = computed(() => {
 
 const fetchUser = async () => {
   const response = await loadUserData(userEmail.value);
-  if (!response.ok) throw new Error('Error en la respuesta del servidor');
+  if (!response.ok) throw new Error('Error en la resposta del servidor');
 
   const data = await response.json();
   user.value = data;
@@ -498,7 +498,7 @@ const updateProfile = async () => {
     if (newInformationUser.value.newPassword !== newInformationUser.value.confirmPassword) {
       snackbar.value = {
         show: true,
-        text: 'Las contraseñas no coinciden',
+        text: 'Les contrasenyes no coincideixen',
         color: 'error'
       };
       loading.value = false;
@@ -539,7 +539,7 @@ const updateProfile = async () => {
     console.error(err);
     snackbar.value = {
       show: true,
-      text: 'Error al actualizar el perfil',
+      text: 'Error en actualitzar el perfil',
       color: 'error'
     };
   } finally {
@@ -555,7 +555,6 @@ const openEditDialogMod = (mod) => {
   editMod.value = true;
 }
 
-// Hecho
 const updateVisible = async (modId) => {
   try {
     const response = await changeVisible(modId);
@@ -563,7 +562,7 @@ const updateVisible = async (modId) => {
     if(!response) {
       snackbar.value = {
         show: true,
-        text: 'Error de red o problema en el servidor',
+        text: 'Error de xarxa o problema al servidor',
         color: 'error'
       };
       return;
@@ -574,7 +573,7 @@ const updateVisible = async (modId) => {
     if (!response.ok) {
       snackbar.value = {
         show: true,
-        text: data.error || 'Error al actualizar visibilidad',
+        text: data.error || 'Error en actualitzar la visibilitat',
         color: 'error'
       };
       return;
@@ -582,7 +581,7 @@ const updateVisible = async (modId) => {
 
     snackbar.value = {
       show: true,
-      text: data.message || 'Visibilidad actualizada correctamente',
+      text: data.message || 'Visibilitat actualitzada correctament',
       color: 'success'
     };
 
@@ -590,13 +589,12 @@ const updateVisible = async (modId) => {
   } catch (error) {
     snackbar.value = {
       show: true,
-      text: 'Error inesperado al actualizar la visibilidad del mod',
+      text: 'Error inesperat en actualitzar la visibilitat del mod',
       color: 'error'
     };
   } 
 }
 
-// Hecho
 const updateMod = async () => {
   loading.value = true;
 
@@ -614,7 +612,7 @@ const updateMod = async () => {
     if (!response) {
       snackbar.value = {
         show: true,
-        text: 'Error de red o problema en el servidor',
+        text: 'Error de xarxa o problema al servidor',
         color: 'error'
       }
       loading.value = false;
@@ -644,7 +642,7 @@ const updateMod = async () => {
     console.error(err);
     snackbar.value = {
       show: true,
-      text: 'Error al actualizar el mod',
+      text: 'Error en actualitzar el mod',
       color: 'error'
     };
   } finally {
@@ -652,7 +650,6 @@ const updateMod = async () => {
   }
 }
 
-// Hecho
 const deleteMod = async (modId) => {
   try {
     const response = await deleteModSequelize(modId);
@@ -660,7 +657,7 @@ const deleteMod = async (modId) => {
     if (!response) {
       snackbar.value = {
         show: true,
-        text: 'Error de red o problema en el servidor',
+        text: 'Error de xarxa o problema al servidor',
         color: 'error'
       }
       return;
@@ -671,7 +668,7 @@ const deleteMod = async (modId) => {
     if (!response.ok) {
       snackbar.value = {
         show: true,
-        text: data.error || 'Error al eliminar el mod',
+        text: data.error || 'Error en eliminar el mod',
         color: 'error'
       };
       return;
@@ -679,7 +676,7 @@ const deleteMod = async (modId) => {
 
     snackbar.value = {
       show: true,
-      text: data.message || 'Mod existosamente eliminado',
+      text: data.message || 'Mod eliminat correctament',
       color: 'success'
     }
 
@@ -687,7 +684,7 @@ const deleteMod = async (modId) => {
   } catch (err) {
     snackbar.value = {
       show: true,
-      text: 'Error inesperado al eliminar el mod',
+      text: 'Error inesperat en eliminar el mod',
       color: 'error'
     }
   }
@@ -699,9 +696,9 @@ const truncateDescription = (desc) => {
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Fecha desconocida';
+  if (!dateString) return 'Data desconeguda';
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('es-ES', options);
+  return new Date(dateString).toLocaleDateString('ca-ES', options);
 };
 
 const logout = () => {

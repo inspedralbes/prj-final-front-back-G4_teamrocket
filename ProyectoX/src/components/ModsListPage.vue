@@ -1,76 +1,77 @@
 <template>
   <div class="nexus-style">
     <!-- Header -->
-<v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
-  <div class="logo-container">
-    <v-img
-      src="@/assets/Logo del Juego de darkness Unseen.png"
-      alt="Logo del Juego"
-      class="logo nexus-logo"
-      width="50"
-      height="50"
-      @click="navigateToMainPage"
-    ></v-img>
-  </div>
-  
-  <v-spacer></v-spacer>
-  
-  <div class="nexus-user-section">
-    <v-btn
-      v-if="userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/"
-      text
-      :ripple="false"
-    >
-      <v-icon left>mdi-home</v-icon>
-      Inici
-    </v-btn>
-    <v-btn
-      v-if="userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/perfil"
-      text
-      :ripple="false"
-    >
-      <v-icon left>mdi-account</v-icon>
-      Perfil
-    </v-btn>
-    <v-btn
-      v-if="!userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/login"
-      text
-      :ripple="false"
-    >
-      Iniciar Sessió
-    </v-btn>
-    <v-btn
-      v-if="userEmail"
-      color="#fc503b"
-      class="nexus-login-btn"
-      @click="logout"
-      text
-      :ripple="false"
-    >
-      Tancar Sessió
-    </v-btn>
-    <v-btn
-      v-if="isAdmin"
-      color="#fc503b"
-      class="nexus-login-btn"
-      to="/admin"
-      text
-      :ripple="false"
-    >
-      <v-icon left>mdi-shield-account</v-icon>
-      Admin
-    </v-btn>
-  </div>
-</v-app-bar>
+    <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
+      <div class="logo-container">
+        <v-img
+          src="@/assets/Logo del Juego de darkness Unseen.png"
+          alt="Logo del Juego"
+          class="logo nexus-logo"
+          width="50"
+          height="50"
+          @click="navigateToMainPage"
+        ></v-img>
+      </div>
+      
+      <v-spacer></v-spacer>
+      
+      <div class="nexus-user-section">
+        <v-btn
+          v-if="userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/"
+          text
+          :ripple="false"
+        >
+          <v-icon left>mdi-home</v-icon>
+          Inici
+        </v-btn>
+        <v-btn
+          v-if="userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/perfil"
+          text
+          :ripple="false"
+        >
+          <v-icon left>mdi-account</v-icon>
+          Perfil
+        </v-btn>
+        <v-btn
+          v-if="!userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/login"
+          text
+          :ripple="false"
+        >
+          Iniciar Sessió
+        </v-btn>
+        <v-btn
+          v-if="userEmail"
+          color="#fc503b"
+          class="nexus-login-btn"
+          @click="logout"
+          text
+          :ripple="false"
+        >
+          Tancar Sessió
+        </v-btn>
+        <v-btn
+          v-if="isAdmin"
+          color="#fc503b"
+          class="nexus-login-btn"
+          to="/admin"
+          text
+          :ripple="false"
+        >
+          <v-icon left>mdi-shield-account</v-icon>
+          Admin
+        </v-btn>
+      </div>
+    </v-app-bar>
+    
     <!-- Hero Section with Video Background -->
     <section class="nexus-hero" @click="openVideoModal">
       <div class="video-background">
@@ -147,10 +148,7 @@
     <!-- Stats Section -->
     <section class="nexus-stats" v-if="stats.totalMods > 0">
       <v-container>
-        <v-row>
-          <v-col cols="12">
-            <h2 class="nexus-stats-title">Mods i col·leccions per Darkness Unseen</h2>
-          </v-col>
+        <v-row class="justify-center">
           <v-col cols="6" sm="3">
             <div class="nexus-stat-item">
               <div class="nexus-stat-value">{{ formatNumber(stats.totalDownloads) }}</div>
@@ -169,29 +167,12 @@
               <div class="nexus-stat-label">Membres</div>
             </div>
           </v-col>
-          <v-col cols="6" sm="3">
-            <div class="nexus-stat-item">
-              <div class="nexus-stat-value">${{ formatNumber(stats.totalRewards) }}</div>
-              <div class="nexus-stat-label">Recompenses</div>
-            </div>
-          </v-col>
         </v-row>
       </v-container>
     </section>
 
     <!-- Main Content -->
     <v-container class="nexus-main-container">
-      <!-- Filter Tabs -->
-      <div class="nexus-filter-tabs">
-        <v-tabs v-model="activeTab" grow>
-          <v-tab value="new">Nous</v-tab>
-          <v-tab value="updated">Actualitzats</v-tab>
-          <v-tab value="trending">Tendència</v-tab>
-          <v-tab value="popular">Populars</v-tab>
-          <v-tab value="surprise">Sorpresa</v-tab>
-        </v-tabs>
-      </div>
-
       <!-- Search and Sort -->
       <div class="nexus-search-sort">
         <v-text-field
@@ -446,8 +427,7 @@ const navigateToMainPage = () => {
 const stats = ref({
   totalDownloads: 0,
   totalMods: 0,
-  totalMembers: 0,
-  totalRewards: 0
+  totalMembers: 0
 });
 
 const mods = ref([]);
@@ -458,7 +438,6 @@ const userEmail = ref(localStorage.getItem('userEmail'));
 const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
 // Filtros y búsqueda
-const activeTab = ref('new');
 const search = ref('');
 const sortBy = ref('Relevancia');
 
@@ -545,8 +524,7 @@ const fetchMods = async () => {
     stats.value = {
       totalDownloads: mods.value.reduce((sum, mod) => sum + (mod.downloads || 0), 0),
       totalMods: mods.value.length,
-      totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size,
-      totalRewards: 0 // Esto deberías obtenerlo del backend
+      totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size
     };
   } catch (error) {
     console.error('Error fetching mods:', error);
