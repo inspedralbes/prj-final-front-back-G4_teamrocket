@@ -204,8 +204,15 @@ export const changeSecurity = async (modId) => {
     }
 }
 
+// Hecho
 export const getAllComments = async () => {
-    return await fetch(`http://localhost:3002/api/comments`);
+    try {
+        return await fetch(urlBackend + '/api/comments', {
+            method: 'GET'
+        });
+    } catch (error) {
+        return null;
+    }
 }
 
 export const getCommentsById = async (modId) => {
@@ -242,57 +249,44 @@ export const deleteCommentMongodb = async (commentId) => {
     });
 }
 
+// Hecho
 export const getAllLikes = async () => {
     try {
-        const response = await fetch('http://localhost:3002/api/likes');
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
-        return await response.json();
+        return await fetch(urlBackend + '/api/likes', {
+            method: 'GET'
+        });
     } catch (err) {
-        console.log(err);
+        return null;
     }
 }
 
+// Hecho
 export const postLike = async (modId, email) => {
     try {
-        const response = await fetch('http://localhost:3002/api/likes/new-like', {
+        return await fetch(urlBackend + '/api/likes/new-like', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ modId, email })
         });
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
-        return await response.json();
     } catch (err) {
-        console.log(err);
+        return null;
     }
 }
 
+// Hecho
 export const deleteLike = async (modId, email) => {
     try {
-        const response = await fetch('http://localhost:3002/api/likes/delete-like', {
+        return await fetch(urlBackend + '/api/likes/delete-like', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ modId, email })
         });
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
-        return await response.json();
     } catch (err) {
-        console.log(err);
+        return null;
     }
 }
 

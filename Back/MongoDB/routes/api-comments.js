@@ -4,14 +4,11 @@ import { getIO } from '../../app.js';
 
 const router = express.Router();
 
-// Obtener todos los comentarios
+// Hecho
 router.get('/', async (req, res) => {
   try {
-    const comments = await Comment.find();
-
-    //await Comment.deleteMany({});
-
-    res.status(200).json(comments);
+    const allComments = await Comment.find();
+    res.status(200).json(allComments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -21,7 +18,7 @@ router.get('/', async (req, res) => {
 router.get('/:modId', async (req, res) => {
   try {
     const comments = await Comment.find({ modId: req.params.modId });
-    res.json(comments);
+    res.status(200).json(comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

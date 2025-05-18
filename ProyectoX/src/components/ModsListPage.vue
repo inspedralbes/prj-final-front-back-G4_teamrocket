@@ -506,7 +506,7 @@ const fetchMods = async () => {
     const response = await getAllMods();
 
     if (!response) {
-      console.error('No se recibió respuesta del servidor');
+      console.error("Error de xarxa o problema al servidor");
       return;
     }
 
@@ -527,28 +527,55 @@ const fetchMods = async () => {
       totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size
     };
   } catch (error) {
-    console.error('Error fetching mods:', error);
+    errorMessage.value = 'Error en obtenir tots els mods';
   } finally {
     loading.value = false;
   }
 };
 
+// Hecho
 const fetchComments = async () => {
   try {
     const response = await getAllComments();
-    comments.value = await response.json();
-    console.log(comments.value);
+
+    if (!response) {
+      console.error("Error de xarxa o problema al servidor");
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = data.error || 'Error en obtenir tots els comentaris';
+      return;
+    }
+
+    comments.value = data;
   } catch (err) {
-    console.log(err);
+    console.log('Error en obtenir tots els comentaris');
   }
 }
 
+// Hecho
 const fetchLikes = async () => {
   try {
-    likes.value = await getAllLikes();
-    console.log(likes.value);
+    const response = await getAllLikes();
+
+    if (!response) {
+      console.error("Error de xarxa o problema al servidor");
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = data.error || 'Error en obtenir tots els likes';
+      return;
+    }
+
+    likes.value = data;
   } catch (err) {
-    console.log(err);
+    console.log('Error en obtenir tots els likes');
   }
 }
 
@@ -604,23 +631,49 @@ const closeDialog = () => {
   imageFile.value = null;
 };
 
-const toggleLike = async (modId) => {
-  const existingLike = likes.value.find(
-    like => like.modId === modId && like.email === userEmail.value
-  );
+const responseFromServer = async (response) => {
+  if(!response) {
+    errorMessage.value = 'Error de xarxa o problema al servidor';
+    uploadError.value = true;
+    return;
+  }
 
-  if (!existingLike) {
-    try {
-      await postLike(modId, userEmail.value);
-    } catch (err) {
-      console.log('Error al registrar like:', err);
+  const data = await response.json();
+
+  if(!response.ok) {
+    errorMessage.value = data.error || "Error en l'operació";
+    uploadError.value = true;
+    return;
+  }
+}
+
+// Hecho
+const toggleLike = async (modId) => {
+  if (!userEmail.value) {
+    errorMessage.value = 'Necessites iniciar sessió per donar like';
+    uploadError.value = true;
+    return;
+  }
+
+  try {
+    const existingLike = likes.value.find(
+      like => like.modId === modId && like.email === userEmail.value
+    );
+
+    let response;
+    if(!existingLike) {
+      response = await postLike(modId, userEmail.value);
+      await responseFromServer(response);
     }
-  } else {
-    try {
-      await deleteLike(modId, userEmail.value);
-    } catch (err) {
-      console.log('Error al eliminar like:', err);
+    else {
+      response = await deleteLike(modId, userEmail.value);
+      await responseFromServer(response);
     }
+  } catch (error) {
+    errorMessage.value = existingLike
+      ? 'Error en eliminar el like'
+      : 'Error en registrar el like';
+    uploadError.value = true;
   }
 };
 
@@ -651,6 +704,7 @@ const uploadMod = async () => {
 
     if(!response.ok) {
       errorMessage.value = data.error || 'Error en pujar el mod'
+      uploadError.value = true;
       uploading.value = false;
       return;
     }

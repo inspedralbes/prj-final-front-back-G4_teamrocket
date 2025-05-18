@@ -296,8 +296,6 @@ router.post('/new-tag/:id', async (req, res) => {
       where: { name: name.trim().toLowerCase() }
     });
 
-    console.log(tag);
-
     await mod.addTag(tag);
 
     return res.status(200).json({ message: `Tag '${tag.name}' agregado al mod.` });

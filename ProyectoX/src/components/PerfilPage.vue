@@ -595,6 +595,7 @@ const updateVisible = async (modId) => {
   } 
 }
 
+// Hecho
 const updateMod = async () => {
   loading.value = true;
 
@@ -650,6 +651,7 @@ const updateMod = async () => {
   }
 }
 
+// Hecho
 const deleteMod = async (modId) => {
   try {
     const response = await deleteModSequelize(modId);
