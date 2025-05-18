@@ -91,6 +91,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import * as THREE from 'three';
 import { getUsersAdmin, deleteUserAdmin, changeUserAdmin } from '@/services/communicationManager';
+import { listenNewUserAdmin } from '@/services/socketManager';
 
 // Variables de estado
 const users = ref([]);
@@ -320,6 +321,7 @@ const changeAdmin = async (userId) => {
 
 onMounted(() => {
   fetchUsers();
+  listenNewUserAdmin(users);
   initThreeJS();
 });
 

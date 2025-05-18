@@ -378,6 +378,11 @@ const initChart = () => {
       return;
     }
     
+    if (chartInstance.value) {
+      chartInstance.value.destroy();
+      chartInstance.value = null;
+    }
+    
     // Ordenar dades per data
     const sortedData = [...mod.value.statsDailyDownloadsMods].sort((a, b) => 
       new Date(a.date) - new Date(b.date)
@@ -393,14 +398,14 @@ const initChart = () => {
     calculateTrend(sortedData);
 
     // Destruir instància anterior si existeix
-    if (chartInstance.value) {
-      try {
-        chartInstance.value.destroy();
-      } catch (error) {
-        console.error('Error en destruir el gràfic anterior:', error);
-      }
-      chartInstance.value = null;
-    }
+    // if (chartInstance.value) {
+    //   try {
+    //     chartInstance.value.destroy();
+    //   } catch (error) {
+    //     console.error('Error en destruir el gràfic anterior:', error);
+    //   }
+    //   chartInstance.value = null;
+    // }
 
     // Crear nova instància amb estil Steam
     chartInstance.value = new Chart(ctx, {
@@ -677,14 +682,13 @@ const editComment = async (comment) => {
 
 onMounted(() => {
   fetchModDetails();
-  
   // Inicialitzar el gràfic quan el component estigui muntat
   nextTick(() => {
     if (downloadsChart.value) {
       initChart();
     }
   });
-  listenToModDownloads2(mod);
+  listenToModDownloads2(mod, initChart);
 });
 
 onBeforeUnmount(() => {

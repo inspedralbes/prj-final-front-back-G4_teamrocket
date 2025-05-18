@@ -142,6 +142,17 @@ router.post('/new-mod', async (req, res) => {
       { upsert: true }
     );
 
+    const listMods = await Mod.findAll({
+      include: [{
+        model: User,
+        attributes: ['username']
+      }],
+      order: [['uploaded_at', 'DESC']]
+    });
+
+    const io = getIO();
+    io.emit('newMod', listMods);
+
     res.status(201).json({ message: 'Mod subido exitosamente'});
   } catch (error) {
     console.log('Error al actualizar estadísticas:', error);
@@ -188,20 +199,24 @@ router.patch('/change-visible/:id', async (req, res) => {
   }
 });
 
-router.put('/:modId/safe', async (req, res) => {
+// Hecho
+router.patch('/security/:id', async (req, res) => {
   try {
-    const modId = req.params.modId;
-    const { isSafe } = req.body;
+    const modId = req.params.id;
 
-    const mod = await Mod.findOne({ where: { id: modId }});
+    const mod = await Mod.findByPk(modId);
+    if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
 
-    mod.security = isSafe;
+    mod.security = !mod.security;
     mod.save();
+
+    const io = getIO();
+    io.emit('updateSecurity', { modId: mod.id, security: mod.security });
 
     res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ error: "Error en actualizar la seguridad del mod" });
   }
 });
 

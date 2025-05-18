@@ -162,9 +162,7 @@ export const deleteModSequelize = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/mods/delete-mod/${modId}`, {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
         return null
@@ -176,9 +174,7 @@ export const patchDownloadMod = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/mods/download/${modId}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
         return null;
@@ -190,12 +186,21 @@ export const changeVisible = async (modId) => {
     try {
         return await fetch(`http://localhost:3002/api/mods/change-visible/${modId}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-        }
+            headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
-        return null
+        return null;
+    }
+}
+
+export const changeSecurity = async (modId) => {
+    try {
+        return await fetch(urlBackend + `/api/mods/security/${modId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        return null;
     }
 }
 

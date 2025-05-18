@@ -165,7 +165,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import * as THREE from 'three';
-import { getModsAdmin } from '@/services/communicationManager';
+import { changeSecurity, getModsAdmin } from '@/services/communicationManager';
+import { listenChangeSecurityModAdmin, listenNewModsAdmin } from '@/services/socketManager';
 
 // Variables d'estat
 const mods = ref([]);
@@ -326,26 +327,40 @@ const logDownload = async (modId) => {
   }
 };
 
+// Hecho
 const toggleSafety = async (mod) => {
+  const previousValue = mod.security;
   mod.updating = true;
-  try {
-    const response = await fetch(`http://localhost:3002/api/mods/${mod.id}/safe`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isSafe: mod.security }),
-    });
 
-    if (response.ok) {
+  try {
+    const response = await changeSecurity(mod.id);
+
+    if (!response) {
+      notificationMessage.value = 'Error de xarxa o problema al servidor'
+      notificationColor.value = 'error';
       showNotification.value = true;
-      notificationMessage.value = mod.security 
-        ? 'Mod marcat com a segur' 
-        : 'Mod marcat com a no segur';
-      notificationColor.value = 'success';
+      mod.updating = false;
+      return;
     }
+    
+    const data = await response.json();
+    if(!response.ok) {
+      notificationMessage.value = data.error || 'Error en actualitzar la seguretat del mod'
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      mod.updating = false;
+      return;
+    }
+    
+    notificationMessage.value = mod.security 
+      ? 'Mod marcat com a segur' 
+      : 'Mod marcat com a no segur';
+    notificationColor.value = 'success';  
+    showNotification.value = true;
   } catch (err) {
     console.error("Error en actualitzar la seguretat del mod", err);
-    mod.security = !mod.security;
-    notificationMessage.value = 'Error en actualitzar';
+    mod.security = previousValue;
+    notificationMessage.value = 'Error en actualitzar la seguretat del mod';
     notificationColor.value = 'error';
     showNotification.value = true;
   } finally {
@@ -375,6 +390,8 @@ const formatDate = (dateString) => {
 onMounted(async () => {
   try {
     mods.value = await getModsAdmin();
+    listenChangeSecurityModAdmin(mods);
+    listenNewModsAdmin(mods);
     initThreeJS();
   } catch (err) {
     console.error("Error en carregar mods", err);
