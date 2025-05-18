@@ -16,10 +16,6 @@ export default (sequelize) => {
             type: DataTypes.STRING(255),
             allowNull: false
         },
-        totalLikes: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0
-        },
         security: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
@@ -46,7 +42,14 @@ export default (sequelize) => {
     });
   
     Mod.associate = models => {
-      Mod.belongsTo(models.User, { foreignKey: 'uploaded_by' });
+        Mod.belongsTo(models.User, { foreignKey: 'uploaded_by' });
+        Mod.belongsToMany(models.Tag, {
+            as: 'tags',
+            through: 'ModTag',
+            foreignKey: 'modId',
+            otherKey: 'tagId',
+            onDelete: 'CASCADE'
+        });
     };
   
     return Mod;
