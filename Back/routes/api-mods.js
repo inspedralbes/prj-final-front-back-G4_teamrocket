@@ -7,7 +7,7 @@ import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
 import { getIO } from '../app.js';
 
 const router = express.Router();
-const { Mod, User } = models;
+const { Mod, User, Tag } = models;
 
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
@@ -65,11 +65,17 @@ router.get('/admin-mods', async (req, res) => {
   }
 });
 
-// Obtener un mod específico por ID
 router.get('/:id', async (req, res) => {
   try {
     const modId = req.params.id;
-    const mod = await Mod.findByPk(modId);
+    const mod = await Mod.findByPk(modId, {
+      include: {
+        model: Tag,
+        as: 'tags',
+        attributes: ['name'],
+        through: { attributes: [] }
+      }
+    });
     if (!mod) return res.status(404).json({ error: 'Mod no encontrado' });
 
     const user = await User.findByPk(mod.uploaded_by);
@@ -82,14 +88,11 @@ router.get('/:id', async (req, res) => {
       file_path: mod.file_path,
       uploaded_at: mod.uploaded_at,
       uploaded_by: user.username,
-      image: mod.image
+      image: mod.image,
+      tags: mod.tags.map(tag => tag.name)
     };
 
-    // await DailyDownloadsMods.deleteMany({});
-
     const statsDailyDownloadsMods = await DailyDownloadsMods.find({ modId: Number(modId) });
-
-    console.log(statsDailyDownloadsMods);
 
     res.status(200).json({ modUser, statsDailyDownloadsMods });
   } catch (error) {
@@ -226,6 +229,7 @@ router.delete('/delete-mod/:id', async (req, res) => {
     const deleted = await Mod.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
 
+    // MongoDB
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -270,6 +274,36 @@ router.patch('/download/:id', async (req, res) => {
   } catch (error) {
     console.error('Error al registrar descarga:', error);
     res.status(500).json({ error: 'Error al registrar descarga' });
+  }
+});
+
+
+router.post('/new-tag/:id', async (req, res) => {
+  const modId = req.params.id;
+  const { name } = req.body;
+
+  if (!name || typeof name !== 'string') {
+    return res.status(400).json({ error: 'Se requiere un nombre de tag válido.' });
+  }
+
+  try {
+    const mod = await Mod.findByPk(modId);
+    if (!mod) {
+      return res.status(404).json({ error: 'Mod no encontrado.' });
+    }
+
+    const [tag] = await Tag.findOrCreate({
+      where: { name: name.trim().toLowerCase() }
+    });
+
+    console.log(tag);
+
+    await mod.addTag(tag);
+
+    return res.status(200).json({ message: `Tag '${tag.name}' agregado al mod.` });
+  } catch (error) {
+    console.error('Error al agregar tag:', error);
+    return res.status(500).json({ error: 'Error interno del servidor.' });
   }
 });
 

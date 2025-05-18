@@ -17,12 +17,12 @@ const sequelize = new Sequelize(
 // Importar modelos
 import defineUser from './user.js';
 import defineMod from './mod.js';
-import defineFriendship from './friendship.js';
+import defineTag from './tag.js';
 
 const models = {
   User: defineUser(sequelize),
   Mod: defineMod(sequelize),
-  FriendShip: defineFriendship(sequelize)
+  Tag: defineTag(sequelize)
 };
 
 // Definir asociaciones
