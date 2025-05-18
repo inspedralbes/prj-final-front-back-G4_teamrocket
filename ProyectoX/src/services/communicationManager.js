@@ -129,8 +129,15 @@ export const getModsAdmin = async () => {
     }   
 }
 
+// Hecho
 export const getMod = async (id) => {
-    return await fetch(`http://localhost:3002/api/mods/${id}`);
+    try {
+        return await fetch(urlBackend + `/api/mods/${id}`, {
+            method: 'GET'
+        });
+    } catch (error) {
+        return null;
+    }
 }
 
 // Hecho
@@ -184,7 +191,7 @@ export const patchDownloadMod = async (modId) => {
 // Hecho
 export const changeVisible = async (modId) => {
     try {
-        return await fetch(`http://localhost:3002/api/mods/change-visible/${modId}`, {
+        return await fetch(urlBackend + `/api/mods/change-visible/${modId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -215,18 +222,30 @@ export const getAllComments = async () => {
     }
 }
 
+// Hecho
 export const getCommentsById = async (modId) => {
-    return await fetch(`http://localhost:3002/api/comments/${modId}`);
+    try {
+        return await fetch(urlBackend + `/api/comments/${modId}`, {
+            method: 'GET'
+        });
+    } catch (error) {
+        return null;
+    }
 }
 
+// Hecho
 export const postComment = async (newComment) => {
-    return await fetch('http://localhost:3002/api/comments/new-comment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newComment.value)
-    });
+    try {
+        return await fetch(urlBackend + '/api/comments/new-comment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newComment.value)
+        });
+    } catch (error) {
+        return null;
+    }
 }
 
 export const putComment = async (commentId, newContent) => {

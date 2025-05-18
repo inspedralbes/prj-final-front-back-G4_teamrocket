@@ -10,26 +10,26 @@ router.get('/', async (req, res) => {
     const allComments = await Comment.find();
     res.status(200).json(allComments);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: 'Error en obtenir tots els comentaris' });
   }
 });
 
-// Obtener comentarios de un mod específico
+// Hecho
 router.get('/:modId', async (req, res) => {
   try {
     const comments = await Comment.find({ modId: req.params.modId });
     res.status(200).json(comments);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: "Error en obtenir els comentaris del Mod" });
   }
 });
 
-// Crear un nuevo comentario
+// Hecho
 router.post('/new-comment', async (req, res) => {
   const { email, modId, content, rating } = req.body;
 
   if (!email || !modId || !content || rating === undefined) {
-    return res.status(400).json({ message: 'Faltan datos necesarios' });
+    return res.status(400).json({ message: 'Falten dades necesaris' });
   }
 
   const comment = new Comment({
@@ -47,10 +47,9 @@ router.post('/new-comment', async (req, res) => {
     const io = getIO();
     io.emit('updateComments', { allComments });
 
-    res.status(201).json({ message: "Nuevo comentario creado exitosamente" });
+    res.status(201).json({ message: "Nou comentari creat existosament" });
   } catch (err) {
-    console.error("Hola");
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ error: "Error en registrar el comentari" });
   }
 });
 

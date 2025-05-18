@@ -546,13 +546,13 @@ const fetchComments = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      errorMessage.value = data.error || 'Error en obtenir tots els comentaris';
+      console.error(data.error ||'Error en obtenir tots els comentaris');
       return;
     }
 
     comments.value = data;
   } catch (err) {
-    console.log('Error en obtenir tots els comentaris');
+    console.log('Error inesperat en obtenir tots els comentaris');
   }
 }
 
@@ -569,13 +569,13 @@ const fetchLikes = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      errorMessage.value = data.error || 'Error en obtenir tots els likes';
+      console.error(data.error || 'Error en obtenir tots els likes');
       return;
     }
 
     likes.value = data;
   } catch (err) {
-    console.log('Error en obtenir tots els likes');
+    console.log('Error inesperat en obtenir tots els likes');
   }
 }
 

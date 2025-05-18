@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     const allLikes = await Like.find();
     res.status(200).json(allLikes);
   } catch (error) {
-    res.status(500).json({ message: "Error" });
+    res.status(500).json({ error: "Error en obtenir els likes" });
   }
 });
 

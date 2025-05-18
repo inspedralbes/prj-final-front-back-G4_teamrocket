@@ -489,11 +489,33 @@ const initDownloadsHistory = () => {
   }
 };
 
+// Hecho
 const fetchModDetails = async () => {
   loading.value = true;
+
   try {
     const response = await getMod(route.params.id);
+    
+    if (!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      }
+      return;
+    }
+
     const data = await response.json();
+
+    if (!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en obtenir el mod',
+        color: 'error'
+      };
+      return;
+    }
+
     mod.value = data.modUser;
     
     if (data.statsDailyDownloadsMods) {
@@ -509,10 +531,9 @@ const fetchModDetails = async () => {
       });
     }
   } catch (error) {
-    console.error('Error en carregar detalls del mod:', error);
     snackbar.value = {
       show: true,
-      text: 'Error en carregar detalls del mod',
+      text: 'Error inesperat en carregar detalls del mod',
       color: 'error'
     };
   } finally {
@@ -520,24 +541,55 @@ const fetchModDetails = async () => {
   }
 };
 
+// Hecho
 const fetchComments = async () => {
   try {
     const response = await getCommentsById(route.params.id);
-    comments.value = await response.json();
+
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      console.error(data.error || 'Error en obtenir tots els comentaris');
+      return;
+    }
+
+    comments.value = data;
   } catch (error) {
-    console.error('Error en carregar comentaris:', error);
-    snackbar.value = {
-      show: true,
-      text: 'Error en carregar comentaris',
-      color: 'error'
-    };
+    console.error('Error inesperat en obtenir tots els comentaris');
   }
 };
 
+// Hecho
 const submitComment = async () => {
   submitting.value = true;
+
   try {
-    await postComment(newComment);
+    const response = await postComment(newComment);
+
+    if(!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      };
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en registrar el comentari',
+        color: 'error'
+      };
+      return;
+    }
     
     newComment.value = {
       email: userEmail,
@@ -548,16 +600,15 @@ const submitComment = async () => {
     
     snackbar.value = {
       show: true,
-      text: 'Comentari publicat correctament!',
+      text: 'Comentari publicat correctament',
       color: 'success'
     };
     
     await fetchComments();
   } catch (error) {
-    console.error('Error en publicar comentari:', error);
     snackbar.value = {
       show: true,
-      text: 'Error en publicar comentari',
+      text: 'Error inesperat en publicar comentari',
       color: 'error'
     };
   } finally {

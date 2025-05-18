@@ -65,9 +65,11 @@ router.get('/admin-mods', async (req, res) => {
   }
 });
 
+// Hecho
 router.get('/:id', async (req, res) => {
   try {
     const modId = req.params.id;
+
     const mod = await Mod.findByPk(modId, {
       include: {
         model: Tag,
@@ -76,10 +78,10 @@ router.get('/:id', async (req, res) => {
         through: { attributes: [] }
       }
     });
-    if (!mod) return res.status(404).json({ error: 'Mod no encontrado' });
+    if (!mod) return res.status(404).json({ error: 'Mod no trobat' });
 
     const user = await User.findByPk(mod.uploaded_by);
-    if (!user) return res.status(404).json({ error: 'User no encontrado' });
+    if (!user) return res.status(404).json({ error: 'Usuari no trobat' });
 
     const modUser = {
       description: mod.description,
