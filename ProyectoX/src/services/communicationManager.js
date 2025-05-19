@@ -212,17 +212,6 @@ export const changeSecurity = async (modId) => {
 }
 
 // Hecho
-export const getAllTags = async () => {
-    try {
-        return await fetch(urlBackend + '/api/mods', {
-            method: 'GET'
-        });
-    } catch {
-        return null;
-    }
-}
-
-// Hecho
 export const getAllComments = async () => {
     try {
         return await fetch(urlBackend + '/api/comments', {

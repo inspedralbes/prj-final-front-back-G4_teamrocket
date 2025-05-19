@@ -35,10 +35,6 @@
             <h2 class="nexus-section-title">Actualitzacions</h2>
             <div class="nexus-update-info">
               <div class="nexus-update-item">
-                <span class="nexus-update-label">Última actualització:</span>
-                <span class="nexus-update-value">{{ formatDate(mod.updated_at || mod.uploaded_at) }}</span>
-              </div>
-              <div class="nexus-update-item">
                 <span class="nexus-update-label">Pujada original:</span>
                 <span class="nexus-update-value">{{ formatDate(mod.uploaded_at) }}</span>
               </div>
@@ -161,12 +157,7 @@
         <!-- Columna dreta -->
         <div class="nexus-sidebar">
           <!-- Estadístiques -->
-          <v-card variant="outlined" class="nexus-stats-card">
-            <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Endorsements</div>
-              <div class="nexus-stats-value">8,984</div>
-            </div>
-            
+          <v-card variant="outlined" class="nexus-stats-card">      
             <v-divider class="nexus-stats-divider"></v-divider>
             
             <div class="nexus-stats-item">
@@ -178,7 +169,7 @@
             
             <div class="nexus-stats-item">
               <div class="nexus-stats-label">Versió</div>
-              <div class="nexus-stats-value">1.3</div>
+              <div class="nexus-stats-value">1.0</div>
             </div>
           </v-card>
 
@@ -227,18 +218,39 @@
             </div>
           </v-card>
           
-          <!-- Etiquetes -->
-          <v-card variant="outlined" class="nexus-tags-card">
-            <h3 class="nexus-tags-title">Etiquetes per aquest mod</h3>
-            <div class="nexus-tags-list">
-              <v-chip v-for="(tag, index) in ['Mapa', 'Interfície', 'Millora']" :key="index" class="nexus-tag">
-                {{ tag }}
-              </v-chip>
-            </div>
-            <v-btn variant="text" color="#fc503b" size="small" class="nexus-add-tag-btn">
-              + Afegir etiqueta
-            </v-btn>
-          </v-card>
+          <!-- Etiquetas -->
+        <v-card variant="outlined" class="nexus-tags-card">
+          <h3 class="nexus-tags-title">Etiquetes per aquest mod</h3>
+          
+          <div v-if="mod.tags && mod.tags.length > 0" class="nexus-tags-list">
+            <v-chip 
+              v-for="(tag, index) in mod.tags" 
+              :key="index" 
+              class="nexus-tag"
+              :color="tag.color || '#fc503b'" 
+              label
+              small
+            >
+              {{ tag.name || tag }}
+            </v-chip>
+          </div>
+          
+          <div v-else class="nexus-no-tags">
+            <v-icon small color="grey">mdi-tag-off</v-icon>
+            <span>Encara no hi ha etiquetes</span>
+          </div>
+          
+          <v-btn 
+            variant="text" 
+            color="#fc503b" 
+            size="small" 
+            class="nexus-add-tag-btn"
+            v-if="userEmail"
+            @click="openAddTagDialog"
+          >
+            + Afegir etiqueta
+          </v-btn>
+        </v-card>
 
         </div>
       </div>
@@ -306,6 +318,16 @@ const trendPercentage = ref(0);
 const trendColor = ref('success');
 const trendIcon = ref('mdi-arrow-up');
 const trendClass = ref('up');
+
+
+const openAddTagDialog = () => {
+  // Implementa la lógica para añadir una nueva etiqueta
+  snackbar.value = {
+    show: true,
+    text: 'Funcionalitat d\'afegir etiqueta en desenvolupament',
+    color: 'info'
+  };
+};
 
 const newComment = ref({
   email: userEmail,
@@ -506,6 +528,7 @@ const fetchModDetails = async () => {
     }
 
     const data = await response.json();
+    console.log('Datos completos del mod:', data); 
 
     if (!response.ok) {
       snackbar.value = {
@@ -517,7 +540,8 @@ const fetchModDetails = async () => {
     }
 
     mod.value = data.modUser;
-    
+    console.log('Datos del modUser:', mod.value);
+
     if (data.statsDailyDownloadsMods) {
       mod.value.statsDailyDownloadsMods = data.statsDailyDownloadsMods;
     }
@@ -1044,29 +1068,6 @@ onBeforeUnmount(() => {
   color: #4caf50;
 }
 
-.nexus-tags-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.nexus-tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.nexus-tag {
-  background: rgba(252, 80, 59, 0.1);
-  color: #fc503b;
-  border: 1px solid rgba(252, 80, 59, 0.3);
-}
-
-.nexus-add-tag-btn {
-  width: 100%;
-}
 
 .nexus-files-grid {
   display: grid;
@@ -1260,5 +1261,46 @@ onBeforeUnmount(() => {
   .nexus-files-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+
+.nexus-tags-card {
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.nexus-tags-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.nexus-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nexus-tag {
+  background: rgba(252, 80, 59, 0.1) !important;
+  color: #fc503b !important;
+  border: 1px solid rgba(252, 80, 59, 0.3);
+  font-size: 0.8rem;
+}
+
+.nexus-no-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.nexus-add-tag-btn {
+  width: 100%;
+  margin-top: 8px;
 }
 </style>
