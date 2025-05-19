@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import path from 'path';
 import { models } from '../models/index.js';
 import { getIO } from '../app.js';
+import { error } from 'console';
 
 const router = express.Router(); // Crea un enrutador de Express
 const { User, Mod } = models;
@@ -30,6 +31,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Hecho
 router.post('/login-web', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -37,37 +39,34 @@ router.post('/login-web', async (req, res) => {
         // Busca usuario por email
         const user = await User.findOne({ where: { email } });
 
-        if(!user) return res.status(401).json({ message: "No existeix cap usuari amb aquest email." });
+        if(!user) return res.status(401).json({ error: "No existeix cap usuari amb aquest email." });
     
         if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-            return res.status(401).json({ message: "Usuari o contrasenya incorrectes" });
+            return res.status(401).json({ error: "Usuari o contrasenya incorrectes" });
         }
   
-        res.status(201).json({ message: "success", email: user.email, admin: user.admin });
+        res.status(201).json({email: user.email, admin: user.admin });
     } catch (error) {
         console.error("Error en Inicia sessió:", error);
-        res.status(500).json({ message: "Error intern del servidor" });
+        res.status(500).json({ error: "Error intern del servidor" });
     }
 });
 
-// Ruta POST para registrar un nuevo usuario (modo normal)
+// Hecho
 router.post('/register-web', async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        // Verifica si ya existe un usuario con el mismo nombre
         const existingUser = await User.findOne({ where: { username } });
         if (existingUser) {
-            return res.json({ message: "Ja existeix un usuari amb aquest nom" });
+            return res.status(404).json({ error: "Ja existeix un usuari amb aquest nom" });
         }
 
-        // Verifica si el correo electrónico ya está en uso
         const existingEmail = await User.findOne({ where: { email } });
         if (existingEmail) {
-            return res.json({ message: "El correu electrònic ja està en ús" });
+            return res.status(404).json({ error: "El correu electrònic ja està en ús" });
         }
 
-        // Encripta la contraseña
         const hardPassword = await bcrypt.hash(password, 10);
 
         await User.create({ username, email, password_hash: hardPassword });
@@ -77,10 +76,10 @@ router.post('/register-web', async (req, res) => {
         const io = getIO();
         io.emit('newUser', listUsers );
 
-        res.status(201).json({ message: "success", email: email });
+        res.status(201).json({ message: "Registrat l'usuari correctament" });
     } catch (error) {
         console.error("Error en el registra:", error);
-        res.status(500).json({ message: "Error intern del servidor" });
+        res.status(500).json({ error: "Error intern del servidor" });
     }
 });
 

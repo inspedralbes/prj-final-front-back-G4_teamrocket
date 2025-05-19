@@ -54,43 +54,43 @@
                 ></v-text-field>
 
                 <v-btn
-                @click="login"
-                block
-                color="#fc503b"
-                size="large"
-                :loading="loading"
-                class="nexus-login-btn mb-4"
-              >
-                <template v-if="loginSuccess">
-                  <v-icon color="white" class="mr-2">mdi-check-circle</v-icon>
-                  INICIAT CORRECTAMENT
-                </template>
-                <template v-else-if="loginError">
-                  <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
-                  ERROR EN INICI
-                </template>
-                <template v-else>
-                  INICIAR SESSIÓ
-                </template>
-              </v-btn>
+                  @click="login"
+                  block
+                  color="#fc503b"
+                  size="large"
+                  :loading="loading"
+                  class="nexus-login-btn mb-4"
+                >
+                  <template v-if="loginSuccess">
+                    <v-icon color="white" class="mr-2">mdi-check-circle</v-icon>
+                    INICIAT CORRECTAMENT
+                  </template>
+                  <template v-else-if="loginError">
+                    <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
+                    ERROR EN INICI
+                  </template>
+                  <template v-else>
+                    INICIAR SESSIÓ
+                  </template>
+                </v-btn>
               
-               <!-- Snackbar para mostrar mensajes -->
-          <v-snackbar
-            v-model="showMessage"
-            :timeout="3000"
-            :color="messageType"
-            location="top"
-          >
-            {{ messageText }}
-            <template v-slot:actions>
-              <v-btn
-                variant="text"
-                @click="showMessage = false"
-              >
-                Tancar
-              </v-btn>
-            </template>
-          </v-snackbar>
+                <!-- Snackbar para mostrar mensajes -->
+                <v-snackbar
+                  v-model="showMessage"
+                  :timeout="3000"
+                  :color="messageType"
+                  location="top"
+                >
+                  {{ messageText }}
+                  <template v-slot:actions>
+                    <v-btn
+                      variant="text"
+                      @click="showMessage = false"
+                    >
+                      Tancar
+                    </v-btn>
+                  </template>
+                </v-snackbar>
 
                 <div class="nexus-login-footer">
                   <p class="nexus-login-text">No tens un compte?</p>
@@ -124,28 +124,52 @@ const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);
 
+const loginSuccess = ref(false);
+const loginError = ref(false);
+
+// Hecho
 const login = async () => {
   loading.value = true;
+
   try {
     const response = await postLogin(email, password);
 
-    if(!response.ok) {
-      const data = await response.json();
-      alert(data.message || "Error en l'inici de sessió. Si us plau, torna-ho a provar.");
+    if(!response) {
+      loginError.value = true;
+
+      setTimeout(() => {
+        loginError.value = false;
+      }, 2000);
+
       return;
     }
 
     const data = await response.json();
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (!response.ok) {
+      loginError.value = true;
+
+      setTimeout(() => {
+        loginError.value = false;
+      }, 2000);
+
+      return;
+    }
 
     localStorage.setItem('userEmail', data.email);
     localStorage.setItem('userAdmin', data.admin.toString());
-    
-    router.push('/');
-  } catch (error) {
-    console.error('Error en iniciar sessió:', error);
-    alert("S'ha produït un error en connectar amb el servidor. Si us plau, torna-ho a provar més tard.");
+
+    loginSuccess.value = true;
+
+    setTimeout(() => {
+      router.push('/');
+    }, 1000);
+  } catch {
+    loginError.value = true;
+
+    setTimeout(() => {
+      loginError.value = false;
+    }, 2000);
   } finally {
     loading.value = false;
   }
@@ -177,7 +201,7 @@ onMounted(() => {
           direction: "none", 
           random: true, 
           straight: false, 
-          out_mode: "out" 
+          out_mode: "out"
         }
       },
       interactivity: {

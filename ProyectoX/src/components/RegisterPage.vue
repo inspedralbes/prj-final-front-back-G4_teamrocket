@@ -90,7 +90,17 @@
                 :loading="loading"
                 class="nexus-register-btn mb-3"
               >
-                CREAR COMPTE
+                <template v-if="registerSuccess">
+                  <v-icon color="white" class="mr-2">mdi-check-circle</v-icon>
+                  COMPTE CREAT!
+                </template>
+                <template v-else-if="registerError">
+                  <v-icon color="white" class="mr-2">mdi-alert-circle</v-icon>
+                  ERROR EN EL REGISTRE
+                </template>
+                <template v-else>
+                  CREAR COMPTE
+                </template>
               </v-btn>
 
 
@@ -121,60 +131,77 @@ import { ref, onMounted } from 'vue';
 import { postRegister } from "../services/communicationManager.js";
 import { useRouter } from 'vue-router';
 
-
 const router = useRouter();
 const loading = ref(false);
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-
-
+const registerSuccess = ref(false);
+const registerError = ref(false);
 const usernameRules = [
   v => !!v || "Nom d'usuari és requerit",
   v => (v && v.length >= 3) || 'Mínim 3 caràcters'
 ];
-
-
 const emailRules = [
   v => !!v || 'Email és requerit',
   v => /.+@.+\..+/.test(v) || 'Email ha de ser vàlid'
 ];
-
-
 const passwordRules = [
   v => !!v || 'Contrasenya és requerida',
   v => (v && v.length >= 6) || 'Mínim 6 caràcters',
   v => /[0-9]/.test(v) || "Ha d'incloure almenys un número",
   v => /[a-zA-Z]/.test(v) || "Ha d'incloure com a mínim una lletra"
 ];
-
-
 const confirmPasswordRules = [
   v => !!v || 'Confirma la teva contrasenya',
   v => v === password.value || 'Les contrasenyes no coincideixen'
 ];
 
-
+// 
 const register = async () => {
   loading.value = true;
- 
+  
+  if(!username.value || !email.value || !password.value) {
+    registerError.value = true;
+
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
+
+    loading.value = false;
+    return;
+  }
+  
   try {
-    await postRegister(username, email, password);
-   
-    // Simular una espera para demostración
+    const response = await postRegister(username, email, password);
+
+    if (!response || !response.ok) {
+      registerError.value = true;
+
+      setTimeout(() => {
+        registerError.value = false;
+      }, 2000);
+      return;
+    }
+
     await new Promise(resolve => setTimeout(resolve, 1000));
-   
-    // Redireccionar al usuario a la página de inicio de sesión o principal
-    router.push('/');
-  } catch (error) {
-    console.error('Error en registrar usuari:', error);
-    // Aquí podrías manejar errores, como mostrar un mensaje al usuario
+
+    registerSuccess.value = true;
+
+    setTimeout(() => {
+      router.push('/');
+    }, 1500);
+  } catch {
+    registerError.value = true;
+
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
   } finally {
     loading.value = false;
   }
 };
-
 
 onMounted(() => {
   if (window.particlesJS) {
