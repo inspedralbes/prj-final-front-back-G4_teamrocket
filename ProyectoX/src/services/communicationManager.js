@@ -7,8 +7,8 @@ export const postRegister = async (username, email, password) => {
     try {
         return await fetch(urlBackend + "/api/users/register-web", {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }, // Establece que el cuerpo de la solicitud será en formato JSON
-            body: JSON.stringify(userData), // Convierte los datos del usuario a JSON
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData),
         });
     } catch {
         return null;
@@ -30,25 +30,29 @@ export const postLogin = async (email, password) => {
     }
 }
 
-export async function loadUserData(email) {
+// Hecho
+export const loadUserData = async (email) => {
     try {
         return await fetch(urlBackend + '/api/users/user-data', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
         });
-    } catch (error) {
-        console.error('Error al obtener los datos del usuario:', error);
+    } catch {
+        return null;
     }
 }
 
-export const putUserProfile = async (formData) => {
-    return await fetch('http://localhost:3002/api/users/update-perfil', {
-        method: 'PUT',
-        body: formData
-    });
+// Hecho
+export const putUserProfile = async (formData, userId) => {
+    try {
+        return await fetch(urlBackend + `/api/users/update-perfil/${userId}`, {
+            method: 'PUT',
+            body: formData
+        });
+    } catch {
+        return null;
+    }
 }
 
 export const getUsersAdmin = async () => {

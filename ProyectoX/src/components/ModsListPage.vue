@@ -551,8 +551,6 @@ const fetchMods = async () => {
     }
 
     mods.value = data;
-
-    console.log(mods.value);
     
     // Calcular estadísticas
     stats.value = {
@@ -560,7 +558,7 @@ const fetchMods = async () => {
       totalMods: mods.value.length,
       totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size
     };
-  } catch (error) {
+  } catch {
     errorMessage.value = 'Error en obtenir tots els mods';
   } finally {
     loading.value = false;

@@ -219,7 +219,7 @@ router.put('/update-mod', async (req, res) => {
 router.patch('/change-visible/:id', async (req, res) => {
   try {
     const mod = await Mod.findByPk(req.params.id);
-    if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
+    if(!mod) return res.status(404).json({ error: 'Mod no trobat' });
 
     mod.visible = !mod.visible;
     await mod.save();

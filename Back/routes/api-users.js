@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
         
         res.status(200).json({ message: "Obtenido los usuarios", users});
     } catch (error) {
-        res.status(500).json({ message: "Error intern del servidor"});
+        res.status(500).json({ message: "Error en obtenir tots els usuaris"});
     }
 });
 
@@ -45,7 +45,7 @@ router.post('/login-web', async (req, res) => {
             return res.status(401).json({ error: "Usuari o contrasenya incorrectes" });
         }
   
-        res.status(201).json({email: user.email, admin: user.admin });
+        res.status(200).json({email: user.email, admin: user.admin });
     } catch (error) {
         console.error("Error en Inicia sessió:", error);
         res.status(500).json({ error: "Error intern del servidor" });
@@ -55,7 +55,7 @@ router.post('/login-web', async (req, res) => {
 // Hecho
 router.post('/register-web', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { uPerfilsername, email, password } = req.body;
 
         const existingUser = await User.findOne({ where: { username } });
         if (existingUser) {
@@ -83,33 +83,48 @@ router.post('/register-web', async (req, res) => {
     }
 });
 
+// Hecho
 router.post('/user-data', async (req, res) => {
     try {
         const { email } = req.body;
+
         const user = await User.findOne({ where: { email }});
+        if(!user) return res.status(404).end();
+
         const mods = await Mod.findAll( { where: { uploaded_by: user.id }});
+        if(!mods) return res.status(404).end();
 
         const userData = {
+            id: user.id,
             username: user.username,
             email: user.email,
             avatar: user.avatar_path,
             mods: mods
         }
 
-        res.status(201).json(userData);
+        res.status(200).json(userData);
     } catch (error) {
-        console.error("Error en obtenir les dades del usuari:", error);
-        res.status(500).json({ message: "Error intern del servidor" });
+        console.error("Error en obtenir les dades de l'usuari:", error);
+        res.status(500).end();
     }
 });
 
-router.put('/update-perfil', async (req, res) => {
+// Hecho
+router.put('/update-perfil/:id', async (req, res) => {
     try {
-        const { email, username, newPassword } = req.body;
+        const userId = req.params.id;
+        const { username, newPassword } = req.body;
 
-        const user = await User.findOne({ where: { email }});
-
-        if(username && username != user.username) user.username = username;
+        const user = await User.findByPk(userId);
+        if(!user) return res.status(404).end();
+        
+        if (username) {
+            if (username === user.username) {
+              return res.status(404).json("El nombre de usuario ya está en uso");
+            }
+          
+            user.username = username;
+        }
 
         if(newPassword) {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -123,13 +138,9 @@ router.put('/update-perfil', async (req, res) => {
 
         await user.save();
 
-        res.json({ message: 'Perfil actualizado correctamente' });
+        res.json({ message: 'Dades actualizats' });
     } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            return res.status(400).json({ message: 'El nombre de usuario ya está en uso' });
-        }
-
-        console.error(error);
+        console.error("Error en actualitzar noves dades de l'usuari:", error);
         res.status(500).json({ message: 'Error al actualizar el perfil' });
     }
 });

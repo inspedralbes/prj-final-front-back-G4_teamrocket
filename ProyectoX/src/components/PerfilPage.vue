@@ -455,7 +455,6 @@ const snackbar = ref({
   color: ''
 });
 
-// Computed properties
 const totalDownloads = computed(() => {
   return user.value.mods?.reduce((total, mod) => total + (mod.downloads || 0), 0) || 0;
 });
@@ -467,12 +466,28 @@ const topMods = computed(() => {
     .slice(0, 3);
 });
 
+// Hecho
 const fetchUser = async () => {
-  const response = await loadUserData(userEmail.value);
-  if (!response.ok) throw new Error('Error en la resposta del servidor');
+  try {
+    const response = await loadUserData(userEmail.value);
 
-  const data = await response.json();
-  user.value = data;
+    if(!response) {
+      console.error("Error de xarxa o problema al servidor");
+      return;
+    }
+
+    if (!response.ok) {
+      console.error("Error en obtenir les dades de l'usuari");
+      return;
+    }
+
+    const data = await response.json();
+    user.value = data;
+
+    console.log(user.value.id);
+  } catch {
+    console.error("Error inesperat en obtenir les dades de l'usuari");
+  }
 }
 
 const triggerFileInput = () => {
@@ -487,13 +502,12 @@ const handleAvatarChange = (event) => {
   }
 };
 
+// Hecho
 const updateProfile = async () => {
   loading.value = true;
 
   const formData = new FormData();
-  formData.append('email', userEmail.value);
   if (newInformationUser.value.username) formData.append('username', newInformationUser.value.username);
-  
   if (newInformationUser.value.newPassword) {
     if (newInformationUser.value.newPassword !== newInformationUser.value.confirmPassword) {
       snackbar.value = {
@@ -506,28 +520,35 @@ const updateProfile = async () => {
     }
     formData.append('newPassword', newInformationUser.value.newPassword);
   }
-
   if (newInformationUser.value.newAvatar) {
     formData.append('newAvatar', newInformationUser.value.newAvatar);
   }
 
   try {
-    const response = await putUserProfile(formData);
+    const response = await putUserProfile(formData, user.value.id);
 
-    if (!response.ok) {
-      const error = await response.json();
+    if(!response) {
       snackbar.value = {
         show: true,
-        text: error.message,
+        text: 'Error de xarxa o problema al servidor'
+      }
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error,
         color: 'error'
       };
       return;
     }
 
-    const data = await response.json();
     snackbar.value = {
       show: true,
-      text: data.message,
+      text: data.message || 'Dades actualitzats',
       color: 'success'
     };
     
@@ -535,11 +556,10 @@ const updateProfile = async () => {
     newInformationUser.value.newPassword = '';
     newInformationUser.value.confirmPassword = '';
     fetchUser();
-  } catch (err) {
-    console.error(err);
+  } catch {
     snackbar.value = {
       show: true,
-      text: 'Error en actualitzar el perfil',
+      text: 'Error inesperat en actualitzar les dades',
       color: 'error'
     };
   } finally {
@@ -555,6 +575,7 @@ const openEditDialogMod = (mod) => {
   editMod.value = true;
 }
 
+// Hecho
 const updateVisible = async (modId) => {
   try {
     const response = await changeVisible(modId);
