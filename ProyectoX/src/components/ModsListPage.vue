@@ -184,6 +184,20 @@
           class="nexus-search-field"
           @input="filterMods"
         ></v-text-field>
+
+        <v-select
+          v-model="selectedTags"
+          :items="allTags"
+          label="Filtrer per etiquetes"
+          multiple
+          chips
+          clearable
+          outlined
+          dense
+          item-text="name"
+          item-value="name"
+        ></v-select>
+
         <v-select
           v-model="sortBy"
           :items="['Relevancia', 'Más descargados', 'Más recientes', 'Más valorados']"
@@ -310,6 +324,21 @@
               rows="3"
               class="nexus-input"
             ></v-textarea>
+
+            <v-combobox
+              v-model="tags"
+              label="Etiquetes"
+              multiple
+              chips
+              clearable
+              small-chips
+              variant="outlined"
+              density="compact"
+              class="nexus-input"
+              required
+              hint="Pressiona Enter per agregar una etiqueta"
+              persistent-hint
+            ></v-combobox>
             
             <v-file-input
               v-model="modFile"
@@ -440,11 +469,14 @@ const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 // Filtros y búsqueda
 const search = ref('');
 const sortBy = ref('Relevancia');
+const selectedTags = ref([]);
+// const availableTags = ref(null);    
 
 // Upload dialog
 const dialog = ref(false);
 const title = ref('');
 const description = ref('');
+const tags = ref([]);
 const modFile = ref(null);
 const imageFile = ref(null);
 const uploading = ref(false);
@@ -519,6 +551,8 @@ const fetchMods = async () => {
     }
 
     mods.value = data;
+
+    console.log(mods.value);
     
     // Calcular estadísticas
     stats.value = {
@@ -579,6 +613,20 @@ const fetchLikes = async () => {
   }
 }
 
+const allTags = computed(() => {
+  const set = new Set();
+
+  mods.value.forEach(mod => {
+    console.log('Mod:', mod.title, 'Tags:', mod.tags);
+    mod.tags.forEach(tag => {
+      set.add(tag.name);
+    });
+  });
+
+  const tagsArray = Array.from(set);
+  return tagsArray;
+});
+
 const filteredMods = computed(() => {
   let result = [...mods.value];
   
@@ -590,6 +638,18 @@ const filteredMods = computed(() => {
       (mod.description && mod.description.toLowerCase().includes(searchTerm)) ||
       (mod.author && mod.author.toLowerCase().includes(searchTerm))
     );
+  }
+
+  // Filtrar por tags (si hay tags seleccionados)
+  if (selectedTags.value && selectedTags.value.length > 0) {
+
+    result = result.filter(mod => {
+      const modTagNames = mod.tags.map(tag => tag.name);
+
+      const matchesAll = selectedTags.value.every(tag => modTagNames.includes(tag));
+      
+      return matchesAll;
+    });
   }
   
   // Ordenar
@@ -689,6 +749,7 @@ const uploadMod = async () => {
   formData.append('modFile', modFile.value);
   formData.append('imageFile', imageFile.value);
   formData.append('email', userEmail.value);
+  formData.append('tags', JSON.stringify(tags.value));
   
   try {
     const response = await postMod(formData);
@@ -740,9 +801,10 @@ const downloadMod = async (mod) => {
       return;
     }
 
-    /*
+    
     const data = await response.json();
-
+    
+    /*
     if(!response.ok) {
       errorMessage.value = data.error || 'Error en descarregar el mod'
       uploading.value = false;
@@ -787,6 +849,7 @@ const scrollToTop = () => {
 // Inicialización
 onMounted(() => {
   fetchMods();
+  // fetchTags();
   fetchComments();
   fetchLikes();
   listenToModDownloads(mods, stats);

@@ -5,6 +5,7 @@ import { models } from '../models/index.js';
 import DailyNewMods from '../MongoDB/models/dailyModStats.js';
 import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
 import { getIO } from '../app.js';
+import mod from '../models/mod.js';
 
 const router = express.Router();
 const { Mod, User, Tag } = models;
@@ -24,10 +25,18 @@ const imagesDir = path.join(modsDir, 'images');
 router.get('/', async (req, res) => {
   try {
     const mods = await Mod.findAll({
-      include: [{
+      include: [
+        {
         model: User,
         attributes: ['username']
-      }],
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['name'],
+          through: { attributes: [] }
+        }
+      ]
     });
 
     const listMods = mods.filter(mod => mod.visible !== false && mod.security !== false);
@@ -116,6 +125,7 @@ const handleFileUpload = (file, directory) => {
 router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
+    const tags = JSON.parse(req.body.tags);
 
     if (!req.files || !req.files.modFile || !req.files.imageFile) {
       return res.status(400).json({ error: "No se han subido los archivos requeridos (mod o imagen)" });
@@ -129,13 +139,29 @@ router.post('/new-mod', async (req, res) => {
     const modPath = await handleFileUpload(req.files.modFile, modsDir);
     const imagePath = await handleFileUpload(req.files.imageFile, imagesDir);
     
-    await Mod.create({
+    const newMod = await Mod.create({
       title,
       description,
       file_path: modPath,
       image: imagePath,
       uploaded_by: user.id
     });
+
+    console.log(tags);
+
+    if (Array.isArray(tags) && tags.length > 0) {
+      const tagInstances = await Promise.all(
+        tags.map(name =>
+          Tag.findOrCreate({
+            where: { name: name.trim().toLowerCase() }
+          })
+        )
+      );
+
+      await newMod.addTags(tagInstances.map(([tag]) => tag));
+    } else {
+      console.log("No");
+    }
     
     // MongoDB
     const today = new Date();
