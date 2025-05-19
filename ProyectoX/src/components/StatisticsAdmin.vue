@@ -1,13 +1,9 @@
 <template>
   <v-card class="mb-4">
-    <v-card-title>Estadísticas</v-card-title>
+    <v-card-title>Estadistiques</v-card-title>
     <v-card-text>
       <div class="chart-container">
         <canvas ref="statsChart"></canvas>
-      </div>
-      <div class="stats-summary">
-        <p>Total de usuarios: {{ userCount }}</p>
-        <p>Total de mods: {{ modCount }}</p>
       </div>
     </v-card-text>
   </v-card>
@@ -16,9 +12,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { Chart } from 'chart.js/auto';
-import annotationPlugin from 'chartjs-plugin-annotation';
-
-Chart.register(annotationPlugin);
 
 const statsMods = ref([]);
 const userCount = ref(0);
@@ -63,52 +56,55 @@ const prepareChartData = () => {
     
     const newModsData = statsMods.value.map(stat => stat.newMods);
     const deletedModsData = statsMods.value.map(stat => stat.deletedMods);
+    const totalModsData = statsMods.value.map(stat => stat.totalMods || modCount.value);
+    const totalUsersData = statsMods.value.map(stat => stat.totalUsers || userCount.value);
     
     chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: labels,
         datasets: [
           {
-            label: 'Nuevos Mods (Δ)',
+            label: 'Nous Mods',
             data: newModsData,
-            borderColor: 'rgb(75, 192, 192)',
-            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2,
-            pointStyle: 'triangle',
-            pointRadius: 6,
-            pointRotation: 180
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
           },
           {
-            label: 'Mods Eliminados (Σ)',
+            label: 'Mods Eliminats',
             data: deletedModsData,
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.1)',
-            tension: 0.4,
-            fill: true,
-            borderWidth: 2,
-            pointStyle: 'rectRot',
-            pointRadius: 5
-          },
-          {
-            label: 'Total Usuarios',
-            data: Array(labels.length).fill(userCount.value),
-            borderColor: 'rgb(54, 162, 235)',
-            borderDash: [5, 5],
-            tension: 0,
-            fill: false,
-            borderWidth: 1
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            borderRadius: 4,
+            yAxisID: 'y'
           },
           {
             label: 'Total Mods',
-            data: Array(labels.length).fill(modCount.value),
-            borderColor: 'rgb(153, 102, 255)',
-            borderDash: [5, 5],
-            tension: 0,
+            data: totalModsData,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            type: 'line',
+            tension: 0.1,
             fill: false,
-            borderWidth: 1
+            pointRadius: 5,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Total Usuaris',
+            data: totalUsersData,
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 2,
+            type: 'line',
+            tension: 0.1,
+            fill: false,
+            pointRadius: 5,
+            yAxisID: 'y1'
           }
         ]
       },
@@ -117,7 +113,6 @@ const prepareChartData = () => {
         plugins: {
           title: {
             display: true,
-            text: 'Estadísticas ΔΣ de la Plataforma',
             font: {
               size: 16
             }
@@ -125,48 +120,6 @@ const prepareChartData = () => {
           tooltip: {
             mode: 'index',
             intersect: false
-          },
-          annotation: {
-            annotations: {
-              arrowDelta: {
-                type: 'line',
-                yMin: Math.max(...newModsData) * 0.9,
-                yMax: Math.max(...newModsData),
-                borderColor: 'rgb(75, 192, 192)',
-                borderWidth: 2,
-                arrowHeads: {
-                  start: {
-                    enabled: true,
-                    length: 15,
-                    width: 10
-                  },
-                  end: {
-                    enabled: true,
-                    length: 15,
-                    width: 10
-                  }
-                }
-              },
-              arrowSigma: {
-                type: 'line',
-                yMin: Math.max(...deletedModsData) * 0.9,
-                yMax: Math.max(...deletedModsData),
-                borderColor: 'rgb(255, 99, 132)',
-                borderWidth: 2,
-                arrowHeads: {
-                  start: {
-                    enabled: true,
-                    length: 15,
-                    width: 10
-                  },
-                  end: {
-                    enabled: true,
-                    length: 15,
-                    width: 10
-                  }
-                }
-              }
-            }
           },
           legend: {
             position: 'top',
@@ -187,14 +140,33 @@ const prepareChartData = () => {
             }
           },
           y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
             title: {
               display: true,
-              text: 'Cantidad',
+              text: 'Mods',
               font: {
                 weight: 'bold'
               }
             },
             beginAtZero: true
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Usuaris',
+              font: {
+                weight: 'bold'
+              }
+            },
+            beginAtZero: true,
+            grid: {
+              drawOnChartArea: false
+            }
           }
         }
       }
