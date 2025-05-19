@@ -135,7 +135,7 @@ export const getMod = async (id) => {
         return await fetch(urlBackend + `/api/mods/${id}`, {
             method: 'GET'
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -147,7 +147,7 @@ export const postMod = async (formData) => {
             method: 'POST',
             body: formData,
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -159,7 +159,7 @@ export const putMod = async (formData) => {
             method: 'PUT',
             body: formData
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -171,7 +171,7 @@ export const deleteModSequelize = async (modId) => {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error) {
+    } catch {
         return null
     }
 }
@@ -183,7 +183,7 @@ export const patchDownloadMod = async (modId) => {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -195,7 +195,7 @@ export const changeVisible = async (modId) => {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' }
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -206,7 +206,7 @@ export const changeSecurity = async (modId) => {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -217,7 +217,7 @@ export const getAllComments = async () => {
         return await fetch(urlBackend + '/api/comments', {
             method: 'GET'
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -228,7 +228,7 @@ export const getCommentsById = async (modId) => {
         return await fetch(urlBackend + `/api/comments/${modId}`, {
             method: 'GET'
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -238,34 +238,37 @@ export const postComment = async (newComment) => {
     try {
         return await fetch(urlBackend + '/api/comments/new-comment', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newComment.value)
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }
 
+// Hecho
 export const putComment = async (commentId, newContent) => {
-    return await fetch('http://localhost:3002/api/comments/update-comment', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ commentId: commentId, newContent: newContent })
-    })
+    try {
+        return await fetch('http://localhost:3002/api/comments/update-comment', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ commentId, newContent })
+        })
+    } catch {
+        return null;
+    }
 }
 
+// Hecho
 export const deleteCommentMongodb = async (commentId) => {
-    return await fetch('http://localhost:3002/api/comments/delete-comment', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ commentId: commentId })
-    });
+    try {
+        return await fetch(urlBackend + `/api/comments/delete-comment/${commentId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch {
+        return null;
+    }
 }
 
 // Hecho
@@ -274,7 +277,7 @@ export const getAllLikes = async () => {
         return await fetch(urlBackend + '/api/likes', {
             method: 'GET'
         });
-    } catch (err) {
+    } catch {
         return null;
     }
 }
@@ -289,7 +292,7 @@ export const postLike = async (modId, email) => {
             },
             body: JSON.stringify({ modId, email })
         });
-    } catch (err) {
+    } catch {
         return null;
     }
 }
@@ -304,7 +307,7 @@ export const deleteLike = async (modId, email) => {
             },
             body: JSON.stringify({ modId, email })
         });
-    } catch (err) {
+    } catch {
         return null;
     }
 }

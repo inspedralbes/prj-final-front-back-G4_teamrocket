@@ -740,6 +740,7 @@ const downloadMod = async (mod) => {
       return;
     }
 
+    /*
     const data = await response.json();
 
     if(!response.ok) {
@@ -747,6 +748,7 @@ const downloadMod = async (mod) => {
       uploading.value = false;
       return;
     }
+    */
 
     successMessage.value = data.message || 'Descàrrega exitosa';
     uploadSuccess.value = true;

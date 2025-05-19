@@ -530,7 +530,7 @@ const fetchModDetails = async () => {
         initChart();
       });
     }
-  } catch (error) {
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error inesperat en carregar detalls del mod',
@@ -559,7 +559,7 @@ const fetchComments = async () => {
     }
 
     comments.value = data;
-  } catch (error) {
+  } catch {
     console.error('Error inesperat en obtenir tots els comentaris');
   }
 };
@@ -605,7 +605,7 @@ const submitComment = async () => {
     };
     
     await fetchComments();
-  } catch (error) {
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error inesperat en publicar comentari',
@@ -643,25 +643,45 @@ const maskEmail = (email) => {
   return `${maskedName}@${domain}`;
 };
 
+// Hecho
 const download = async (mod) => {
   try {
-    await patchDownloadMod(route.params.id);
+    const response = await patchDownloadMod(route.params.id);
+
+    if(!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      };
+      return;
+    }
+
+    /*
+    if(!response.ok) {
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en registrar el comentari',
+        color: 'error'
+      };
+      return;
+    }
+    */
 
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
-    link.setAttribute('download', '');
+    link.setAttribute('download', `${mod.title || 'mod'}.zip`);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    document.body.removeChild(link);
       
     snackbar.value = {
       show: true,
-      text: 'Descàrrega iniciada!',
-      color: 'info'
+      text: 'Descàrrega iniciada',
+      color: 'success'
     };
-  } catch (error) {
-    console.error('Error en descarregar:', error);
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error en iniciar la descàrrega',
@@ -670,13 +690,28 @@ const download = async (mod) => {
   }
 };
 
+// Hecho
 const deleteComment = async (comment) => {
   try {
     const response = await deleteCommentMongodb(comment._id);
 
+    if(!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      };
+      return;
+    }
+
+    const data = await response.json();
+
     if(!response.ok) {
-      const errorData = await response.json();
-      console.error("Error en eliminar comentari:", errorData.error);
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en eliminar el comentari',
+        color: 'error'
+      };
       return;
     }
 
@@ -687,8 +722,12 @@ const deleteComment = async (comment) => {
     };
 
     await fetchComments();
-  } catch (error) {
-    console.error("Error en eliminar comentari:", error);
+  } catch {
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperat en eliminar el comentari',
+      color: 'error'
+    };
   }
 };
 
@@ -699,13 +738,28 @@ const toggleEdit = (comment) => {
   isEditing.value = !isEditing.value;
 };
 
+// Hecho
 const editComment = async (comment) => {
   try {
     const response = await putComment(comment._id, newContent.value);
 
+    if(!response) {
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      };
+      return;
+    }
+
+    const data = await response.json();
+
     if(!response.ok) {
-      const errorData = await response.json();
-      console.error(errorData.error);
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en actualitzar el comentari',
+        color: 'error'
+      };
       return;
     }
 
@@ -717,8 +771,12 @@ const editComment = async (comment) => {
 
     comment.content = newContent.value;
     isEditing.value = false;
-  } catch (error) {
-    console.error("Error en editar comentari:", error);
+  } catch {
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperat en actualitzar el comentari',
+      color: 'error'
+    };
   }
 };
 
