@@ -664,7 +664,7 @@ const updateMod = async () => {
     console.error(err);
     snackbar.value = {
       show: true,
-      text: 'Error en actualitzar el mod',
+      text: 'Error inesperat en actualitzar el mod',
       color: 'error'
     };
   } finally {

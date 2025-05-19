@@ -297,8 +297,17 @@ const filteredUsers = computed(() => {
   }));
 });
 
+// 
 const fetchUsers = async () => {
-  users.value = await getUsersAdmin();
+  try {
+    const response = await getUsersAdmin();
+    
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+    }
+  } catch (error) {
+    console.error("Error inesperat en obtenir tots els usuaris", error);
+  }
 };
 
 const deleteUser = async (userId) => {

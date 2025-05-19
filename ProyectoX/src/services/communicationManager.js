@@ -55,19 +55,12 @@ export const putUserProfile = async (formData, userId) => {
     }
 }
 
+//
 export const getUsersAdmin = async () => {
     try {
-        const response = await fetch('http://localhost:3002/api/users');
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-       const data = await response.json();
-       return data.users;
-    } catch (err) {
-        console.error('Error cargando mods de administrador:', err);
-        throw err; // Re-lanzar el error para manejo posterior
+        return await fetch('http://localhost:3002/api/users');
+    } catch {
+        return null;
     }   
 }
 
