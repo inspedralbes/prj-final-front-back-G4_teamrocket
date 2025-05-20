@@ -2,7 +2,6 @@ import { Return } from "three/tsl";
 
 const urlBackend = "http://localhost:3002";
 
-// Hecho
 export const postRegister = async (username, email, password) => {
     const userData = { username: username.value, email: email.value, password: password.value }
 
@@ -17,7 +16,6 @@ export const postRegister = async (username, email, password) => {
     }
 }
 
-// Hecho
 export const postLogin = async (email, password) => {
     const userData = { email: email.value, password: password.value };
 
@@ -32,7 +30,6 @@ export const postLogin = async (email, password) => {
     }
 }
 
-// Hecho
 export const loadUserData = async (email) => {
     try {
         return await fetch(urlBackend + '/api/users/user-data', {
@@ -45,7 +42,6 @@ export const loadUserData = async (email) => {
     }
 }
 
-// Hecho
 export const putUserProfile = async (formData, userId) => {
     try {
         return await fetch(urlBackend + `/api/users/update-perfil/${userId}`, {
@@ -57,7 +53,6 @@ export const putUserProfile = async (formData, userId) => {
     }
 }
 
-// Hecho
 export const getUsersAdmin = async () => {
     try {
         return await fetch(urlBackend + '/api/users', {
@@ -68,7 +63,6 @@ export const getUsersAdmin = async () => {
     }   
 }
 
-// Hecho
 export const deleteUserAdmin = async (userId) => {
     try {
         return await fetch(urlBackend + `/api/users/delete-user/${userId}`, {
@@ -79,7 +73,6 @@ export const deleteUserAdmin = async (userId) => {
     }   
 }
 
-// Hecho
 export const changeUserAdmin = async (userId) => {
     try {
         return await fetch(urlBackend + `/api/users/toggle-admin/${userId}`, {
@@ -90,7 +83,6 @@ export const changeUserAdmin = async (userId) => {
     }
 }
 
-// Hecho
 export const getAllMods = async () => {
     try {
         return await fetch(urlBackend + '/api/mods', {
@@ -101,7 +93,6 @@ export const getAllMods = async () => {
     }
 }
 
-// Hecho
 export const getModsAdmin = async () => {
     try {
         return await fetch(urlBackend + '/api/mods/admin-mods', {
@@ -112,7 +103,6 @@ export const getModsAdmin = async () => {
     }   
 }
 
-// Hecho
 export const getMod = async (id) => {
     try {
         return await fetch(urlBackend + `/api/mods/${id}`, {
@@ -123,7 +113,6 @@ export const getMod = async (id) => {
     }
 }
 
-// Hecho
 export const postMod = async (formData) => {
     try {
         return await fetch(urlBackend + '/api/mods/new-mod', {
@@ -135,7 +124,6 @@ export const postMod = async (formData) => {
     }
 }
 
-//Hecho
 export const putMod = async (formData) => {
     try {
         return await fetch(urlBackend + '/api/mods/update-mod', {
@@ -147,7 +135,6 @@ export const putMod = async (formData) => {
     }
 }
 
-// Hecho
 export const deleteModSequelize = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/mods/delete-mod/${modId}`, {
@@ -159,7 +146,6 @@ export const deleteModSequelize = async (modId) => {
     }
 }
 
-// Hecho
 export const patchDownloadMod = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/mods/download/${modId}`, {
@@ -171,7 +157,6 @@ export const patchDownloadMod = async (modId) => {
     }
 }
 
-// Hecho
 export const changeVisible = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/mods/change-visible/${modId}`, {
@@ -194,7 +179,6 @@ export const changeSecurity = async (modId) => {
     }
 }
 
-// Hecho
 export const getAllComments = async () => {
     try {
         return await fetch(urlBackend + '/api/comments', {
@@ -205,7 +189,6 @@ export const getAllComments = async () => {
     }
 }
 
-// Hecho
 export const getCommentsById = async (modId) => {
     try {
         return await fetch(urlBackend + `/api/comments/${modId}`, {
@@ -216,7 +199,6 @@ export const getCommentsById = async (modId) => {
     }
 }
 
-// Hecho
 export const postComment = async (newComment) => {
     try {
         return await fetch(urlBackend + '/api/comments/new-comment', {
@@ -229,7 +211,6 @@ export const postComment = async (newComment) => {
     }
 }
 
-// Hecho
 export const putComment = async (commentId, newContent) => {
     try {
         return await fetch(urlBackend + '/api/comments/update-comment', {
@@ -242,7 +223,6 @@ export const putComment = async (commentId, newContent) => {
     }
 }
 
-// Hecho
 export const deleteCommentMongodb = async (commentId) => {
     try {
         return await fetch(urlBackend + `/api/comments/delete-comment/${commentId}`, {
@@ -254,7 +234,6 @@ export const deleteCommentMongodb = async (commentId) => {
     }
 }
 
-// Hecho
 export const getAllLikes = async () => {
     try {
         return await fetch(urlBackend + '/api/likes', {
@@ -265,7 +244,6 @@ export const getAllLikes = async () => {
     }
 }
 
-// Hecho
 export const postLike = async (modId, email) => {
     try {
         return await fetch(urlBackend + '/api/likes/new-like', {
@@ -280,7 +258,6 @@ export const postLike = async (modId, email) => {
     }
 }
 
-// Hecho
 export const deleteLike = async (modId, email) => {
     try {
         return await fetch(urlBackend + '/api/likes/delete-like', {
@@ -295,7 +272,6 @@ export const deleteLike = async (modId, email) => {
     }
 }
 
-// Hecho
 export const getStats = async () => {
     try {
         return await fetch(urlBackend + '/api/stats/stats-mods', {

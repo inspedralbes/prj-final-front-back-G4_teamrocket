@@ -104,7 +104,6 @@
                   variant="outlined" 
                   class="nexus-hero-btn" 
                   @click.stop="openUploadDialog"
-                  :disabled="!userEmail"
                 >
                   Pujar mod
                 </v-btn>
@@ -128,7 +127,7 @@
                 </a>
               </div>
               <div class="bepinex-cube">
-                <a href="https://github.com/BepInEx/BepInEx/archive/refs/heads/master.zip" class="bepinex-link" target="_blank" rel="noopener">
+                <a href="http://localhost:3002/resources/bepinex/BepInEx_win_x64_5.4.23.3.zip" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-zip-box</v-icon>
                   <span>Baixar BepInEx (.zip)</span>
                 </a>
@@ -204,7 +203,7 @@
           label="Ordenar por"
           density="compact"
           variant="outlined"
-          class="nexus-sort-select"
+          class="nexus-sort-select"bepinex
           @update:modelValue="sortMods"
         ></v-select>
       </div>
@@ -445,7 +444,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { getAllMods, postMod, patchDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
 import { listenToModDownloads, listenToComments, listenToLikes } from '@/services/socketManager';
 
@@ -662,14 +661,6 @@ const filteredMods = computed(() => {
       return result;
   }
 });
-
-const filterMods = () => {
-  // La función computed ya maneja esto
-};
-
-const sortMods = () => {
-  // La función computed ya maneja esto
-};
 
 // Funciones de diálogo
 const openUploadDialog = () => {

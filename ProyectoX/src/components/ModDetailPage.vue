@@ -16,7 +16,6 @@
       <!-- Capçalera -->
       <div class="nexus-mod-header">
         <h1 class="nexus-mod-title">{{ mod.title }}</h1>
-        <div class="nexus-mod-author">per {{ mod.uploaded_by || 'Anònim' }}</div>
       </div>
       
       <v-divider class="nexus-divider"></v-divider>
@@ -156,20 +155,24 @@
         
         <!-- Columna dreta -->
         <div class="nexus-sidebar">
-          <!-- Estadístiques -->
-          <v-card variant="outlined" class="nexus-stats-card">      
-            <v-divider class="nexus-stats-divider"></v-divider>
-            
-            <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Descàrregues totals</div>
-              <div class="nexus-stats-value">{{ mod.downloads || 0 }}</div>
+         <!-- Informació del creador -->
+         <v-card variant="outlined" class="nexus-creator-card">
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Creat per</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
             </div>
             
-            <v-divider class="nexus-stats-divider"></v-divider>
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Pujat per</span>
+              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
+            </div>
             
-            <div class="nexus-stats-item">
-              <div class="nexus-stats-label">Versió</div>
-              <div class="nexus-stats-value">1.0</div>
+            <div class="nexus-creator-item">
+              <span class="nexus-creator-label">Escaneig de virus</span>
+              <span class="nexus-creator-value nexus-virus-safe">
+                <v-icon color="success">mdi-check-circle</v-icon>
+                Segur
+              </span>
             </div>
           </v-card>
 
@@ -197,27 +200,6 @@
             </div>
           </v-card>
           
-          <!-- Informació del creador -->
-          <v-card variant="outlined" class="nexus-creator-card">
-            <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Creat per</span>
-              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
-            </div>
-            
-            <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Pujat per</span>
-              <span class="nexus-creator-value">{{ mod.uploaded_by || 'Anònim' }}</span>
-            </div>
-            
-            <div class="nexus-creator-item">
-              <span class="nexus-creator-label">Escaneig de virus</span>
-              <span class="nexus-creator-value nexus-virus-safe">
-                <v-icon color="success">mdi-check-circle</v-icon>
-                Segur
-              </span>
-            </div>
-          </v-card>
-          
           <!-- Etiquetas -->
         <v-card variant="outlined" class="nexus-tags-card">
           <h3 class="nexus-tags-title">Etiquetes per aquest mod</h3>
@@ -240,7 +222,6 @@
             <span>Encara no hi ha etiquetes</span>
           </div>
         </v-card>
-
         </div>
       </div>
     </v-card>

@@ -128,8 +128,10 @@ router.put('/update-perfil/:id', async (req, res) => {
         }
 
         if(newPassword) {
+            console.log(newPassword);
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            user.password = hashedPassword;
+
+            user.password_hash = hashedPassword;
         }
 
         if(req.files && req.files.newAvatar) {

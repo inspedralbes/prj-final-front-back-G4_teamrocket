@@ -36,8 +36,11 @@ app.use(fileUpload());
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 app.use('/uploads/mods', express.static(path.join(__dirname, 'uploads/mods')));
 app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/image-profile')));
+app.use('/resources/bepinex', express.static(path.join(__dirname, 'resources/bepinex')));
+app.use('/resources/game', express.static(path.join(__dirname, 'resources/game')));
 
 app.use("/api/users", api_users);
 app.use("/api/mods", api_mods);

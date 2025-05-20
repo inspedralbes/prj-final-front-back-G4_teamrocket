@@ -78,21 +78,7 @@
                   <div class="nexus-stat-value">{{ totalDownloads }}</div>
                   <div class="nexus-stat-label">Descàrregues</div>
                 </div>
-                <div class="nexus-stat-item">
-                  <div class="nexus-stat-value">0</div>
-                  <div class="nexus-stat-label">M'agrada</div>
-                </div>
               </div>
-              
-              <v-btn 
-                color="#fc503b" 
-                variant="outlined"
-                @click="editPerfil = true"
-                class="nexus-edit-btn"
-              >
-                <v-icon left>mdi-pencil</v-icon>
-                Editar perfil
-              </v-btn>
             </div>
           </div>
         </div>
@@ -122,9 +108,9 @@
               <div class="nexus-mods-header">
                 <h2 class="nexus-mods-title">Els meus Mods</h2>
                 <v-btn 
-                  color="#fc503b" 
-                  to="/upload-mod"
+                  color="#fc503b"
                   class="nexus-new-mod-btn"
+                  @click="openUploadDialog"
                 >
                   <v-icon left>mdi-plus</v-icon>
                   Nou Mod
@@ -137,8 +123,8 @@
                   <h3>No tens mods pujats</h3>
                   <p>Comença a compartir les teves creacions amb la comunitat</p>
                   <v-btn 
-                    color="#fc503b" 
-                    to="/upload-mod"
+                    color="#fc503b"
+                    @click="openUploadDialog"
                     class="nexus-btn"
                   >
                     <v-icon left>mdi-upload</v-icon>
@@ -148,7 +134,7 @@
               </div>
 
               <div v-else class="nexus-mods-grid">
-                <div v-for="mod in user.mods" :key="mod.id" class="nexus-mod-card">
+                <div v-for="mod in user.mods" :key="mod.id" @click="navigateToMod(mod.id)"  class="nexus-mod-card cursor-pointer">
                   <div class="nexus-mod-image-container">
                     <img 
                       v-if="mod.image" 
@@ -164,13 +150,22 @@
                   <div class="nexus-mod-details">
                     <div class="nexus-mod-header">
                       <h3 class="nexus-mod-title">{{ mod.title }}</h3>
-                      <div class="nexus-mod-visibility">
+                      <div v-if="mod.security" class="nexus-mod-visibility">
                         <v-chip 
                           small 
                           :color="mod.visible ? 'success' : 'grey'" 
                           text-color="white"
                         >
                           {{ mod.visible ? 'Públic' : 'Privat' }}
+                        </v-chip>
+                      </div>
+                      <div v-else class="nexus-mod-visibility">
+                        <v-chip 
+                          small 
+                          :color="'grey'" 
+                          text-color="yellow"
+                        >
+                          Pendent
                         </v-chip>
                       </div>
                     </div>
@@ -181,7 +176,7 @@
                       <div class="nexus-mod-stats">
                         <div class="nexus-mod-stat">
                           <v-icon small>mdi-download</v-icon>
-                          {{ mod.downloads || 0 }} descàrregues
+                          {{ mod.downloads || 0 }}
                         </div>
                         <div class="nexus-mod-stat">
                           <v-icon small>mdi-calendar</v-icon>
@@ -205,6 +200,7 @@
                           size="small"
                           @click="updateVisible(mod.id)"
                           class="nexus-mod-btn"
+                          :disabled="!mod.security"
                         >
                           <v-icon>{{ mod.visible ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
                         </v-btn>
@@ -264,19 +260,7 @@
                       <template v-slot:prepend>
                         <v-icon>mdi-account</v-icon>
                       </template>
-                      <v-list-item-title>Editar perfil</v-list-item-title>
-                      <template v-slot:append>
-                        <v-icon>mdi-chevron-right</v-icon>
-                      </template>
-                    </v-list-item>
-                    
-                    <v-divider></v-divider>
-                    
-                    <v-list-item @click="changePasswordDialog = true">
-                      <template v-slot:prepend>
-                        <v-icon>mdi-lock</v-icon>
-                      </template>
-                      <v-list-item-title>Canviar contrasenya</v-list-item-title>
+                      <v-list-item-title>Editar perfil o Canviar contrasenya</v-list-item-title>
                       <template v-slot:append>
                         <v-icon>mdi-chevron-right</v-icon>
                       </template>
@@ -398,6 +382,105 @@
           </v-card>
         </v-dialog>
 
+        <!-- Upload Dialog -->
+        <v-dialog v-model="dialog" max-width="600" persistent>
+          <v-card class="nexus-dialog">
+            <v-card-title class="nexus-dialog-title">
+              <v-icon icon="mdi-cloud-upload" class="mr-2"></v-icon>
+              Pujar Mod
+            </v-card-title>
+            <v-card-text>
+              <v-form ref="uploadForm" @submit.prevent="uploadMod" v-model="formValid">
+                <v-text-field
+                  v-model="title"
+                  label="Título del Mod*"
+                  :rules="[v => !!v || 'El título es requerido']"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  class="nexus-input"
+                ></v-text-field>
+                
+                <v-textarea
+                  v-model="description"
+                  label="Descripción*"
+                  :rules="[v => !!v || 'La descripción es requerida']"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  rows="3"
+                  class="nexus-input"
+                ></v-textarea>
+
+                <v-combobox
+                  v-model="tags"
+                  label="Etiquetes"
+                  multiple
+                  chips
+                  clearable
+                  small-chips
+                  variant="outlined"
+                  density="compact"
+                  class="nexus-input"
+                  required
+                  hint="Pressiona Enter per agregar una etiqueta"
+                  persistent-hint
+                ></v-combobox>
+                
+                <v-file-input
+                  v-model="modFile"
+                  label="Archivo del Mod (ZIP, RAR, 7Z)*"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  accept=".zip,.rar,.7z"
+                  class="nexus-input"
+                  prepend-icon="mdi-paperclip"
+                  :show-size="1000"
+                ></v-file-input>
+
+                <v-file-input
+                  v-model="imageFile"
+                  label="Imagen del Mod*"
+                  required
+                  variant="outlined"
+                  density="compact"
+                  accept="image/*"
+                  class="nexus-input"
+                  prepend-icon="mdi-image"
+                  :show-size="1000"
+                ></v-file-input>
+
+                <div class="nexus-upload-hint">
+                  <v-icon small color="#fc503b">mdi-information-outline</v-icon>
+                  <span>Asegúrate de incluir instrucciones de instalación en tu archivo</span>
+                </div>
+              </v-form>
+            </v-card-text>
+            <v-card-actions class="nexus-dialog-actions">
+              <v-spacer></v-spacer>
+              <v-btn
+                variant="text"
+                @click="closeDialog"
+                :disabled="uploading"
+                class="nexus-btn"
+              >
+                Cancelar
+              </v-btn>
+              <v-btn
+                color="#fc503b"
+                :loading="uploading"
+                :disabled="!formValid || uploading"
+                @click="uploadMod"
+                class="nexus-btn"
+              >
+                <v-icon icon="mdi-upload" start></v-icon>
+                Subir
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <v-snackbar
           v-model="snackbar.show"
           :color="snackbar.color"
@@ -423,17 +506,24 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { loadUserData, putUserProfile, putMod, changeVisible, deleteModSequelize } from "../services/communicationManager.js";
+import { loadUserData, putUserProfile, postMod, putMod, changeVisible, deleteModSequelize } from "../services/communicationManager.js";
 
 const router = useRouter();
 const user = ref({ mods: [] });
-const editMod = ref(false);
+const dialog = ref(false);
 const loading = ref(false);
 const editPerfil = ref(false);
-const changePasswordDialog = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
 const tab = ref('mods');
 const avatarInput = ref(null);
+
+const title = ref('');
+const description = ref('');
+const tags = ref([]);
+const modFile = ref(null);
+const imageFile = ref(null);
+const uploading = ref(false);
+const formValid = ref(false);
 
 const newInformationMod = ref({
   modId: 0,
@@ -455,6 +545,18 @@ const snackbar = ref({
   color: ''
 });
 
+const openUploadDialog = () => {
+  dialog.value = true;
+}
+
+const closeDialog = () => {
+  dialog.value = false;
+  title.value = '';
+  description.value = '';
+  modFile.value = null;
+  imageFile.value = null;
+};
+
 const totalDownloads = computed(() => {
   return user.value.mods?.reduce((total, mod) => total + (mod.downloads || 0), 0) || 0;
 });
@@ -465,6 +567,10 @@ const topMods = computed(() => {
     .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
     .slice(0, 3);
 });
+
+const navigateToMod = (id) => {
+  window.location.href = `/mod/${id}`;
+};
 
 // Hecho
 const fetchUser = async () => {
@@ -672,6 +778,61 @@ const updateMod = async () => {
   }
 }
 
+const uploadMod = async () => {
+  if (!formValid.value) return;
+  if (!modFile.value || !imageFile.value) return;
+  uploading.value = true;
+  
+  const formData = new FormData();
+  formData.append('title', title.value);
+  formData.append('description', description.value);
+  formData.append('modFile', modFile.value);
+  formData.append('imageFile', imageFile.value);
+  formData.append('email', userEmail.value);
+  formData.append('tags', JSON.stringify(tags.value));
+  
+  try {
+    const response = await postMod(formData);
+
+    if(!response) {
+      snackbar.value = {
+        show: 'true',
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      }
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      errorMessage.value = 
+      snackbar.value = {
+        show: 'true',
+        text: data.error || 'Error en pujar el mod',
+        color: 'error'
+      }
+      return;
+    }
+
+    snackbar.value = {
+      show: true,
+      text: data.message || 'Mod subido correctament',
+      color: 'success'
+    }
+    closeDialog();
+    fetchUser();
+  } catch (error) {
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperat en subir el mod',
+      color: 'error'
+    }
+  } finally {
+    uploading.value = false;
+  }
+};
+
 // Hecho
 const deleteMod = async (modId) => {
   try {
@@ -720,8 +881,11 @@ const truncateDescription = (desc) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'Data desconeguda';
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('ca-ES', options);
+  const date = new Date(dateString);
+  const day = String(date.getDate());
+  const month = String(date.getMonth() + 1); // Los meses van de 0 a 11
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const logout = () => {
