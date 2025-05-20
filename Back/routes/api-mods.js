@@ -47,6 +47,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Hecho
 router.get('/admin-mods', async (req, res) => {
   try {
     const mods = await Mod.findAll({

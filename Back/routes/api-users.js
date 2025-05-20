@@ -25,9 +25,10 @@ router.get('/', async (req, res) => {
     try {
         const users = await User.findAll();
         
-        res.status(200).json({ message: "Obtenido los usuarios", users});
+        res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ message: "Error en obtenir tots els usuaris"});
+        console.error()
+        res.status(500).end('Erro');
     }
 });
 
@@ -145,6 +146,7 @@ router.put('/update-perfil/:id', async (req, res) => {
     }
 });
 
+// Hecho
 router.delete('/delete-user/:id', async (req, res) => {
   try {
     const deleted = await User.destroy({ where: { id: req.params.id } });
@@ -155,6 +157,7 @@ router.delete('/delete-user/:id', async (req, res) => {
   }
 });
 
+// Hecho
 router.patch('/toggle-admin/:id', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -168,24 +171,5 @@ router.patch('/toggle-admin/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al cambiar rol de admin' });
   }
 });
-
-// router.put('/change-profile-picture', async (req, res) => {
-//     try {
-//         const { email } = req.body;
-
-//         const user = await User.findOne({ where: { email }});
-
-//         if (req.files && req.files.profile_picture) {
-//             const modPath = await handleFileUpload(req.files.profile_picture, imageDir);
-//             user.profile_picture = modPath;
-//         }
-
-//         user.save();
-//         res.status(201).json({ message: 'Perfil de foto actualizado correctamente' });
-//     } catch (error) {
-//         console.error("Error en obtenir les dades del usuari:", error);
-//         res.status(500).json({ message: "Error intern del servidor" });
-//     }
-// });
 
 export default router;

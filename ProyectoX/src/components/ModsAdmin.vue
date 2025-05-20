@@ -122,10 +122,9 @@
               color="#fc503b"
               variant="tonal"
               size="small"
-              :href="getDownloadUrl(item.file_path)"
+              :href="`http://localhost:3002${item.file_path}`"
               target="_blank"
               class="action-btn download-btn"
-              @click="logDownload(item.id)"
             >
               <v-icon left>mdi-download</v-icon>
               Descarregar
@@ -315,17 +314,37 @@ const filteredMods = computed(() => {
   });
 });
 
-const getDownloadUrl = (path) => `http://localhost:3002${path}`;
-
-const logDownload = async (modId) => {
+// Hecho
+const fetchModsAdmin = async () => {
   try {
-    await fetch(`http://localhost:3002/api/mods/${modId}/download`, {
-      method: 'POST'
-    });
-  } catch (err) {
-    console.error("Error en registrar la descàrrega", err);
+    const response = await getModsAdmin();
+
+    if(!response) {
+      console.log('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      console.log('Error en obtenir tots els mods');
+      notificationMessage.value = 'Error en obtenir tots els mods';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    mods.value = data.mods;
+  } catch (error) {
+    console.log('Error inesperat en obtenir tots els mods', error);
+    notificationMessage.value = 'Error inesperat en obtenir tots els mods';
+    notificationColor.value = 'error';
+    showNotification.value = true;
   }
-};
+}
 
 // Hecho
 const toggleSafety = async (mod) => {
@@ -360,7 +379,7 @@ const toggleSafety = async (mod) => {
   } catch (err) {
     console.error("Error en actualitzar la seguretat del mod", err);
     mod.security = previousValue;
-    notificationMessage.value = 'Error en actualitzar la seguretat del mod';
+    notificationMessage.value = 'Error inesperat en actualitzar la seguretat del mod';
     notificationColor.value = 'error';
     showNotification.value = true;
   } finally {
@@ -389,7 +408,7 @@ const formatDate = (dateString) => {
 
 onMounted(async () => {
   try {
-    mods.value = await getModsAdmin();
+    fetchModsAdmin();
     listenChangeSecurityModAdmin(mods);
     listenNewModsAdmin(mods);
     initThreeJS();

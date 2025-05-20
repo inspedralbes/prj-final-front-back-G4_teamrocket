@@ -7,32 +7,126 @@
       </div>
     </v-card-text>
   </v-card>
+
+  <!-- Notificació d'estat -->
+    <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
+      {{ notificationMessage }}
+    </v-snackbar>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue';
 import { Chart } from 'chart.js/auto';
+import { getStats, getUsersAdmin, getAllMods } from '@/services/communicationManager';
 
 const statsMods = ref([]);
 const userCount = ref(0);
 const modCount = ref(0);
 const statsChart = ref(null);
+const showNotification = ref(false);
+const notificationMessage = ref('');
+const notificationColor = ref('');
 let chartInstance = null;
 
+const fetchStats = async () => {
+  try {
+    const response = await getStats();
+
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      console.error('Error en obtenir les dades per les estadistiques');
+      notificationMessage.value = 'Error en obtenir les dades per les estadistiques';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    statsMods.value = data;
+  } catch (error) {
+    console.error('Error inesperat en obtenir les dades per les estadistiques', error);
+    notificationMessage.value = 'Error inesperat en obtenir les dades per les estadistiques';
+    notificationColor.value = 'error';
+    showNotification.value = true;
+  }
+}
+
+const fetchUsers = async () => {
+  try {
+    const response = await getUsersAdmin();
+
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      console.error('Error en obtenir tots els usuaris');
+      notificationMessage.value = 'Error en obtenir tots els usuaris';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const usersData = data;
+    userCount.value = usersData.length;
+  } catch (error) {
+    console.error('Error inesperat en obtenir tots els usuris', error);
+    notificationMessage.value = 'Error inesperat en obtenir tots els usuris';
+    notificationColor.value = 'error';
+    showNotification.value = true;
+  }
+}
+
+const fetchMods = async () => {
+  try {
+    const response = await getAllMods();
+
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      console.error('Error en obtenir tots els mods');
+      notificationMessage.value = 'Error en obtenir tots els mods';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    const allMods = data;
+    modCount.value = allMods.length;
+  } catch (error) {
+    console.error('Error inesperat en obtenir tots els mods', error);
+    notificationMessage.value = 'Error inesperat en obtenir tots els mods'
+    notificationColor.value = 'error';
+    showNotification.value = true;
+  }
+}
+
 onMounted(async () => {
-  // Obtener estadísticas de mods
-  const modsResponse = await fetch('http://localhost:3002/api/stats/stats-mods');
-  statsMods.value = await modsResponse.json();
-  
-  // Obtener total de usuarios
-  const usersResponse = await fetch('http://localhost:3002/api/users');
-  const usersData = await usersResponse.json();
-  userCount.value = usersData.users.length;
-  
-  // Obtener total de mods
-  const modsData = await fetch('http://localhost:3002/api/mods');
-  const allMods = await modsData.json();
-  modCount.value = allMods.length;
+  await fetchStats();
+  await fetchUsers();
+  await fetchMods();
   
   // Preparar datos para el gráfico
   prepareChartData();

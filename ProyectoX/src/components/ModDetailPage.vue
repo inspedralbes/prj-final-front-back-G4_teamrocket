@@ -239,17 +239,6 @@
             <v-icon small color="grey">mdi-tag-off</v-icon>
             <span>Encara no hi ha etiquetes</span>
           </div>
-          
-          <v-btn 
-            variant="text" 
-            color="#fc503b" 
-            size="small" 
-            class="nexus-add-tag-btn"
-            v-if="userEmail"
-            @click="openAddTagDialog"
-          >
-            + Afegir etiqueta
-          </v-btn>
         </v-card>
 
         </div>
@@ -318,16 +307,6 @@ const trendPercentage = ref(0);
 const trendColor = ref('success');
 const trendIcon = ref('mdi-arrow-up');
 const trendClass = ref('up');
-
-
-const openAddTagDialog = () => {
-  // Implementa la lógica para añadir una nueva etiqueta
-  snackbar.value = {
-    show: true,
-    text: 'Funcionalitat d\'afegir etiqueta en desenvolupament',
-    color: 'info'
-  };
-};
 
 const newComment = ref({
   email: userEmail,

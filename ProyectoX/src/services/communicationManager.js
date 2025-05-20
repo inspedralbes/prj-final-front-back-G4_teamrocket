@@ -1,3 +1,5 @@
+import { Return } from "three/tsl";
+
 const urlBackend = "http://localhost:3002";
 
 // Hecho
@@ -55,42 +57,36 @@ export const putUserProfile = async (formData, userId) => {
     }
 }
 
-//
+// Hecho
 export const getUsersAdmin = async () => {
     try {
-        return await fetch('http://localhost:3002/api/users');
+        return await fetch(urlBackend + '/api/users', {
+            method: 'GET'
+        });
     } catch {
         return null;
     }   
 }
 
+// Hecho
 export const deleteUserAdmin = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:3002/api/users/delete-user/${userId}`, {
+        return await fetch(urlBackend + `/api/users/delete-user/${userId}`, {
             method: 'DELETE',
         });
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-    } catch (err) {
-        console.error('Error cargando mods de administrador:', err);
-        throw err; // Re-lanzar el error para manejo posterior
+    } catch {
+        return null;
     }   
 }
 
+// Hecho
 export const changeUserAdmin = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:3002/api/users/toggle-admin/${userId}`, {
+        return await fetch(urlBackend + `/api/users/toggle-admin/${userId}`, {
             method: 'PATCH',
         });
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-    } catch (err) {
-        console.error('Error cargando mods de administrador:', err);
-        throw err; // Re-lanzar el error para manejo posterior
+    } catch {
+        return null;
     }
 }
 
@@ -105,19 +101,14 @@ export const getAllMods = async () => {
     }
 }
 
+// Hecho
 export const getModsAdmin = async () => {
     try {
-        const response = await fetch('http://localhost:3002/api/mods/admin-mods');
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data.mods
+        return await fetch(urlBackend + '/api/mods/admin-mods', {
+            method: 'GET'
+        });
     } catch (err) {
-        console.error('Error cargando mods de administrador:', err);
-        throw err; // Re-lanzar el error para manejo posterior
+        return null;
     }   
 }
 
@@ -241,7 +232,7 @@ export const postComment = async (newComment) => {
 // Hecho
 export const putComment = async (commentId, newContent) => {
     try {
-        return await fetch('http://localhost:3002/api/comments/update-comment', {
+        return await fetch(urlBackend + '/api/comments/update-comment', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ commentId, newContent })
@@ -304,12 +295,13 @@ export const deleteLike = async (modId, email) => {
     }
 }
 
-export const getModStats = async (modId) => {
+// Hecho
+export const getStats = async () => {
     try {
-        const response = await fetch(`http://localhost:3002/api/mods/stats/${modId}`);
-        return response;
+        return await fetch(urlBackend + '/api/stats/stats-mods', {
+            method: 'GET'
+        });
     } catch (error) {
-        console.error('Error al obtener estadísticas:', error);
-        throw error;
+        return null;
     }
 }

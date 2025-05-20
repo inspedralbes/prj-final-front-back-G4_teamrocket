@@ -297,34 +297,65 @@ const filteredUsers = computed(() => {
   }));
 });
 
-// 
+// Hecho
 const fetchUsers = async () => {
   try {
     const response = await getUsersAdmin();
     
     if(!response) {
       console.error('Error de xarxa o problema al servidor');
+      return;
+    } 
+
+    if(!response.ok) {
+      console.error('Error en obtenir tots els usuaris')
+      return;
     }
+
+    users.value = await response.json();
   } catch (error) {
     console.error("Error inesperat en obtenir tots els usuaris", error);
   }
 };
 
+// Hecho
 const deleteUser = async (userId) => {
   try {
-    await deleteUserAdmin(userId);
+    const response = await deleteUserAdmin(userId);
+    
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      return;
+    }
+
+    if(!response.ok) {
+      console.error('Error en eliminar usuari');
+      return;
+    }
+
     fetchUsers();
   } catch (error) {
-    console.error('Error en eliminar usuari:', error);
+    console.error('Error inesperat en eliminar usuari:', error);
   }
 };
 
+// Hecho
 const changeAdmin = async (userId) => {
   try {
-    await changeUserAdmin(userId);
+    const response = await changeUserAdmin(userId);
+
+    if(!response) {
+      console.error('Error de xarxa o problema al servidor');
+      return;
+    }
+
+    if(!response.ok) {
+      console.error("Error en canviar de rol l'usuari");
+    }
+
     fetchUsers();
   } catch (error) {
-    console.error('Error en canviar rol:', error);
+    console.error('Error inesperat en canviar rol:', error);
   }
 };
 
