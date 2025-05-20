@@ -14,7 +14,6 @@ const sequelize = new Sequelize(
   }
 );
 
-// Importar modelos
 import defineUser from './user.js';
 import defineMod from './mod.js';
 import defineTag from './tag.js';
@@ -25,21 +24,11 @@ const models = {
   Tag: defineTag(sequelize)
 };
 
-// Definir asociaciones
 Object.values(models).forEach(model => {
   if (typeof model.associate === 'function') {
     model.associate(models);
   }
 });
-
-// Crear o actualizar tablas según los modelos
-sequelize.sync({ alter: true })
-  .then(() => {
-    console.log('✅ Tablas sincronizadas correctamente.');
-  })
-  .catch((err) => {
-    console.error('❌ Error al sincronizar tablas:', err);
-  });
 
 export { sequelize, models };
 export default sequelize;

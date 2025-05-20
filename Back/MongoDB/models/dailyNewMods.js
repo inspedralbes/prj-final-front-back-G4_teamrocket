@@ -16,7 +16,6 @@ const DailyNewModsSchema = new mongoose.Schema({
   }
 });
 
-// Solo puede haber un documento por fecha
 DailyNewModsSchema.index({ date: 1 }, { unique: true });
 
 const DailyNewMods = mongoose.model("DailyNewMods", DailyNewModsSchema);

@@ -439,6 +439,7 @@
                 <v-combobox
                   v-model="newInformationMod.tags"
                   label="Etiquetes"
+                  :rules="[v => !!v || 'Introdueix una etiqueta']"
                   multiple
                   chips
                   clearable
@@ -466,6 +467,7 @@
                 <v-file-input
                   v-model="imageFile"
                   label="Imagen del Mod*"
+                  :rules="[v => !!v || 'Introdueix una image']"
                   required
                   variant="outlined"
                   density="compact"

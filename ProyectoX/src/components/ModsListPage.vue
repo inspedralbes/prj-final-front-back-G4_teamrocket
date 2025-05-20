@@ -326,7 +326,8 @@
 
             <v-combobox
               v-model="tags"
-              label="Etiquetes"
+              label="Etiquetes*"
+              :rules="[v => !!v || 'Introdueix una etiqueta']"
               multiple
               chips
               clearable
@@ -343,6 +344,7 @@
               v-model="modFile"
               label="Archivo del Mod (ZIP, RAR, 7Z)*"
               required
+              :rules="[v => !!v || "Es necesari l'arxiu"]"
               variant="outlined"
               density="compact"
               accept=".zip,.rar,.7z"
@@ -354,6 +356,7 @@
             <v-file-input
               v-model="imageFile"
               label="Imagen del Mod*"
+              :rules="[v => !!v || 'Introdueix una image']"
               required
               variant="outlined"
               density="compact"
@@ -729,7 +732,6 @@ const toggleLike = async (modId) => {
 // Hecho
 const uploadMod = async () => {
   if (!formValid.value) return;
-  if (!modFile.value || !imageFile.value) return;
   uploading.value = true;
   
   const formData = new FormData();

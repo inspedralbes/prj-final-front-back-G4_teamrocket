@@ -18,7 +18,7 @@ const imagesDir = path.join(modsDir, 'images');
 [uploadsDir, modsDir, imagesDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-    console.log(`Carpeta "${dir}" creada.`);
+    console.log(`Carpeta "${dir}" creat.`);
   }
 });
 
@@ -129,7 +129,7 @@ router.post('/new-mod', async (req, res) => {
     const { title, description, email } = req.body;
     const tags = JSON.parse(req.body.tags);
 
-    if (!req.files || !req.files.modFile || !req.files.imageFile) {
+    if (!req.files || !req.files.modFile) {
       return res.status(400).json({ error: "No se han subido los archivos requeridos (mod o imagen)" });
     }
 

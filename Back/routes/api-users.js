@@ -1,5 +1,6 @@
 import express from 'express';
-import bcrypt from 'bcrypt'; 
+import bcrypt from 'bcrypt';
+import fs from 'fs'; 
 import path from 'path';
 import { models } from '../models/index.js';
 import Like from '../MongoDB/models/like.js';
@@ -10,7 +11,14 @@ const router = express.Router(); // Crea un enrutador de Express
 const { User, Mod, Tag } = models;
 
 const uploadsDir = path.join('uploads');
-const imageDir = path.join(uploadsDir, 'image-profile');
+const image_ProileDir = path.join(uploadsDir, 'image-profile');
+
+[uploadsDir, image_ProileDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Carpeta "${dir}" creat.`);
+  }
+});
 
 const handleFileUpload = (file, directory) => {
   return new Promise((resolve, reject) => {
@@ -147,7 +155,7 @@ router.put('/update-perfil/:id', async (req, res) => {
         }
 
         if(req.files && req.files.newAvatar) {
-            const newAvatarPath = await handleFileUpload(req.files.newAvatar, imageDir);
+            const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProileDir);
             user.avatar_path = newAvatarPath;
         }
 

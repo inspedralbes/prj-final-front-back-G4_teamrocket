@@ -4,17 +4,16 @@ import { getIO } from '../../app.js';
 
 const router = express.Router();
 
-// Hecho
 router.get('/', async (req, res) => {
   try {
     const allLikes = await Like.find();
     res.status(200).json(allLikes);
   } catch (error) {
-    res.status(500).json({ error: "Error en obtenir els likes" });
+    console.error(error);
+    res.status(500).json({ error: "Error en obtenir tots els likes" });
   }
 });
 
-// Hecho
 router.post('/new-like', async (req, res) => {
   try {
     const { modId, email } = req.body;
@@ -27,14 +26,13 @@ router.post('/new-like', async (req, res) => {
     const io = getIO();
     io.emit('updateLikes', { allLikes });
   
-    res.status(201).json({ message: 'Like registrado correctamente' });
+    res.status(201).json({ message: 'Like registrat' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al registrar el like' });
+    res.status(500).json({ error: 'Error en registrar el like' });
   }
 });
 
-// Hecho
 router.delete('/delete-like', async (req, res) => {
   try {
     const { modId, email } = req.body;
@@ -47,9 +45,9 @@ router.delete('/delete-like', async (req, res) => {
       const io = getIO();
       io.emit('updateLikes', { allLikes });
 
-      res.status(200).json({ message: 'Like eliminado correctamente' });
+      res.status(200).json({ message: 'Like eliminat' });
     } else {
-      res.status(404).json({ error: 'Like no encontrado' });
+      res.status(404).json({ error: 'Like no trobat' });
     }
   } catch (error) {
     console.error(error);

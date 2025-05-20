@@ -4,33 +4,28 @@ import { getIO } from '../../app.js';
 
 const router = express.Router();
 
-// Hecho
 router.get('/', async (req, res) => {
   try {
     const allComments = await Comment.find();
     res.status(200).json(allComments);
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error en obtenir tots els comentaris' });
   }
 });
 
-// Hecho
 router.get('/:modId', async (req, res) => {
   try {
     const comments = await Comment.find({ modId: req.params.modId });
     res.status(200).json(comments);
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error en obtenir els comentaris del Mod" });
   }
 });
 
-// Hecho
 router.post('/new-comment', async (req, res) => {
   const { email, modId, content, rating } = req.body;
-
-  if (!email || !modId || !content || rating === undefined) {
-    return res.status(400).json({ message: 'Falten dades necesaries' });
-  }
 
   const comment = new Comment({
     email,
@@ -47,13 +42,13 @@ router.post('/new-comment', async (req, res) => {
     const io = getIO();
     io.emit('updateComments', { allComments });
 
-    res.status(201).json({ message: "Nou comentari creat existosament" });
-  } catch (err) {
+    res.status(201).json({ message: "Nou comentari creat" });
+  } catch (error) {
+    console.error(error);
     res.status(400).json({ error: "Error en registrar el comentari" });
   }
 });
 
-// Hecho
 router.put('/update-comment', async (req, res) => {
   const { commentId, newContent } = req.body;
 
@@ -65,16 +60,16 @@ router.put('/update-comment', async (req, res) => {
     );
 
     if (!updated) {
-      return res.status(404).json({ error: 'Comentari no trobat i actualitzat' });
+      return res.status(404).json({ error: 'Comentari no trobat' });
     }
 
     res.status(200).json(updated);
-  } catch {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error en actualitzar el comentari' });
   }
 });
 
-// Hecho
 router.delete('/delete-comment/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -90,8 +85,9 @@ router.delete('/delete-comment/:id', async (req, res) => {
     const io = getIO();
     io.emit('updateComments', { allComments });
   
-    res.status(200).json({ message: 'Comentario eliminado correctamente' });
-  } catch {
+    res.status(200).json({ message: 'Comentari eliminat' });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Error en eliminar el comentari' });
   }
 });
