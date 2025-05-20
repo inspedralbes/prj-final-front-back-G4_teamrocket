@@ -151,19 +151,19 @@
                     <div class="nexus-mod-header">
                       <h3 class="nexus-mod-title">{{ mod.title }}</h3>
                       <div v-if="mod.security" class="nexus-mod-visibility">
-                        <v-chip 
-                          small 
-                          :color="mod.visible ? 'success' : 'grey'" 
+                        <v-chip
+                          small
+                          :color="mod.visible ? 'success' : 'grey'"
                           text-color="white"
                         >
                           {{ mod.visible ? 'Públic' : 'Privat' }}
                         </v-chip>
                       </div>
                       <div v-else class="nexus-mod-visibility">
-                        <v-chip 
-                          small 
-                          :color="'grey'" 
-                          text-color="yellow"
+                        <v-chip
+                          small
+                          color='grey'
+                          text-color="white"
                         >
                           Pendent
                         </v-chip>
@@ -189,7 +189,7 @@
                           color="#fc503b"
                           variant="text"
                           size="small"
-                          @click="openEditDialogMod(mod)"
+                          @click.stop="openEditDialogMod(mod)"
                           class="nexus-mod-btn"
                         >
                           Editar
@@ -198,7 +198,7 @@
                           color="#fc503b"
                           variant="text"
                           size="small"
-                          @click="updateVisible(mod.id)"
+                          @click.stop="updateVisible(mod.id)"
                           class="nexus-mod-btn"
                           :disabled="!mod.security"
                         >
@@ -208,7 +208,7 @@
                           color="#fc503b"
                           variant="text"
                           size="small"
-                          @click="deleteMod(mod.id)"
+                          @click.stop="deleteMod(mod.id)"
                           class="nexus-mod-btn"
                         >
                           <v-icon>mdi-delete</v-icon>
@@ -265,9 +265,7 @@
                         <v-icon>mdi-chevron-right</v-icon>
                       </template>
                     </v-list-item>
-                    
                     <v-divider></v-divider>
-                    
                     <v-list-item @click="logout">
                       <template v-slot:prepend>
                         <v-icon color="error">mdi-logout</v-icon>
@@ -282,7 +280,7 @@
         </v-window>
 
         <!-- Diálogo para editar mod -->
-        <v-dialog v-model="editMod" max-width="600" class="nexus-dialog">
+        <v-dialog v-model="editModDialog" max-width="600" class="nexus-dialog" persistent>
           <v-card>
             <v-card-title class="nexus-dialog-title">
               <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
@@ -302,19 +300,45 @@
                   class="nexus-input"
                   rows="3"
                 />
+                <v-combobox
+                  v-model="newInformationMod.tags"
+                  :items="allTags"
+                  multiple
+                  chips
+                  clearable
+                  small-chips
+                  label="Tags"
+                  variant="outlined"
+                  class="nexus-input"
+                  hint="Pressiona Enter per agregar una etiqueta"
+                  persistent-hint
+                  item-title="name"
+                  item-value="name"
+                />
                 <v-file-input 
                   v-model="newInformationMod.modFile" 
-                  label="Arxiu del Mod (deixa en blanc per no canviar)" 
+                  label="Arxiu del Mod (ZIP, RAR, 7Z)" 
+                  accept=".zip,.rar,.7z"
                   variant="outlined"
                   class="nexus-input"
                   prepend-icon="mdi-paperclip"
+                  :show-size="1000"
+                />
+                <v-file-input
+                  v-model="newInformationMod.image"
+                  label="Nova imatge"
+                  accept="image/*"
+                  variant="outlined"
+                  class="nexus-input"
+                  prepend-icon="mdi-image"
+                  :show-size="1000"
                 />
             </v-card-text>
             <v-card-actions class="nexus-dialog-actions">
               <v-spacer />
               <v-btn 
                 variant="outlined"
-                @click="editMod = false"
+                @click="editModDialog = false"
                 class="nexus-btn"
               >
                 Cancel·lar
@@ -332,7 +356,7 @@
         </v-dialog>
 
         <!-- Diálogo para editar perfil -->
-        <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog">
+        <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog" persistent>
           <v-card>
             <v-card-title class="nexus-dialog-title">
               <v-icon icon="mdi-account-edit" class="mr-2"></v-icon>
@@ -413,7 +437,7 @@
                 ></v-textarea>
 
                 <v-combobox
-                  v-model="tags"
+                  v-model="newInformationMod.tags"
                   label="Etiquetes"
                   multiple
                   chips
@@ -465,7 +489,7 @@
                 :disabled="uploading"
                 class="nexus-btn"
               >
-                Cancelar
+                Cancel·lar
               </v-btn>
               <v-btn
                 color="#fc503b"
@@ -513,6 +537,7 @@ const user = ref({ mods: [] });
 const dialog = ref(false);
 const loading = ref(false);
 const editPerfil = ref(false);
+const editModDialog = ref(false);
 const userEmail = ref(localStorage.getItem('userEmail'));
 const tab = ref('mods');
 const avatarInput = ref(null);
@@ -529,7 +554,9 @@ const newInformationMod = ref({
   modId: 0,
   title: '',
   description: '',
-  modFile: null
+  tags: [],
+  modFile: null,
+  image: null
 });
 
 const newInformationUser = ref({
@@ -556,6 +583,18 @@ const closeDialog = () => {
   modFile.value = null;
   imageFile.value = null;
 };
+
+const openEditDialogMod = (mod) => {
+  newInformationMod.value = {
+    modId: mod.id,
+    title: mod.title,
+    description: mod.description,
+    tags: mod.tags.map(tag => tag.name),
+    modFile: null,
+    image: null
+  };
+  editModDialog.value = true;
+}
 
 const totalDownloads = computed(() => {
   return user.value.mods?.reduce((total, mod) => total + (mod.downloads || 0), 0) || 0;
@@ -590,7 +629,7 @@ const fetchUser = async () => {
     const data = await response.json();
     user.value = data;
 
-    console.log(user.value.id);
+    console.log(user.value);
   } catch {
     console.error("Error inesperat en obtenir les dades de l'usuari");
   }
@@ -673,14 +712,6 @@ const updateProfile = async () => {
   }
 };
 
-const openEditDialogMod = (mod) => {
-  newInformationMod.value.modId = mod.id;
-  newInformationMod.value.title = mod.title;
-  newInformationMod.value.description = mod.description;
-  newInformationMod.value.modFile = null;
-  editMod.value = true;
-}
-
 // Hecho
 const updateVisible = async (modId) => {
   try {
@@ -730,9 +761,9 @@ const updateMod = async () => {
   formData.append('id', newInformationMod.value.modId);
   formData.append('title', newInformationMod.value.title);
   formData.append('description', newInformationMod.value.description);
-  if (newInformationMod.value.modFile) {
-    formData.append('modFile', newInformationMod.value.modFile);
-  }
+  formData.append('tags', JSON.stringify(newInformationMod.value.tags));
+  if (newInformationMod.value.modFile) formData.append('modFile', newInformationMod.value.modFile);
+  if (newInformationMod.value.image) formData.append('image', newInformationMod.value.image);
 
   try {
     const response = await putMod(formData);
@@ -764,8 +795,8 @@ const updateMod = async () => {
       color: 'success'
     };
     
+    editModDialog.value = false;
     await fetchUser();
-    editMod.value = false;
   } catch (err) {
     console.error(err);
     snackbar.value = {

@@ -2,10 +2,11 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { models } from '../models/index.js';
-import DailyNewMods from '../MongoDB/models/dailyModStats.js';
+import DailyNewMods from '../MongoDB/models/dailyNewMods.js';
 import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
+import Comment from '../MongoDB/models/comment.js';
+import Like from '../MongoDB/models/like.js';
 import { getIO } from '../app.js';
-import mod from '../models/mod.js';
 
 const router = express.Router();
 const { Mod, User, Tag } = models;
@@ -148,8 +149,6 @@ router.post('/new-mod', async (req, res) => {
       uploaded_by: user.id
     });
 
-    console.log(tags);
-
     if (Array.isArray(tags) && tags.length > 0) {
       const tagInstances = await Promise.all(
         tags.map(name =>
@@ -160,8 +159,6 @@ router.post('/new-mod', async (req, res) => {
       );
 
       await newMod.addTags(tagInstances.map(([tag]) => tag));
-    } else {
-      console.log("No");
     }
     
     // MongoDB
@@ -195,9 +192,11 @@ router.post('/new-mod', async (req, res) => {
 // Hecho
 router.put('/update-mod', async (req, res) => {
   try {
-    const { id, title, description } = req.body;
+    const { id, title, description, tags } = req.body;
 
-    const mod = await Mod.findByPk(id);
+    const mod = await Mod.findByPk(id, {
+      include: [{ model: Tag, as: 'tags' }]
+    });
     if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
 
     mod.title = title;
@@ -208,7 +207,27 @@ router.put('/update-mod', async (req, res) => {
       mod.file_path = modPath;
     }
 
+    if (req.files && req.files.image) {
+      const imagePath = await handleFileUpload(req.files.image, imagesDir);
+      mod.image = imagePath;
+    }
+
     await mod.save();
+
+    const newTags = JSON.parse(tags);
+
+    if (Array.isArray(newTags) && newTags.length > 0) {
+      const tagInstances = await Promise.all(
+        newTags.map(name =>
+          Tag.findOrCreate({
+            where: { name: name.trim().toLowerCase() }
+          })
+        )
+      );
+
+      await mod.setTags(tagInstances.map(([tag]) => tag));
+    }
+
     res.status(200).json({ message: 'Mod actualizado correctamente' });
   } catch (error) {
     console.error('Error actualizado el mod:', error);
@@ -259,6 +278,10 @@ router.delete('/delete-mod/:id', async (req, res) => {
     if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     // MongoDB
+    await Comment.deleteMany({ modId: req.params.id });
+    await Like.deleteMany({ modId: req.params.id });
+    await DailyDownloadsMods.deleteMany({ modId: req.params.id });
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

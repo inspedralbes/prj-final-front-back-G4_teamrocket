@@ -4,7 +4,6 @@ const socket = io("http://localhost:3002");
 
 export const listenToModDownloads = (mods, stats) => {
   socket.on("modDownloaded", (downloaded) => {
-    console.log("Mod descargado:", downloaded);
     const mod = mods.value.find(m => m.id === downloaded.id);
     if (mod) {
       mod.downloads = downloaded.downloads;
@@ -15,10 +14,7 @@ export const listenToModDownloads = (mods, stats) => {
 
 export const listenToModDownloads2 = (mod, initChart) => {
   socket.on("modDownloaded", (downloaded) => {
-    console.log("Mod descargado:", downloaded);
     mod.value.downloads = downloaded.downloads;
-
-    console.log(mod.value.statsDailyDownloadsMods);
 
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -49,7 +45,6 @@ export const listenToComments = (comments) => {
 export const listenToLikes = (likes) => {
   socket.off('updateLikes');
   socket.on('updateLikes', (newLikes) => {
-    console.log('Nuevo likes recibido:', newLikes);
     likes.value = newLikes.allLikes;
   });
 }
@@ -57,7 +52,6 @@ export const listenToLikes = (likes) => {
 export const listenNewUserAdmin = (users) => {
   socket.off('newUser');
   socket.on('newUser', (newListUsers) => {
-    console.log('Datos recibidos por socket:', newListUsers);
     users.value.splice(0, users.value.length, ...newListUsers);
   });
 }

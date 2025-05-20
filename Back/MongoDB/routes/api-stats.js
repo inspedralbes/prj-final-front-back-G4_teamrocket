@@ -1,5 +1,5 @@
 import express from 'express';
-import DailyModStats from '../models/dailyModStats.js';
+import DailyModStats from '../models/dailyNewMods.js';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ router.get('/stats-mods', async (req, res) => {
     try {
         const statsDailyModStats = await DailyModStats.find();
 
-        console.log(statsDailyModStats);
+        await DailyModStats.deleteMany({});
 
         res.status(200).json(statsDailyModStats);
     } catch (err) {

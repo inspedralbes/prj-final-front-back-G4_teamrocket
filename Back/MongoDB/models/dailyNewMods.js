@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const DailyModStatsSchema = new mongoose.Schema({
+const DailyNewModsSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true,
@@ -17,8 +17,8 @@ const DailyModStatsSchema = new mongoose.Schema({
 });
 
 // Solo puede haber un documento por fecha
-DailyModStatsSchema.index({ date: 1 }, { unique: true });
+DailyNewModsSchema.index({ date: 1 }, { unique: true });
 
-const DailyNewMods = mongoose.model("DailyModStats", DailyModStatsSchema);
+const DailyNewMods = mongoose.model("DailyNewMods", DailyNewModsSchema);
 
 export default DailyNewMods;

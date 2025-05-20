@@ -488,7 +488,6 @@ const fetchModDetails = async () => {
     }
 
     const data = await response.json();
-    console.log('Datos completos del mod:', data); 
 
     if (!response.ok) {
       snackbar.value = {
@@ -500,7 +499,6 @@ const fetchModDetails = async () => {
     }
 
     mod.value = data.modUser;
-    console.log('Datos del modUser:', mod.value);
 
     if (data.statsDailyDownloadsMods) {
       mod.value.statsDailyDownloadsMods = data.statsDailyDownloadsMods;
@@ -640,17 +638,6 @@ const download = async (mod) => {
       };
       return;
     }
-
-    /*
-    if(!response.ok) {
-      snackbar.value = {
-        show: true,
-        text: data.error || 'Error en registrar el comentari',
-        color: 'error'
-      };
-      return;
-    }
-    */
 
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;

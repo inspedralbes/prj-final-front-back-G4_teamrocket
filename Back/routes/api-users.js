@@ -2,11 +2,12 @@ import express from 'express';
 import bcrypt from 'bcrypt'; 
 import path from 'path';
 import { models } from '../models/index.js';
+import Like from '../MongoDB/models/like.js';
+import Comment from '../MongoDB/models/comment.js';
 import { getIO } from '../app.js';
-import { error } from 'console';
 
 const router = express.Router(); // Crea un enrutador de Express
-const { User, Mod } = models;
+const { User, Mod, Tag } = models;
 
 const uploadsDir = path.join('uploads');
 const imageDir = path.join(uploadsDir, 'image-profile');
@@ -56,7 +57,7 @@ router.post('/login-web', async (req, res) => {
 // Hecho
 router.post('/register-web', async (req, res) => {
     try {
-        const { uPerfilsername, email, password } = req.body;
+        const { username, email, password } = req.body;
 
         const existingUser = await User.findOne({ where: { username } });
         if (existingUser) {
@@ -92,8 +93,19 @@ router.post('/user-data', async (req, res) => {
         const user = await User.findOne({ where: { email }});
         if(!user) return res.status(404).end();
 
-        const mods = await Mod.findAll( { where: { uploaded_by: user.id }});
-        if(!mods) return res.status(404).end();
+        const mods = await Mod.findAll(
+            { 
+                where: { uploaded_by: user.id },
+                include: [
+                    {
+                        model: Tag,
+                        as: 'tags',
+                        attributes: ['name'],
+                        through: { attributes: [] }
+                    }
+                ]
+            }
+        );
 
         const userData = {
             id: user.id,
@@ -151,8 +163,12 @@ router.put('/update-perfil/:id', async (req, res) => {
 // Hecho
 router.delete('/delete-user/:id', async (req, res) => {
   try {
-    const deleted = await User.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no trobat' });
+
+    await Like.deleteMany({ email: user.email });
+    await Comment.deleteMany({ email: user.email });
+
     res.status(200).json({ message: 'Usuario eliminado' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar el usuario' });
