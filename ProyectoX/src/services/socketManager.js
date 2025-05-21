@@ -13,18 +13,18 @@ export const listenToModDownloads = (mods, stats) => {
 }
 
 export const listenToModDownloads2 = (mod, initChart) => {
-  socket.on("modDownloaded", (downloaded) => {
-    mod.value.downloads = downloaded.downloads;
+  socket.on("modDailyDownloadsUpdated", (downloaded) => {
+    mod.value.downloads += 1;
 
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
-    for(let i = 0; i < mod.value.statsDailyDownloadsMods.length; i++) {
+    for (let i = 0; i < mod.value.statsDailyDownloadsMods.length; i++) {
       const statDate = new Date(mod.value.statsDailyDownloadsMods[i].date);
-      statDate.setHours(0,0,0,0);
+      statDate.setHours(0, 0, 0, 0);
 
-      if(statDate.getTime() === today.getTime()) {
-        mod.value.statsDailyDownloadsMods[i].totalDownloads = downloaded.downloads;
+      if (statDate.getTime() === today.getTime()) {
+        mod.value.statsDailyDownloadsMods[i].totalDownloads = downloaded.totalDownloads;
       }
     }
 

@@ -113,11 +113,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-const handleFileUpload = (file, directory, baseName = '') => {
+const handleFileUpload = (file, directory) => {
   return new Promise((resolve, reject) => {
-    const sanitizedBase = baseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const extension = path.extname(file.name);
-    const uniqueName = `${sanitizedBase}_${uuidv4()}${extension}`;
+    const uniqueName = `${file.name}_${uuidv4()}${extension}`;
     const uploadPath = path.join(directory, uniqueName);
 
     file.mv(uploadPath, (err) => {
@@ -141,8 +140,8 @@ router.post('/new-mod', async (req, res) => {
       return res.status(404).json({ error: "Usuari no trobat" });
     }
 
-    const modPath = await handleFileUpload(req.files.modFile, modsDir, email);
-    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir, email);
+    const modPath = await handleFileUpload(req.files.modFile, modsDir);
+    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir);
     
     const newMod = await Mod.create({
       title,
@@ -305,20 +304,24 @@ router.patch('/download/:id', async (req, res) => {
       return res.status(404).json({ error: 'Mod no trobat' });
     }
 
-    const io = getIO();
-    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
-
     mod.downloads += 1;
     await mod.save();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    await DailyDownloadsMods.findOneAndUpdate(
+    const dailyData = await DailyDownloadsMods.findOneAndUpdate(
       { date: today, modId: modId },
       { $inc: { totalDownloads: 1 } },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    const io = getIO();
+    io.emit('modDailyDownloadsUpdated', {
+      modId: modId,
+      date: dailyData.date,
+      totalDownloads: dailyData.totalDownloads
+    });
 
     res.status(200).json({ message: 'Descàrrega existosa' });
   } catch (error) {
