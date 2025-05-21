@@ -126,7 +126,7 @@ const handleFileUpload = (file, directory, baseName = '') => {
 
     file.mv(uploadPath, (err) => {
       if (err) return reject(err);
-      resolve(`/${directory}/${file.name}`);
+      resolve(`/${directory}/${uniqueName}`);
     });
   });
 };
