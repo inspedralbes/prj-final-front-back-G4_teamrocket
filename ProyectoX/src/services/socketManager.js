@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { io } from "socket.io-client";
 
 const socket = io("https://darknessunseen.dam.inspedralbes.cat", {
@@ -12,26 +13,6 @@ export const listenToModDownloads = (mods, stats) => {
       mod.downloads = downloaded.downloads;
       stats.value.totalDownloads++
     }
-  });
-}
-
-export const listenToModDownloads2 = (mod, initChart) => {
-  socket.on("modDailyDownloadsUpdated", (downloaded) => {
-    mod.value.downloads += 1;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < mod.value.statsDailyDownloadsMods.length; i++) {
-      const statDate = new Date(mod.value.statsDailyDownloadsMods[i].date);
-      statDate.setHours(0, 0, 0, 0);
-
-      if (statDate.getTime() === today.getTime()) {
-        mod.value.statsDailyDownloadsMods[i].totalDownloads = downloaded.totalDownloads;
-      }
-    }
-
-    initChart();
   });
 }
 

@@ -305,26 +305,20 @@ router.patch('/download/:id', async (req, res) => {
       return res.status(404).json({ error: 'Mod no trobat' });
     }
 
-    const io = getIO();
-    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
-
     mod.downloads += 1;
     await mod.save();
+
+    const io = getIO();
+    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const dailyData = await DailyDownloadsMods.findOneAndUpdate(
+    await DailyDownloadsMods.findOneAndUpdate(
       { date: today, modId: modId },
       { $inc: { totalDownloads: 1 } },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
-
-    io.emit('modDailyDownloadsUpdated', {
-      modId: modId,
-      date: dailyData.date,
-      totalDownloads: dailyData.totalDownloads
-    });
 
     res.status(200).json({ message: 'Descàrrega existosa' });
   } catch (error) {

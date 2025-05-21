@@ -84,6 +84,10 @@
           color="#fc503b"
           x-large
           class="nexus-download-btn"
+          href="https://darknessunseen.dam.inspedralbes.cat/resources/game"
+          target="_blank" 
+          rel="noopener"
+          download
           elevation="4"
         >
           DESCARREGA ARA
@@ -122,6 +126,7 @@
               color="#fc503b"
               x-large
               class="nexus-download-btn mt-4"
+              href="https://darknessunseen.dam.inspedralbes.cat/resources/game"
               elevation="4"
             >
               DESCARREGA PER A WINDOWS

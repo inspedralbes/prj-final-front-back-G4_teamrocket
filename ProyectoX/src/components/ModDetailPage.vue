@@ -244,10 +244,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCommentsById, getMod, postComment, patchDownloadMod, deleteCommentMongodb, putComment } from '@/services/communicationManager';
-import { listenToModDownloads2 } from '@/services/socketManager';
 import Chart from 'chart.js/auto';
 
 const route = useRoute();
@@ -711,7 +710,6 @@ onMounted(async () => {
       initChart();
     }
   });
-  listenToModDownloads2(mod, initChart);
 });
 
 onBeforeUnmount(() => {
