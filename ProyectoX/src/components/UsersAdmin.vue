@@ -1,9 +1,7 @@
 <template>
   <div class="nexus-users-admin">
-    <!-- Contenedor para Three.js -->
     <div id="threejs-background" ref="threeContainer"></div>
     
-    <!-- Sección de Estadísticas -->
     <v-card class="stats-card">
       <div class="stats-header">
         <v-icon color="#fc503b" size="28" class="mr-2">mdi-chart-bar</v-icon>
@@ -18,7 +16,6 @@
       </div>
     </v-card>
 
-    <!-- Sección de Gestión -->
     <v-card class="management-card">
       <div class="management-header">
         <div class="header-left">
@@ -85,6 +82,9 @@
       </v-data-table>
     </v-card>
   </div>
+  <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
+    {{ notificationMessage }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -93,26 +93,23 @@ import * as THREE from 'three';
 import { getUsersAdmin, deleteUserAdmin, changeUserAdmin } from '@/services/communicationManager';
 import { listenNewUserAdmin } from '@/services/socketManager';
 
-// Variables de estado
 const users = ref([]);
 const searchUsers = ref('');
+const showNotification = ref(false);
+const notificationMessage = ref('');
+const notificationColor = ref('');
 const threeContainer = ref(null);
 
-// Variables para Three.js
 let scene, camera, renderer, particles, lines;
 let animationId = null;
 
-// Configuración de Three.js
 const initThreeJS = () => {
-  // Escena
   scene = new THREE.Scene();
   scene.background = null;
 
-  // Cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
 
-  // Renderer
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true
@@ -121,20 +118,16 @@ const initThreeJS = () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   threeContainer.value.appendChild(renderer.domElement);
 
-  // Crear partículas
   createParticles();
 
-  // Animación
   const animate = () => {
     animationId = requestAnimationFrame(animate);
     
-    // Rotar partículas
     if (particles) {
       particles.rotation.x += 0.0003;
       particles.rotation.y += 0.0005;
     }
     
-    // Actualizar conexiones
     updateConnections();
     
     renderer.render(scene, camera);
@@ -142,7 +135,6 @@ const initThreeJS = () => {
 
   animate();
 
-  // Manejar redimensionamiento
   window.addEventListener('resize', handleResize);
 };
 
@@ -151,13 +143,11 @@ const createParticles = () => {
   const positions = new Float32Array(particleCount * 3);
   const colors = new Float32Array(particleCount * 3);
 
-  // Crear geometría de partículas
   for (let i = 0; i < particleCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 100;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
 
-    // Colores en tonos rojos/anaranjados
     colors[i * 3] = 0.9 + Math.random() * 0.1;     // R
     colors[i * 3 + 1] = 0.2 + Math.random() * 0.2; // G
     colors[i * 3 + 2] = 0.1 + Math.random() * 0.1; // B
@@ -179,9 +169,8 @@ const createParticles = () => {
   particles = new THREE.Points(particlesGeometry, particlesMaterial);
   scene.add(particles);
 
-  // Crear geometría para líneas de conexión
   const lineGeometry = new THREE.BufferGeometry();
-  const linePositions = new Float32Array(particleCount * 3 * 2); // Cada partícula puede conectarse con otra
+  const linePositions = new Float32Array(particleCount * 3 * 2);
   lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
   
   const lineMaterial = new THREE.LineBasicMaterial({
@@ -213,7 +202,6 @@ const updateConnections = () => {
     let closestDistance = maxDistance;
     let closestIndex = -1;
     
-    // Encontrar la partícula más cercana
     for (let j = 0; j < particleCount; j++) {
       if (i === j) continue;
       
@@ -232,7 +220,6 @@ const updateConnections = () => {
       }
     }
     
-    // Dibujar línea si hay una partícula cercana
     if (closestIndex !== -1) {
       linePositions[index++] = x1;
       linePositions[index++] = y1;
@@ -242,7 +229,6 @@ const updateConnections = () => {
       linePositions[index++] = positions[closestIndex * 3 + 1];
       linePositions[index++] = positions[closestIndex * 3 + 2];
     } else {
-      // No dibujar línea (poner ambos puntos en la misma posición)
       linePositions[index++] = x1;
       linePositions[index++] = y1;
       linePositions[index++] = z1;
@@ -275,7 +261,6 @@ const cleanUpThreeJS = () => {
   }
 };
 
-// Lógica del componente
 const stats = computed(() => [
   { title: 'Usuaris totals', value: users.value.length, color: 'stat-total' },
   { title: 'Administradors', value: users.value.filter(u => u.admin).length, color: 'stat-admin' },
@@ -297,70 +282,96 @@ const filteredUsers = computed(() => {
   }));
 });
 
-// Hecho
 const fetchUsers = async () => {
   try {
     const response = await getUsersAdmin();
     
     if(!response) {
       console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
       return;
     } 
 
+    const data = await response.json();
+
     if(!response.ok) {
       console.error('Error en obtenir tots els usuaris')
+      notificationMessage.value = data.error || 'Error en obtenir tots els usuaris';
+      notificationColor.value = 'error';
+      showNotification.value = true;
       return;
     }
 
-    users.value = await response.json();
+    users.value = data;
   } catch (error) {
-    console.error("Error inesperat en obtenir tots els usuaris", error);
+    console.error(error);
+    notificationMessage.value = 'Error inesperat en obtenir tots els usuaris'
+    notificationColor.value = 'error';
   }
 };
 
-// Hecho
 const deleteUser = async (userId) => {
   try {
     const response = await deleteUserAdmin(userId);
     
     if(!response) {
       console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
       return;
     }
 
     if(!response.ok) {
-      console.error('Error en eliminar usuari');
+      console.error("Error en eliminar l'usuari");
+      notificationMessage.value = "Error en eliminar l'usuari";
+      notificationColor.value = 'error';
+      showNotification.value = true;
       return;
     }
 
-    fetchUsers();
+    await fetchUsers();
   } catch (error) {
-    console.error('Error inesperat en eliminar usuari:', error);
+    console.error(error);
+    notificationMessage.value = "Error inesperat en eliminar l'usuari";
+    notificationColor.value = 'error';
+    showNotification.value = true;
   }
 };
 
-// Hecho
 const changeAdmin = async (userId) => {
   try {
     const response = await changeUserAdmin(userId);
 
     if(!response) {
       console.error('Error de xarxa o problema al servidor');
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
       return;
     }
 
     if(!response.ok) {
       console.error("Error en canviar de rol l'usuari");
+      notificationMessage.value = "Error en canviar de rol l'usuari";
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
     }
 
-    fetchUsers();
+    await fetchUsers();
   } catch (error) {
-    console.error('Error inesperat en canviar rol:', error);
+    console.error(error);
+    notificationMessage.value = "Error inesperat en canviar de rol l'usuari";
+    notificationColor.value = 'error';
+    showNotification.value = true;
   }
 };
 
-onMounted(() => {
-  fetchUsers();
+onMounted(async () => {
+  await fetchUsers();
   listenNewUserAdmin(users);
   initThreeJS();
 });
@@ -526,7 +537,6 @@ onBeforeUnmount(() => {
   transform: scale(1.2);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .management-header {
     flex-direction: column;

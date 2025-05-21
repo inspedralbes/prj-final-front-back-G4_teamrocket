@@ -27,7 +27,7 @@ const routes = [
     path: '/perfil',
     name: 'perfil',
     component: PerfilView,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/mods',
@@ -43,7 +43,7 @@ const routes = [
     path: '/admin',
     name: 'administraction',
     component: AdministrationView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]
 
@@ -56,9 +56,10 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = !!localStorage.getItem('userEmail');
   const isAdmin = localStorage.getItem('userAdmin') === '1';
 
+  console.log("Hola", isAdmin);
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login');
-  } else if (to.meta.requiresAdmin && !isAdmin) {
+  } else if (to.meta.requiresAdmin && isAdmin == false) {
     next('/');
   } else {
     next();

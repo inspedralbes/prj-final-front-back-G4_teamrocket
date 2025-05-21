@@ -417,6 +417,8 @@ const uploadError = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+console.log(isAdmin.value);
+
 const navigateToMainPage = () => {
   window.location.href = '/';
 };
@@ -772,10 +774,10 @@ const logout = () => {
   window.location.href = '/';
 };
 
-onMounted(() => {
-  fetchMods();
-  fetchComments();
-  fetchLikes();
+onMounted(async () => {
+  await fetchMods();
+  await fetchComments();
+  await fetchLikes();
   listenToModDownloads(mods, stats);
   listenToComments(comments);
   listenToLikes(likes);

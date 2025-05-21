@@ -8,10 +8,9 @@
     </v-card-text>
   </v-card>
 
-  <!-- Notificació d'estat -->
-    <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
-      {{ notificationMessage }}
-    </v-snackbar>
+  <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
+    {{ notificationMessage }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -43,8 +42,8 @@ const fetchStats = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      console.error('Error en obtenir les dades per les estadistiques');
-      notificationMessage.value = 'Error en obtenir les dades per les estadistiques';
+      console.error('Error en obtenir les dades per les estadístiques');
+      notificationMessage.value = 'Error en obtenir les dades per les estadístiques';
       notificationColor.value = 'error';
       showNotification.value = true;
       return;
@@ -52,8 +51,8 @@ const fetchStats = async () => {
 
     statsMods.value = data;
   } catch (error) {
-    console.error('Error inesperat en obtenir les dades per les estadistiques', error);
-    notificationMessage.value = 'Error inesperat en obtenir les dades per les estadistiques';
+    console.error(error);
+    notificationMessage.value = 'Error inesperat en obtenir les dades per les estadístiques';
     notificationColor.value = 'error';
     showNotification.value = true;
   }
@@ -84,7 +83,7 @@ const fetchUsers = async () => {
     const usersData = data;
     userCount.value = usersData.length;
   } catch (error) {
-    console.error('Error inesperat en obtenir tots els usuris', error);
+    console.error(error);
     notificationMessage.value = 'Error inesperat en obtenir tots els usuris';
     notificationColor.value = 'error';
     showNotification.value = true;
@@ -116,7 +115,7 @@ const fetchMods = async () => {
     const allMods = data;
     modCount.value = allMods.length;
   } catch (error) {
-    console.error('Error inesperat en obtenir tots els mods', error);
+    console.error(error);
     notificationMessage.value = 'Error inesperat en obtenir tots els mods'
     notificationColor.value = 'error';
     showNotification.value = true;
@@ -128,21 +127,17 @@ onMounted(async () => {
   await fetchUsers();
   await fetchMods();
   
-  // Preparar datos para el gráfico
   prepareChartData();
 });
 
 const prepareChartData = () => {
   if (statsChart.value) {
-    // Destruir el gráfico anterior si existe
     if (chartInstance) {
       chartInstance.destroy();
     }
     
-    // Crear el nuevo gráfico
     const ctx = statsChart.value.getContext('2d');
     
-    // Procesar datos para el gráfico
     const labels = statsMods.value.map(stat => {
       const date = new Date(stat.date);
       return date.toLocaleDateString();

@@ -37,7 +37,6 @@ export const listenToModDownloads2 = (mod, initChart) => {
 export const listenToComments = (comments) => {
   socket.off('updateComments');
   socket.on('updateComments', (newComments) => {
-    console.log('Nuevos comentarios recibido:', newComments);
     comments.value = newComments.allComments;
   });
 }
@@ -69,7 +68,6 @@ export const listenChangeSecurityModAdmin = (mods) => {
 export const listenNewModsAdmin = (mods) => {
   socket.off('newMod');
   socket.on('newMod', (newListMods) => {
-    console.log('Datos recibidos por socket:', newListMods);
     mods.value.splice(0, mods.value.length, ...newListMods);
   });
 }

@@ -251,7 +251,7 @@ const register = async () => {
     }
 
     setTimeout(() => {
-      router.push('/');
+      router.push('/login');
     }, 1500);
   } catch {
     registerError.value = true;

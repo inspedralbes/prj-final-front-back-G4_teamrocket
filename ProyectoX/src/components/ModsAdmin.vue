@@ -378,7 +378,7 @@ const formatDate = (dateString) => {
 
 onMounted(async () => {
   try {
-    fetchModsAdmin();
+    await fetchModsAdmin();
     listenChangeSecurityModAdmin(mods);
     listenNewModsAdmin(mods);
     initThreeJS();

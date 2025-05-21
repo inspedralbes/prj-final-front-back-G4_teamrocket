@@ -704,7 +704,7 @@ const editComment = async (comment) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   fetchModDetails();
   nextTick(() => {
     if (downloadsChart.value) {
