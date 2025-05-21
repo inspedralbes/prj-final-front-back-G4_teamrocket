@@ -122,6 +122,18 @@
               Descarregar
               <v-tooltip activator="parent" location="top">Descarregar arxiu</v-tooltip>
             </v-btn>
+            <v-btn
+              color="#fc503b"
+              variant="tonal"
+              size="small"
+              @click="deleteMod(item.id)"
+              target="_blank"
+              class="action-btn delete-btn"
+            >
+              <v-icon left>mdi-delete</v-icon>
+              Eliminar
+              <v-tooltip activator="parent" location="top">Eliminar arxiu</v-tooltip>
+            </v-btn>
           </div>
         </template>
 
@@ -144,7 +156,6 @@
       </v-data-table>
     </v-card>
 
-    <!-- Notificació d'estat -->
     <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
       {{ notificationMessage }}
     </v-snackbar>
@@ -154,7 +165,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import * as THREE from 'three';
-import { changeSecurity, getModsAdmin } from '@/services/communicationManager';
+import { changeSecurity, getModsAdmin, deleteModSequelize } from '@/services/communicationManager';
 import { listenChangeSecurityModAdmin, listenNewModsAdmin } from '@/services/socketManager';
 
 const mods = ref([]);
@@ -328,7 +339,7 @@ const toggleSafety = async (mod) => {
     const response = await changeSecurity(mod.id);
 
     if (!response) {
-      notificationMessage.value = 'Error de xarxa o problema al servidor'
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
       notificationColor.value = 'error';
       showNotification.value = true;
       mod.updating = false;
@@ -337,7 +348,7 @@ const toggleSafety = async (mod) => {
     
     const data = await response.json();
     if(!response.ok) {
-      notificationMessage.value = data.error || 'Error en actualitzar la seguretat del mod'
+      notificationMessage.value = data.error || 'Error en actualitzar la seguretat del mod';
       notificationColor.value = 'error';
       showNotification.value = true;
       mod.updating = false;
@@ -359,6 +370,37 @@ const toggleSafety = async (mod) => {
     mod.updating = false;
   }
 };
+
+const deleteMod = async (modId) => {
+  try {
+    const response = await deleteModSequelize(modId);
+
+    if (!response) {
+      notificationMessage.value = 'Error de xarxa o problema al servidor';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    if (!response.ok) {
+      notificationMessage.value = 'Error en eliminar el mod';
+      notificationColor.value = 'error';
+      showNotification.value = true;
+      return;
+    }
+
+    notificationMessage.value = 'Mod eliminat correctament';
+    notificationColor.value = 'success';
+    showNotification.value = true;
+
+    await fetchModsAdmin();
+  } catch (error) {
+    console.error(error);
+    notificationMessage.value = 'Error inesperat en eliminar el mod';
+    notificationColor.value = 'error';
+    showNotification.value = true;
+  }
+}
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -544,11 +586,16 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
-.download-btn {
+.download-btn .delete-btn {
   transition: all 0.3s ease;
 }
 
 .download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(252, 80, 59, 0.2);
+}
+
+.delete-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(252, 80, 59, 0.2);
 }

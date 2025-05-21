@@ -2,12 +2,13 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import fs from 'fs'; 
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { models } from '../models/index.js';
 import Like from '../MongoDB/models/like.js';
 import Comment from '../MongoDB/models/comment.js';
 import { getIO } from '../app.js';
 
-const router = express.Router(); // Crea un enrutador de Express
+const router = express.Router();
 const { User, Mod, Tag } = models;
 
 const uploadsDir = path.join('uploads');
@@ -19,16 +20,6 @@ const image_ProileDir = path.join(uploadsDir, 'image-profile');
     console.log(`Carpeta "${dir}" creat.`);
   }
 });
-
-const handleFileUpload = (file, directory) => {
-  return new Promise((resolve, reject) => {
-    const uploadPath = path.join(directory, file.name);
-    file.mv(uploadPath, (err) => {
-      if (err) return reject(err);
-      resolve(`/${directory}/${file.name}`);
-    });
-  });
-};
 
 router.get('/', async (req, res) => {
     try {
@@ -126,6 +117,20 @@ router.post('/user-data', async (req, res) => {
     }
 });
 
+const handleFileUpload = (file, directory, baseName = '') => {
+  return new Promise((resolve, reject) => {
+    const sanitizedBase = baseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const extension = path.extname(file.name);
+    const uniqueName = `${sanitizedBase}_${uuidv4()}${extension}`;
+    const uploadPath = path.join(directory, uniqueName);
+
+    file.mv(uploadPath, (err) => {
+      if (err) return reject(err);
+      resolve(`/${directory}/${file.name}`);
+    });
+  });
+};
+
 router.put('/update-perfil/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -150,7 +155,7 @@ router.put('/update-perfil/:id', async (req, res) => {
         }
 
         if(req.files && req.files.newAvatar) {
-            const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProileDir);
+            const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProileDir, user.email);
             user.avatar_path = newAvatarPath;
         }
 

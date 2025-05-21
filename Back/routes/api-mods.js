@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { models } from '../models/index.js';
 import DailyNewMods from '../MongoDB/models/dailyNewMods.js';
 import DailyDownloadsMods from '../MongoDB/models/dailyDownloadsMods.js';
@@ -112,12 +113,16 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-const handleFileUpload = (file, directory) => {
+const handleFileUpload = (file, directory, baseName = '') => {
   return new Promise((resolve, reject) => {
-    const uploadPath = path.join(directory, file.name);
+    const sanitizedBase = baseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const extension = path.extname(file.name);
+    const uniqueName = `${sanitizedBase}_${uuidv4()}${extension}`;
+    const uploadPath = path.join(directory, uniqueName);
+
     file.mv(uploadPath, (err) => {
       if (err) return reject(err);
-      resolve(`/${directory}/${file.name}`);
+      resolve(`/${directory}/${uniqueName}`);
     });
   });
 };
@@ -136,8 +141,8 @@ router.post('/new-mod', async (req, res) => {
       return res.status(404).json({ error: "Usuari no trobat" });
     }
 
-    const modPath = await handleFileUpload(req.files.modFile, modsDir);
-    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir);
+    const modPath = await handleFileUpload(req.files.modFile, modsDir, email);
+    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir, email);
     
     const newMod = await Mod.create({
       title,

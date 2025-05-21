@@ -732,7 +732,7 @@ const updateVisible = async (modId) => {
     };
 
     fetchUser();
-  } catch (error) {
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error inesperat en actualitzar la visibilitat del mod',
@@ -784,7 +784,7 @@ const updateMod = async () => {
     
     editModDialog.value = false;
     await fetchUser();
-  } catch (err) {
+  } catch {
     console.error(err);
     snackbar.value = {
       show: true,
@@ -840,7 +840,7 @@ const uploadMod = async () => {
     }
     closeDialog();
     fetchUser();
-  } catch (error) {
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error inesperat en subir el mod',
@@ -882,7 +882,7 @@ const deleteMod = async (modId) => {
     }
 
     fetchUser();
-  } catch (err) {
+  } catch {
     snackbar.value = {
       show: true,
       text: 'Error inesperat en eliminar el mod',
