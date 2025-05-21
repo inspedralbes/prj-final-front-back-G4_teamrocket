@@ -1,6 +1,6 @@
 import { Return } from "three/tsl";
 
-const urlBackend = "http://localhost:3002";
+const urlBackend = "http://darknessunseen.dam.inspedralbes.cat:3002";
 
 export const postRegister = async (username, email, password) => {
     const userData = { username: username.value, email: email.value, password: password.value }

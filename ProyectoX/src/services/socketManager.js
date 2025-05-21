@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3002");
+const socket = io("http://darknessunseen.dam.inspedralbes.cat:3002");
 
 export const listenToModDownloads = (mods, stats) => {
   socket.on("modDownloaded", (downloaded) => {

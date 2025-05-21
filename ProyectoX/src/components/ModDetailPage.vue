@@ -595,7 +595,7 @@ const download = async (mod) => {
     }
 
     const link = document.createElement('a');
-    link.href = `http://localhost:3002${mod.file_path}`;
+    link.href = `https://darknessunseen.dam.inspedralbes.cat:3002${mod.file_path}`;
     link.setAttribute('download', `${mod.title || 'mod'}.zip`);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);

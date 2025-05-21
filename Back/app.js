@@ -45,7 +45,7 @@ app.use("/api/stats", api_stats);
 let io;
 io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:7001",
+    origin: "https://darknessunseen.dam.inspedralbes.cat",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
