@@ -56,7 +56,6 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = !!localStorage.getItem('userEmail');
   const isAdmin = localStorage.getItem('userAdmin') === '1';
 
-  console.log("Hola", isAdmin);
   if (to.meta.requiresAuth && !isLoggedIn) {
     next('/login');
   } else if (to.meta.requiresAdmin && isAdmin == false) {

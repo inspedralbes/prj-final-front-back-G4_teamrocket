@@ -618,8 +618,6 @@ const fetchUser = async () => {
 
     const data = await response.json();
     user.value = data;
-
-    console.log(user.value);
   } catch {
     console.error("Error inesperat en obtenir les dades de l'usuari");
   }

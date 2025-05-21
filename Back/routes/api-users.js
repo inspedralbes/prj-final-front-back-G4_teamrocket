@@ -12,9 +12,9 @@ const router = express.Router();
 const { User, Mod, Tag } = models;
 
 const uploadsDir = path.join('uploads');
-const image_ProileDir = path.join(uploadsDir, 'image-profile');
+const image_ProfileDir = path.join(uploadsDir, 'image-profile');
 
-[uploadsDir, image_ProileDir].forEach(dir => {
+[uploadsDir, image_ProfileDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
     console.log(`Carpeta "${dir}" creat.`);
@@ -117,11 +117,12 @@ router.post('/user-data', async (req, res) => {
     }
 });
 
-const handleFileUpload = (file, directory, baseName = '') => {
+const handleFileUpload = (file, directory) => {
   return new Promise((resolve, reject) => {
-    const sanitizedBase = baseName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const extension = path.extname(file.name);
-    const uniqueName = `${sanitizedBase}_${uuidv4()}${extension}`;
+    const baseName = path.parse(file.name).name;
+    const idfile = uuidv4().slice(0,5);
+    const uniqueName = `${baseName}_${idfile}${extension}`;
     const uploadPath = path.join(directory, uniqueName);
 
     file.mv(uploadPath, (err) => {
@@ -143,24 +144,20 @@ router.put('/update-perfil/:id', async (req, res) => {
             if (username === user.username) {
               return res.status(404).json("El nom d'usuari ja està en ús");
             }
-          
             user.username = username;
         }
 
         if(newPassword) {
-            console.log(newPassword);
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-
             user.password_hash = hashedPassword;
         }
 
         if(req.files && req.files.newAvatar) {
-            const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProileDir, user.email);
+            const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProfileDir);
             user.avatar_path = newAvatarPath;
         }
 
         await user.save();
-
         res.json({ message: 'Dades actualitzades' });
     } catch (error) {
         console.error(error);
@@ -176,7 +173,8 @@ router.delete('/delete-user/:id', async (req, res) => {
     await Like.deleteMany({ email: user.email });
     await Comment.deleteMany({ email: user.email });
 
-    res.status(200).json({ message: 'Usuari eliminat' });
+    await user.destroy();
+    res.status(200).end();
   } catch (error) {
     res.status(500).json({ error: "Error en eliminar l'usuari" });
   }

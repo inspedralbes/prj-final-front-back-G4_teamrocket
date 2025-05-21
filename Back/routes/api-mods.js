@@ -108,15 +108,16 @@ router.get('/:id', async (req, res) => {
 
     res.status(200).json({ modUser, statsDailyDownloadsMods });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: 'Error en obtenir el mod' });
   }
 });
 
-const handleFileUpload = (file, directory) => {
+const handleFileUpload = (file, directory, baseName = 'mod') => {
   return new Promise((resolve, reject) => {
     const extension = path.extname(file.name);
-    const uniqueName = `${file.name}_${uuidv4()}${extension}`;
+    const idfile = uuidv4().slice(0,5);
+    const uniqueName = `${baseName}_${idfile}${extension}`;
     const uploadPath = path.join(directory, uniqueName);
 
     file.mv(uploadPath, (err) => {
@@ -140,8 +141,8 @@ router.post('/new-mod', async (req, res) => {
       return res.status(404).json({ error: "Usuari no trobat" });
     }
 
-    const modPath = await handleFileUpload(req.files.modFile, modsDir);
-    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir);
+    const modPath = await handleFileUpload(req.files.modFile, modsDir, title);
+    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir, title);
     
     const newMod = await Mod.create({
       title,
@@ -203,12 +204,12 @@ router.put('/update-mod', async (req, res) => {
     mod.description = description;
 
     if (req.files && req.files.modFile) {
-      const modPath = await handleFileUpload(req.files.modFile, modsDir);
+      const modPath = await handleFileUpload(req.files.modFile, modsDir, title);
       mod.file_path = modPath;
     }
 
     if (req.files && req.files.image) {
-      const imagePath = await handleFileUpload(req.files.image, imagesModDir);
+      const imagePath = await handleFileUpload(req.files.image, imagesModDir, title);
       mod.image = imagePath;
     }
 
@@ -304,6 +305,9 @@ router.patch('/download/:id', async (req, res) => {
       return res.status(404).json({ error: 'Mod no trobat' });
     }
 
+    const io = getIO();
+    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
+
     mod.downloads += 1;
     await mod.save();
 
@@ -316,7 +320,6 @@ router.patch('/download/:id', async (req, res) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    const io = getIO();
     io.emit('modDailyDownloadsUpdated', {
       modId: modId,
       date: dailyData.date,

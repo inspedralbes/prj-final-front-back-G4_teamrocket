@@ -417,8 +417,6 @@ const uploadError = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
-console.log(isAdmin.value);
-
 const navigateToMainPage = () => {
   window.location.href = '/';
 };
@@ -554,7 +552,6 @@ const allTags = computed(() => {
   const set = new Set();
 
   mods.value.forEach(mod => {
-    console.log('Mod:', mod.title, 'Tags:', mod.tags);
     mod.tags.forEach(tag => {
       set.add(tag.name);
     });

@@ -81,10 +81,11 @@
         </template>
       </v-data-table>
     </v-card>
+    
+    <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
+      {{ notificationMessage }}
+    </v-snackbar>
   </div>
-  <v-snackbar v-model="showNotification" :color="notificationColor" timeout="3000">
-    {{ notificationMessage }}
-  </v-snackbar>
 </template>
 
 <script setup>
@@ -324,14 +325,18 @@ const deleteUser = async (userId) => {
       return;
     }
 
+    const data = await response.json();
+
     if(!response.ok) {
       console.error("Error en eliminar l'usuari");
-      notificationMessage.value = "Error en eliminar l'usuari";
+      notificationMessage.value = data.error || "Error en eliminar l'usuari";
       notificationColor.value = 'error';
       showNotification.value = true;
       return;
     }
-
+    notificationMessage.value = "L'usuari s'ha eliminat correctament";
+    notificationColor.value = 'success';
+    showNotification.value = true;
     await fetchUsers();
   } catch (error) {
     console.error(error);
@@ -355,12 +360,15 @@ const changeAdmin = async (userId) => {
 
     if(!response.ok) {
       console.error("Error en canviar de rol l'usuari");
-      notificationMessage.value = "Error en canviar de rol l'usuari";
+      notificationMessage.value = data.error || "Error en canviar de rol l'usuari";
       notificationColor.value = 'error';
       showNotification.value = true;
       return;
     }
 
+    notificationMessage.value = "El rol de l'usuari s'ha actualitzat correctament";
+    notificationColor.value = 'success';
+    showNotification.value = true;
     await fetchUsers();
   } catch (error) {
     console.error(error);
