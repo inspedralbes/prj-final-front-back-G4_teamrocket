@@ -852,8 +852,7 @@ onMounted(async () => {
 }
 
 .nexus-hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-              url('@/assets/darkness-bg.jpg') no-repeat center center;
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
   background-size: cover;
   padding: 80px 0;
   border-bottom: 1px solid #fc503b;

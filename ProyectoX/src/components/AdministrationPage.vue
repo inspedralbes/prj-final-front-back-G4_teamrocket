@@ -58,6 +58,29 @@
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item>
               </v-list>
+
+              <v-divider class="my-2"></v-divider>
+              <v-card-actions class="d-flex flex-column">
+                <v-btn
+                  color="#fc503b"
+                  label="Adminer"
+                  href="http://localhost:8080"
+                  target="_blank"
+                  block
+                  class="mb-2"
+                >
+                  Adminer
+                </v-btn>
+                <v-btn
+                  color="#fc503b"
+                  label="Microserveis"
+                  href="http://localhost:9000"
+                  target="_blank"
+                  block
+                >
+                  Microserveis
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </v-col>
 
