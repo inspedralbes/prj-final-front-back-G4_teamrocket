@@ -1,5 +1,3 @@
-import { Return } from "three/tsl";
-
 const urlBackend = "http://localhost:3002";
 
 export const postRegister = async (username, email, password) => {

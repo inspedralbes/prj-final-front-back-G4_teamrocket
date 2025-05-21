@@ -28,8 +28,6 @@ export const listenToModDownloads2 = (mod, initChart) => {
       }
     }
 
-    console.log(mod.value.statsDailyDownloadsMods);
-
     initChart();
   });
 }

@@ -61,7 +61,7 @@
                 variant="outlined"
                 color="#fc503b"
                 class="nexus-input mb-2"
-                hint="Mínimo 6 caracteres, incluye números y letras"
+                hint="Mínim 8 caràcters"
                 persistent-hint
                 density="comfortable"
               ></v-text-field>
@@ -165,9 +165,7 @@ const emailRules = [
 ];
 const passwordRules = [
   v => !!v || 'Contrasenya és requerida',
-  v => (v && v.length >= 6) || 'Mínim 6 caràcters',
-  v => /[0-9]/.test(v) || "Ha d'incloure almenys un número",
-  v => /[a-zA-Z]/.test(v) || "Ha d'incloure com a mínim una lletra"
+  v => (v && v.length >= 8) || 'Mínim 8 caràcters'
 ];
 const confirmPasswordRules = [
   v => !!v || 'Confirma la teva contrasenya',
@@ -182,11 +180,61 @@ const snackbar = ref({
 const register = async () => {
   loading.value = true;
   
-  if(!username.value || !email.value || !password.value || password.value !== confirmPassword.value) {
+  if(!username.value || !email.value || !password.value || !confirmPassword.value) {
     registerError.value = true;
     snackbar.value = {
       show: true,
       text: 'Falta omplir els camps',
+      color: 'error'
+    }
+
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
+
+    loading.value = false;
+    return;
+  }
+
+  if(password.value !== confirmPassword.value) {
+    registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Es requereix 8 caràcters',
+      color: 'error'
+    }
+
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
+
+    loading.value = false;
+    return;
+  }
+
+  if(password.value.length < 8) {
+    registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Es requereix 8 caràcters',
+      color: 'error'
+    }
+
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
+
+    loading.value = false;
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!emailRegex.test(email.value)) {
+    registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: "No és vàlid l'email",
       color: 'error'
     }
 
@@ -228,6 +276,8 @@ const register = async () => {
       }, 2000);
       return;
     }
+
+    const data = await response.json();
 
     if (!response.ok) {
       registerError.value = true;
