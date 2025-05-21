@@ -1,6 +1,5 @@
 <template>
   <div class="nexus-style">
-    <!-- Header -->
     <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
       <div class="logo-container">
         <v-img
@@ -72,23 +71,7 @@
       </div>
     </v-app-bar>
     
-    <!-- Hero Section with Video Background -->
-    <section class="nexus-hero" @click="openVideoModal">
-      <div class="video-background">
-        <video 
-          ref="backgroundVideo"
-          autoplay
-          muted
-          loop
-          playsinline
-          class="video-element"
-        >
-          <source src="" type="video/mp4">
-          Tu navegador no soporta videos HTML5.
-        </video>
-        <div class="video-overlay"></div>
-      </div>
-      
+    <section class="nexus-hero">
       <div class="hero-content">
         <v-container>
           <v-row>
@@ -98,7 +81,7 @@
                 Transforma la teva experiència d'horror amb mods que milloren els gràfics, afegeixen nous elements de joc i contingut escalofriant.
               </p>
               <div class="nexus-hero-buttons">
-                <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar tots els mods</v-btn>
+                <!-- <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar tots els mods</v-btn> -->
                 <v-btn 
                   color="#fc503b" 
                   variant="outlined" 
@@ -114,7 +97,6 @@
       </div>
     </section>
 
-    <!-- Sección independiente para BepInEx links -->
     <section class="bepinex-section">
       <v-container>
         <v-row>
@@ -144,7 +126,6 @@
       </v-container>
     </section>
 
-    <!-- Stats Section -->
     <section class="nexus-stats" v-if="stats.totalMods > 0">
       <v-container>
         <v-row class="justify-center">
@@ -170,9 +151,7 @@
       </v-container>
     </section>
 
-    <!-- Main Content -->
     <v-container class="nexus-main-container">
-      <!-- Search and Sort -->
       <div class="nexus-search-sort">
         <v-text-field
           v-model="search"
@@ -199,8 +178,8 @@
 
         <v-select
           v-model="sortBy"
-          :items="['Relevancia', 'Más descargados', 'Más recientes', 'Más valorados']"
-          label="Ordenar por"
+          :items="['Més descarregats', 'Més recents', 'Més valorats']"
+          label="Ordenar per"
           density="compact"
           variant="outlined"
           class="nexus-sort-select"bepinex
@@ -208,20 +187,17 @@
         ></v-select>
       </div>
 
-      <!-- Loading State -->
       <div v-if="loading" class="nexus-loading">
         <v-progress-circular indeterminate color="#fc503b"></v-progress-circular>
-        <p>Cargando mods...</p>
+        <p>Cargan mods...</p>
       </div>
-
-      <!-- Mods List -->
       <div v-else>
         <div v-if="filteredMods.length === 0" class="nexus-no-mods">
           <v-icon color="#fc503b" size="48">mdi-alert-circle-outline</v-icon>
-          <h3>No se encontraron mods</h3>
-          <p>Intenta con otros términos de búsqueda o sube el primer mod</p>
+          <h3>No s'han trobat mods</h3>
+          <p>Intenta amb altres termes de cerca o puja el primer mod</p>
           <v-btn color="#fc503b" @click="openUploadDialog" v-if="userEmail">
-            Subir mi primer mod
+            Pujar el meu primer mod
           </v-btn>
         </div>
 
@@ -229,20 +205,20 @@
           <div v-for="mod in filteredMods" :key="mod.id" class="mod-cube">
             <div class="mod-cube-image-wrapper">
               <img v-if="mod.image" :src="`http://localhost:3002${mod.image}`" alt="Imagen del mod" class="mod-cube-image" />
-              <div v-else class="mod-cube-image-placeholder">Sin imagen</div>
+              <div v-else class="mod-cube-image-placeholder">Sense imatge</div>
             </div>
             <div class="nexus-mod-content">
               <h3 class="nexus-mod-title">{{ mod.title }}</h3>
               <p class="nexus-mod-description">{{ truncateDescription(mod.description) }}</p>
               <div class="nexus-mod-meta">
-                <span class="nexus-mod-author">por {{ mod.User.username || 'Anónimo' }}</span>
+                <span class="nexus-mod-author">Per {{ mod.User.username || 'Anónimo' }}</span>
                 <span class="nexus-mod-stats">
                   <v-icon small color="warning">mdi-star</v-icon>
                   {{ calculateAverageRating(mod.id) }}/5
                 </span>
                 <span class="nexus-mod-stats">
                   <v-icon small>mdi-comment</v-icon>
-                  {{ getCommentsCountForMod(mod.id) }} comentarios
+                  {{ getCommentsCountForMod(mod.id) }} comentaris
                 </span>
                 <span class="nexus-mod-stats" @click="toggleLike(mod.id)" style="cursor: pointer;">
                   <v-icon 
@@ -251,7 +227,7 @@
                   >
                     mdi-thumb-up
                   </v-icon>
-                  {{ getLikesCountForMod(mod.id) }} reseñas
+                  {{ getLikesCountForMod(mod.id) }} ressenyes
                 </span>
                 <span class="nexus-mod-downloads">
                   <v-icon small>mdi-download</v-icon>
@@ -271,7 +247,7 @@
                 @click="navigateToMod(mod.id)"
                 class="nexus-mod-btn"
               >
-                Detalles
+                Detalls
               </v-btn>
               <v-btn
                 color="#fc503b"
@@ -281,20 +257,17 @@
                 class="nexus-mod-btn"
                 :disabled="!mod.file_path"
               >
-                Descargar
+                Descarregar
               </v-btn>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- View All Button -->
       <div class="nexus-view-all" v-if="filteredMods.length > 0 && !loading">
-        <v-btn variant="text" color="#fc503b">Ver todos</v-btn>
+        <v-btn variant="text" color="#fc503b">Veure tots</v-btn>
       </div>
     </v-container>
 
-    <!-- Upload Dialog -->
     <v-dialog v-model="dialog" max-width="600" persistent>
       <v-card class="nexus-dialog">
         <v-card-title class="nexus-dialog-title">
@@ -305,8 +278,8 @@
           <v-form ref="uploadForm" @submit.prevent="uploadMod" v-model="formValid">
             <v-text-field
               v-model="title"
-              label="Título del Mod*"
-              :rules="[v => !!v || 'El título es requerido']"
+              label="Títol del Mod*"
+              :rules="[v => !!v || 'El títol és requerit']"
               required
               variant="outlined"
               density="compact"
@@ -315,8 +288,8 @@
             
             <v-textarea
               v-model="description"
-              label="Descripción*"
-              :rules="[v => !!v || 'La descripción es requerida']"
+              label="Descripció*"
+              :rules="[v => !!v || 'La descripció és requerida']"
               required
               variant="outlined"
               density="compact"
@@ -327,7 +300,7 @@
             <v-combobox
               v-model="tags"
               label="Etiquetes*"
-              :rules="[v => !!v || 'Introdueix una etiqueta']"
+              :rules="[v => Array.isArray(v) && v.filter(tag => tag.trim() !== '').length > 0 || 'Introdueix una etiqueta vàlida']"
               multiple
               chips
               clearable
@@ -342,9 +315,8 @@
             
             <v-file-input
               v-model="modFile"
-              label="Archivo del Mod (ZIP, RAR, 7Z)*"
+              label="Arxiu del Mod (ZIP, RAR, 7Z)*"
               required
-              :rules="[v => !!v || "Es necesari l'arxiu"]"
               variant="outlined"
               density="compact"
               accept=".zip,.rar,.7z"
@@ -355,8 +327,7 @@
 
             <v-file-input
               v-model="imageFile"
-              label="Imagen del Mod*"
-              :rules="[v => !!v || 'Introdueix una image']"
+              label="Imatge del Mod*"
               required
               variant="outlined"
               density="compact"
@@ -368,7 +339,7 @@
 
             <div class="nexus-upload-hint">
               <v-icon small color="#fc503b">mdi-information-outline</v-icon>
-              <span>Asegúrate de incluir instrucciones de instalación en tu archivo</span>
+              <span>Assegureu-vos dincloure instruccions de com utilitzar el mod</span>
             </div>
           </v-form>
         </v-card-text>
@@ -380,7 +351,7 @@
             :disabled="uploading"
             class="nexus-btn"
           >
-            Cancelar
+            Cancel·la
           </v-btn>
           <v-btn
             color="#fc503b"
@@ -390,57 +361,23 @@
             class="nexus-btn"
           >
             <v-icon icon="mdi-upload" start></v-icon>
-            Subir
+            Pujar
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Video Modal -->
-    <v-dialog v-model="videoModal" max-width="800" persistent>
-      <v-card class="nexus-video-modal">
-        <v-card-title class="nexus-video-modal-title">
-          <v-icon icon="mdi-video" class="mr-2"></v-icon>
-          Video de Presentación
-        </v-card-title>
-        <v-card-text>
-          <video 
-            ref="modalVideo"
-            autoplay
-            loop
-            playsinline
-            class="video-element"
-          >
-            <source src="" type="video/mp4">
-            Tu navegador no soporta videos HTML5.
-          </video>
-        </v-card-text>
-        <v-card-actions class="nexus-video-modal-actions">
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="text"
-            @click="closeVideoModal"
-            class="nexus-btn"
-          >
-            Cerrar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Upload Success Snackbar -->
     <v-snackbar v-model="uploadSuccess" color="success" timeout="3000">
       {{ successMessage }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="uploadSuccess = false">Cerrar</v-btn>
+        <v-btn variant="text" @click="uploadSuccess = false">Tancar</v-btn>
       </template>
     </v-snackbar>
 
-    <!-- Upload Error Snackbar -->
     <v-snackbar v-model="uploadError" color="error" timeout="3000">
       {{ errorMessage }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="uploadError = false">Cerrar</v-btn>
+        <v-btn variant="text" @click="uploadError = false">Tancar</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -451,16 +388,11 @@ import { ref, computed, onMounted } from 'vue';
 import { getAllMods, postMod, patchDownloadMod, getAllComments, getAllLikes, postLike, deleteLike } from '@/services/communicationManager';
 import { listenToModDownloads, listenToComments, listenToLikes } from '@/services/socketManager';
 
-const navigateToMainPage = () => {
-  window.location.href = '/';
-};
-// Datos reales
 const stats = ref({
   totalDownloads: 0,
   totalMods: 0,
   totalMembers: 0
 });
-
 const mods = ref([]);
 const comments = ref([]);
 const likes = ref([]);
@@ -468,13 +400,10 @@ const loading = ref(true);
 const userEmail = ref(localStorage.getItem('userEmail'));
 const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
-// Filtros y búsqueda
 const search = ref('');
-const sortBy = ref('Relevancia');
-const selectedTags = ref([]);
-// const availableTags = ref(null);    
+const sortBy = ref('');
+const selectedTags = ref([]);    
 
-// Upload dialog
 const dialog = ref(false);
 const title = ref('');
 const description = ref('');
@@ -488,7 +417,10 @@ const uploadError = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
-// Formateadores
+const navigateToMainPage = () => {
+  window.location.href = '/';
+};
+
 const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
@@ -518,9 +450,12 @@ const formatDownloads = (num) => {
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'Fecha desconocida';
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('es-ES', options);
+  if (!dateString) return 'Data desconeguda';
+  const date = new Date(dateString);
+  const day = String(date.getDate());
+  const month = String(date.getMonth() + 1);
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const truncateDescription = (desc) => {
@@ -532,7 +467,6 @@ const isToggled = (modId) => {
   return likes.value.some(like => like.modId === modId && like.email === userEmail.value);
 };
 
-// Hecho
 const fetchMods = async () => {
     loading.value = true;
 
@@ -540,7 +474,9 @@ const fetchMods = async () => {
     const response = await getAllMods();
 
     if (!response) {
-      console.error("Error de xarxa o problema al servidor");
+      errorMessage.value = 'Error de xarxa o problema al servidor';
+      uploadError.value = true;
+      loading.value = false;
       return;
     }
 
@@ -548,26 +484,26 @@ const fetchMods = async () => {
 
     if(!response.ok) {
       errorMessage.value = data.error || 'Error en obtenir tots els mods';
+      uploadError.value = true;
       loading.value = false;
       return;
     }
 
     mods.value = data;
     
-    // Calcular estadísticas
     stats.value = {
       totalDownloads: mods.value.reduce((sum, mod) => sum + (mod.downloads || 0), 0),
       totalMods: mods.value.length,
       totalMembers: new Set(mods.value.map(mod => mod.uploaded_by)).size
     };
   } catch {
-    errorMessage.value = 'Error en obtenir tots els mods';
+    errorMessage.value = 'Error inesperat en obtenir tots els mods';
+    uploadError.value = true;
   } finally {
     loading.value = false;
   }
 };
 
-// Hecho
 const fetchComments = async () => {
   try {
     const response = await getAllComments();
@@ -580,17 +516,16 @@ const fetchComments = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      console.error(data.error ||'Error en obtenir tots els comentaris');
+      console.error('Error en obtenir tots els comentaris');
       return;
     }
 
     comments.value = data;
-  } catch (err) {
-    console.log('Error inesperat en obtenir tots els comentaris');
+  } catch {
+    console.error('Error inesperat en obtenir tots els comentaris');
   }
 }
 
-// Hecho
 const fetchLikes = async () => {
   try {
     const response = await getAllLikes();
@@ -608,8 +543,8 @@ const fetchLikes = async () => {
     }
 
     likes.value = data;
-  } catch (err) {
-    console.log('Error inesperat en obtenir tots els likes');
+  } catch {
+    console.error('Error inesperat en obtenir tots els likes');
   }
 }
 
@@ -629,8 +564,17 @@ const allTags = computed(() => {
 
 const filteredMods = computed(() => {
   let result = [...mods.value];
+
+  const ratingsMap = comments.value.reduce((acc, comment) => {
+    const { modId, rating } = comment;
+    if (!acc[modId]) {
+      acc[modId] = { total: 0, count: 0 };
+    }
+    acc[modId].total += rating;
+    acc[modId].count += 1;
+    return acc;
+  }, {});
   
-  // Filtrar por búsqueda
   if (search.value) {
     const searchTerm = search.value.toLowerCase();
     result = result.filter(mod => 
@@ -640,7 +584,6 @@ const filteredMods = computed(() => {
     );
   }
 
-  // Filtrar por tags (si hay tags seleccionados)
   if (selectedTags.value && selectedTags.value.length > 0) {
 
     result = result.filter(mod => {
@@ -652,23 +595,28 @@ const filteredMods = computed(() => {
     });
   }
   
-  // Ordenar
   switch (sortBy.value) {
-    case 'Más descargados':
+    case 'Més descarregats':
       return result.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
-    case 'Más recientes':
+    case 'Més recents':
       return result.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    case 'Más valorados':
-      return result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    case 'Més valorats':
+      return result.sort((a, b) => {
+        const aRating = ratingsMap[a.id]
+          ? ratingsMap[a.id].total / ratingsMap[a.id].count
+          : 0;
+        const bRating = ratingsMap[b.id]
+          ? ratingsMap[b.id].total / ratingsMap[b.id].count
+          : 0;
+        return bRating - aRating;
+      });
     default:
       return result;
   }
 });
 
-// Funciones de diálogo
 const openUploadDialog = () => {
   if (!userEmail.value) {
-    // Redirigir a login si no está autenticado
     window.location.href = '/login';
     return;
   }
@@ -699,7 +647,6 @@ const responseFromServer = async (response) => {
   }
 }
 
-// Hecho
 const toggleLike = async (modId) => {
   if (!userEmail.value) {
     errorMessage.value = 'Necessites iniciar sessió per donar like';
@@ -723,13 +670,12 @@ const toggleLike = async (modId) => {
     }
   } catch (error) {
     errorMessage.value = existingLike
-      ? 'Error en eliminar el like'
-      : 'Error en registrar el like';
+      ? 'Error inesperat en eliminar el like'
+      : 'Error inesperat en registrar el like';
     uploadError.value = true;
   }
 };
 
-// Hecho
 const uploadMod = async () => {
   if (!formValid.value) return;
   uploading.value = true;
@@ -766,16 +712,14 @@ const uploadMod = async () => {
     closeDialog();
     
     await fetchMods();
-  } catch (error) {
-    console.error('Error en uploadMod:', error);
-    errorMessage.value = 'Error en pujar el mod';
+  } catch {
+    errorMessage.value = 'Error inesperat en pujar el mod';
     uploadError.value = true;
   } finally {
     uploading.value = false;
   }
 };
 
-// Hecho
 const downloadMod = async (mod) => {
   if (!mod || !mod.file_path) {
     errorMessage.value = 'El mod no té un fitxer associat';
@@ -792,21 +736,17 @@ const downloadMod = async (mod) => {
       return;
     }
 
-    
     const data = await response.json();
     
-    /*
     if(!response.ok) {
       errorMessage.value = data.error || 'Error en descarregar el mod'
       uploading.value = false;
       return;
     }
-    */
 
     successMessage.value = data.message || 'Descàrrega exitosa';
     uploadSuccess.value = true;
     
-    // Descargar el archivo
     const link = document.createElement('a');
     link.href = `http://localhost:3002${mod.file_path}`;
     link.setAttribute('download', `${mod.title || 'mod'}.zip`);
@@ -814,9 +754,8 @@ const downloadMod = async (mod) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error downloading mod:', error);
-    errorMessage.value = 'Error en descarregar el mod';
+  } catch {
+    errorMessage.value = 'Error inesperat en descarregar el mod';
     uploadError.value = true;
   }
 };
@@ -833,34 +772,23 @@ const logout = () => {
   window.location.href = '/';
 };
 
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-// Inicialización
 onMounted(() => {
   fetchMods();
-  // fetchTags();
   fetchComments();
   fetchLikes();
   listenToModDownloads(mods, stats);
   listenToComments(comments);
   listenToLikes(likes);
-  
-  // Obtener estadísticas de miembros y recompensas del backend si es necesario
-  // fetchStats().then(data => { stats.value.totalMembers = data.members; ... });
 });
 </script>
 
 <style scoped>
-/* Estilos generales */
 .nexus-style {
   background: #0d0d0d;
   color: #ffffff;
   min-height: 100vh;
 }
 
-/* Header */
 .nexus-header {
   background-color: rgba(13, 13, 13, 0.9) !important;
   backdrop-filter: blur(5px);
@@ -921,7 +849,6 @@ onMounted(() => {
   letter-spacing: normal;
 }
 
-/* Hero Section */
 .nexus-hero {
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
               url('@/assets/darkness-bg.jpg') no-repeat center center;
@@ -957,7 +884,6 @@ onMounted(() => {
   padding: 10px 20px;
 }
 
-/* Stats Section */
 .nexus-stats {
   background: rgba(18, 18, 18, 0.9);
   padding: 40px 0;
@@ -989,14 +915,12 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Main Container */
 .nexus-main-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 15px;
 }
 
-/* Loading State */
 .nexus-loading {
   display: flex;
   flex-direction: column;
@@ -1011,7 +935,6 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* No Mods State */
 .nexus-no-mods {
   display: flex;
   flex-direction: column;
@@ -1034,7 +957,6 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-/* Filter Tabs */
 .nexus-filter-tabs {
   margin-bottom: 20px;
   border-bottom: 1px solid #252525;
@@ -1054,7 +976,6 @@ onMounted(() => {
   color: #ffffff;
 }
 
-/* Search and Sort */
 .nexus-search-sort {
   display: flex;
   gap: 20px;
@@ -1069,7 +990,6 @@ onMounted(() => {
   width: 200px;
 }
 
-/* Mods List */
 .nexus-mods-list {
   display: flex;
   flex-direction: column;
@@ -1096,7 +1016,7 @@ onMounted(() => {
 
 .nexus-mod-content {
   flex: 1;
-  min-width: 0; /* Para evitar problemas con el texto largo */
+  min-width: 0;
 }
 
 .nexus-mod-title {
@@ -1150,7 +1070,6 @@ onMounted(() => {
   margin-top: 30px;
 }
 
-/* Diálogo */
 .nexus-dialog {
   background: rgba(13, 13, 13, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1185,7 +1104,6 @@ onMounted(() => {
   margin-top: 10px;
 }
 
-/* Responsive */
 .bepinex-links {
   display: flex;
   flex-direction: row;
@@ -1230,7 +1148,6 @@ onMounted(() => {
   color: #fc503b !important;
 }
 
-/* Cubos de mods */
 .mods-cubes-row {
   display: flex;
   flex-direction: row;

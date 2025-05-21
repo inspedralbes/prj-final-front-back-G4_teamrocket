@@ -36,17 +36,15 @@ router.get('/', async (req, res) => {
         
         res.status(200).json(users);
     } catch (error) {
-        console.error()
-        res.status(500).end('Erro');
+        console.error(error)
+        res.status(500).end();
     }
 });
 
-// Hecho
 router.post('/login-web', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Busca usuario por email
         const user = await User.findOne({ where: { email } });
 
         if(!user) return res.status(401).json({ error: "No existeix cap usuari amb aquest email." });
@@ -57,12 +55,11 @@ router.post('/login-web', async (req, res) => {
   
         res.status(200).json({email: user.email, admin: user.admin });
     } catch (error) {
-        console.error("Error en Inicia sessió:", error);
-        res.status(500).json({ error: "Error intern del servidor" });
+        console.error(error);
+        res.status(500).json({ error: "Error en Inicia sessió" });
     }
 });
 
-// Hecho
 router.post('/register-web', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -88,12 +85,11 @@ router.post('/register-web', async (req, res) => {
 
         res.status(201).json({ message: "Registrat l'usuari correctament" });
     } catch (error) {
-        console.error("Error en el registra:", error);
-        res.status(500).json({ error: "Error intern del servidor" });
+        console.error(error);
+        res.status(500).json({ error: "Error en registrar l'usuari" });
     }
 });
 
-// Hecho
 router.post('/user-data', async (req, res) => {
     try {
         const { email } = req.body;
@@ -125,12 +121,11 @@ router.post('/user-data', async (req, res) => {
 
         res.status(200).json(userData);
     } catch (error) {
-        console.error("Error en obtenir les dades de l'usuari:", error);
+        console.error(error);
         res.status(500).end();
     }
 });
 
-// Hecho
 router.put('/update-perfil/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -141,7 +136,7 @@ router.put('/update-perfil/:id', async (req, res) => {
         
         if (username) {
             if (username === user.username) {
-              return res.status(404).json("El nombre de usuario ya está en uso");
+              return res.status(404).json("El nom d'usuari ja està en ús");
             }
           
             user.username = username;
@@ -161,40 +156,38 @@ router.put('/update-perfil/:id', async (req, res) => {
 
         await user.save();
 
-        res.json({ message: 'Dades actualizats' });
+        res.json({ message: 'Dades actualitzades' });
     } catch (error) {
-        console.error("Error en actualitzar noves dades de l'usuari:", error);
-        res.status(500).json({ message: 'Error al actualizar el perfil' });
+        console.error(error);
+        res.status(500).json({ message: 'Error en actualitzar les dades' });
     }
 });
 
-// Hecho
 router.delete('/delete-user/:id', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Usuario no trobat' });
+    if (!user) return res.status(404).json({ error: 'Usuari no trobat' });
 
     await Like.deleteMany({ email: user.email });
     await Comment.deleteMany({ email: user.email });
 
-    res.status(200).json({ message: 'Usuario eliminado' });
+    res.status(200).json({ message: 'Usuari eliminat' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el usuario' });
+    res.status(500).json({ error: "Error en eliminar l'usuari" });
   }
 });
 
-// Hecho
 router.patch('/toggle-admin/:id', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) return res.status(404).json({ error: 'Usuari no trobat' });
 
     user.admin = !user.admin;
     await user.save();
 
-    res.status(200).json(user);
+    res.status(200).end();
   } catch (error) {
-    res.status(500).json({ error: 'Error al cambiar rol de admin' });
+    res.status(500).json({ error: "Error en canviar rol d'admin" });
   }
 });
 

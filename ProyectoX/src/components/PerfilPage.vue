@@ -1,6 +1,5 @@
 <template>
   <div class="nexus-style">
-    <!-- Header -->
     <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
       <div class="logo-container">
         <v-img
@@ -37,13 +36,10 @@
       </div>
     </v-app-bar>
 
-    <!-- Contenido principal con padding-top para evitar que el header fijo tape contenido -->
     <div class="nexus-content-wrapper">
       <v-container class="nexus-main-container">
-        <!-- Portada/Banner al estilo GitHub -->
         <div class="nexus-profile-banner"></div>
         
-        <!-- Sección de perfil con avatar posicionado sobre el banner -->
         <div class="nexus-profile-section">
           <div class="nexus-profile-left">
             <div class="nexus-avatar-container" @click="triggerFileInput">
@@ -83,7 +79,6 @@
           </div>
         </div>
 
-        <!-- Tabs de navegación fijados debajo del perfil -->
         <div class="nexus-tabs-container">
           <v-tabs v-model="tab" color="#fc503b" class="nexus-tabs">
             <v-tab value="mods">
@@ -103,7 +98,6 @@
 
         <v-window v-model="tab" class="nexus-tab-content">
           <v-window-item value="mods">
-            <!-- Lista de Mods -->
             <div class="nexus-mods-container">
               <div class="nexus-mods-header">
                 <h2 class="nexus-mods-title">Els meus Mods</h2>
@@ -279,7 +273,6 @@
           </v-window-item>
         </v-window>
 
-        <!-- Diálogo para editar mod -->
         <v-dialog v-model="editModDialog" max-width="600" class="nexus-dialog" persistent>
           <v-card>
             <v-card-title class="nexus-dialog-title">
@@ -355,7 +348,6 @@
           </v-card>
         </v-dialog>
 
-        <!-- Diálogo para editar perfil -->
         <v-dialog v-model="editPerfil" max-width="500" class="nexus-dialog" persistent>
           <v-card>
             <v-card-title class="nexus-dialog-title">
@@ -406,7 +398,6 @@
           </v-card>
         </v-dialog>
 
-        <!-- Upload Dialog -->
         <v-dialog v-model="dialog" max-width="600" persistent>
           <v-card class="nexus-dialog">
             <v-card-title class="nexus-dialog-title">
@@ -439,7 +430,6 @@
                 <v-combobox
                   v-model="newInformationMod.tags"
                   label="Etiquetes"
-                  :rules="[v => !!v || 'Introdueix una etiqueta']"
                   multiple
                   chips
                   clearable
@@ -454,7 +444,7 @@
                 
                 <v-file-input
                   v-model="modFile"
-                  label="Archivo del Mod (ZIP, RAR, 7Z)*"
+                  label="Arxiu del Mod (ZIP, RAR, 7Z)*"
                   required
                   variant="outlined"
                   density="compact"
@@ -462,12 +452,11 @@
                   class="nexus-input"
                   prepend-icon="mdi-paperclip"
                   :show-size="1000"
-                ></v-file-input>
+                />
 
                 <v-file-input
                   v-model="imageFile"
                   label="Imagen del Mod*"
-                  :rules="[v => !!v || 'Introdueix una image']"
                   required
                   variant="outlined"
                   density="compact"
@@ -613,7 +602,6 @@ const navigateToMod = (id) => {
   window.location.href = `/mod/${id}`;
 };
 
-// Hecho
 const fetchUser = async () => {
   try {
     const response = await loadUserData(userEmail.value);
@@ -649,7 +637,6 @@ const handleAvatarChange = (event) => {
   }
 };
 
-// Hecho
 const updateProfile = async () => {
   loading.value = true;
 
@@ -714,7 +701,6 @@ const updateProfile = async () => {
   }
 };
 
-// Hecho
 const updateVisible = async (modId) => {
   try {
     const response = await changeVisible(modId);
@@ -755,7 +741,6 @@ const updateVisible = async (modId) => {
   } 
 }
 
-// Hecho
 const updateMod = async () => {
   loading.value = true;
 
@@ -866,7 +851,6 @@ const uploadMod = async () => {
   }
 };
 
-// Hecho
 const deleteMod = async (modId) => {
   try {
     const response = await deleteModSequelize(modId);
@@ -931,16 +915,14 @@ onMounted(fetchUser);
 </script>
 
 <style scoped>
-/* Estilos generales */
 .nexus-style {
   background: #0d0d0d;
   color: #ffffff;
   min-height: 100vh;
 }
 
-/* Contenedor principal con padding para evitar que el header fijo tape el contenido */
 .nexus-content-wrapper {
-  padding-top: 60px; /* Misma altura que el header */
+  padding-top: 60px;
 }
 
 .nexus-main-container {
@@ -949,7 +931,6 @@ onMounted(fetchUser);
   padding: 0 15px 40px;
 }
 
-/* Header */
 .nexus-header {
   background-color: rgba(13, 13, 13, 0.95) !important;
   backdrop-filter: blur(5px);
@@ -986,17 +967,15 @@ onMounted(fetchUser);
   letter-spacing: normal;
 }
 
-/* Banner al estilo GitHub */
 .nexus-profile-banner {
   height: 200px;
   background: linear-gradient(to right, #0d0d0d, #1a1a1a);
   border-radius: 8px 8px 0 0;
   border-bottom: 1px solid #252525;
-  margin-bottom: -80px; /* Esto hará que el avatar se superponga al banner */
+  margin-bottom: -80px;
   position: relative;
 }
 
-/* Profile Section */
 .nexus-profile-section {
   display: flex;
   gap: 32px;
@@ -1008,12 +987,12 @@ onMounted(fetchUser);
 .nexus-profile-left {
   flex: 0 0 auto;
   position: relative;
-  margin-top: -20px; /* Para ajustar la posición y que sobresalga del banner */
+  margin-top: -20px;
 }
 
 .nexus-profile-right {
   flex: 1;
-  padding-top: 80px; /* Espacio para evitar solapamiento con el avatar */
+  padding-top: 80px;
 }
 
 .nexus-avatar-container {
@@ -1048,7 +1027,7 @@ onMounted(fetchUser);
 .nexus-profile-avatar {
   border: 3px solid #fc503b;
   box-shadow: 0 0 20px rgba(252, 80, 59, 0.3);
-  background-color: #0d0d0d; /* Fondo para que no se vea a través */
+  background-color: #0d0d0d;
 }
 
 .nexus-profile-info {
@@ -1095,7 +1074,6 @@ onMounted(fetchUser);
   font-weight: 500;
 }
 
-/* Tabs al estilo GitHub */
 .nexus-tabs-container {
   border-bottom: 1px solid #252525;
   background: #161616;
@@ -1103,7 +1081,7 @@ onMounted(fetchUser);
   margin-bottom: 24px;
   border-radius: 0 0 8px 8px;
   position: sticky;
-  top: 60px; /* Misma altura que el header */
+  top: 60px;
   z-index: 900;
 }
 
@@ -1116,7 +1094,6 @@ onMounted(fetchUser);
   padding: 0 24px;
 }
 
-/* Mods Section */
 .nexus-mods-container {
   background: transparent;
 }
@@ -1249,7 +1226,6 @@ onMounted(fetchUser);
   font-size: 0.8rem;
 }
 
-/* No Mods State */
 .nexus-no-mods {
   background: #161616;
   border-radius: 8px;
@@ -1275,7 +1251,6 @@ onMounted(fetchUser);
   font-size: 0.9rem;
 }
 
-/* Activity Section */
 .nexus-activity-container {
   background: transparent;
 }
@@ -1342,7 +1317,6 @@ onMounted(fetchUser);
   border: 1px solid #252525;
 }
 
-/* Diálogos */
 .nexus-dialog {
   background: rgba(13, 13, 13, 0.95);
 }
@@ -1375,12 +1349,10 @@ onMounted(fetchUser);
   font-weight: 500;
 }
 
-/* Snackbar */
 .nexus-snackbar {
   font-family: inherit;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .nexus-profile-section {
     flex-direction: column;

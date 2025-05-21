@@ -88,7 +88,7 @@ export const getAllMods = async () => {
         return await fetch(urlBackend + '/api/mods', {
             method: 'GET',
         });
-    } catch (err) {
+    } catch {
         return null;
     }
 }
@@ -98,7 +98,7 @@ export const getModsAdmin = async () => {
         return await fetch(urlBackend + '/api/mods/admin-mods', {
             method: 'GET'
         });
-    } catch (err) {
+    } catch {
         return null;
     }   
 }
@@ -277,7 +277,7 @@ export const getStats = async () => {
         return await fetch(urlBackend + '/api/stats/stats-mods', {
             method: 'GET'
         });
-    } catch (error) {
+    } catch {
         return null;
     }
 }

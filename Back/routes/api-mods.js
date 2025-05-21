@@ -13,16 +13,15 @@ const { Mod, User, Tag } = models;
 
 const uploadsDir = path.join('uploads');
 const modsDir = path.join(uploadsDir, 'mods');
-const imagesDir = path.join(modsDir, 'images');
+const imagesModDir = path.join(modsDir, 'imagesMods');
 
-[uploadsDir, modsDir, imagesDir].forEach(dir => {
+[uploadsDir, modsDir, imagesModDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
     console.log(`Carpeta "${dir}" creat.`);
   }
 });
 
-// Hecho
 router.get('/', async (req, res) => {
   try {
     const mods = await Mod.findAll({
@@ -44,11 +43,11 @@ router.get('/', async (req, res) => {
 
     res.status(200).json(listMods);
   } catch (error) {
-    console.log({ error: 'Error al obtener los mods' });
+    console.error(error)
+    res.status(500).json({ error: 'Error en obtenir els mods' });
   }
 });
 
-// Hecho
 router.get('/admin-mods', async (req, res) => {
   try {
     const mods = await Mod.findAll({
@@ -63,7 +62,7 @@ router.get('/admin-mods', async (req, res) => {
     const result = mods.map(mod => ({
       id: mod.id,
       title: mod.title,
-      username: mod.User ? mod.User.username : 'Desconocido',
+      username: mod.User ? mod.User.username : 'Desconegut',
       uploaded_at: new Date(mod.uploaded_at).toISOString().split('T')[0],
       security: mod.security,
       file_path: mod.file_path
@@ -72,11 +71,10 @@ router.get('/admin-mods', async (req, res) => {
     res.status(200).json({ mods: result });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al obtener mods para administración' });
+    res.status(500).json({ message: 'Error en obtenir mods per a administració' });
   }
 });
 
-// Hecho
 router.get('/:id', async (req, res) => {
   try {
     const modId = req.params.id;
@@ -109,7 +107,8 @@ router.get('/:id', async (req, res) => {
 
     res.status(200).json({ modUser, statsDailyDownloadsMods });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el mod' });
+    console.log(error);
+    res.status(500).json({ error: 'Error en obtenir el mod' });
   }
 });
 
@@ -123,23 +122,22 @@ const handleFileUpload = (file, directory) => {
   });
 };
 
-// Hecho
 router.post('/new-mod', async (req, res) => {
   try {
     const { title, description, email } = req.body;
     const tags = JSON.parse(req.body.tags);
 
-    if (!req.files || !req.files.modFile) {
-      return res.status(400).json({ error: "No se han subido los archivos requeridos (mod o imagen)" });
+  if (!req.files || !req.files.modFile || !req.files.imageFile) {
+      return res.status(400).json({ error: "No s'han penjat els fitxers requerits (mod o imatge)" });
     }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json({ error: "Usuari no trobat" });
     }
 
     const modPath = await handleFileUpload(req.files.modFile, modsDir);
-    const imagePath = await handleFileUpload(req.files.imageFile, imagesDir);
+    const imagePath = await handleFileUpload(req.files.imageFile, imagesModDir);
     
     const newMod = await Mod.create({
       title,
@@ -161,7 +159,6 @@ router.post('/new-mod', async (req, res) => {
       await newMod.addTags(tagInstances.map(([tag]) => tag));
     }
     
-    // MongoDB
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -182,14 +179,13 @@ router.post('/new-mod', async (req, res) => {
     const io = getIO();
     io.emit('newMod', listMods);
 
-    res.status(201).json({ message: 'Mod subido exitosamente'});
+    res.status(201).json({ message: 'Mod pujat'});
   } catch (error) {
-    console.log('Error al actualizar estadísticas:', error);
-    res.status(500).json({ error: 'Error al crear el mod' });
+    console.error(error);
+    res.status(500).json({ error: 'Error en crear el mod' });
   }
 });
 
-// Hecho
 router.put('/update-mod', async (req, res) => {
   try {
     const { id, title, description, tags } = req.body;
@@ -197,7 +193,7 @@ router.put('/update-mod', async (req, res) => {
     const mod = await Mod.findByPk(id, {
       include: [{ model: Tag, as: 'tags' }]
     });
-    if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
+    if(!mod) return res.status(404).json({ error: 'Mod no trobat' });
 
     mod.title = title;
     mod.description = description;
@@ -208,7 +204,7 @@ router.put('/update-mod', async (req, res) => {
     }
 
     if (req.files && req.files.image) {
-      const imagePath = await handleFileUpload(req.files.image, imagesDir);
+      const imagePath = await handleFileUpload(req.files.image, imagesModDir);
       mod.image = imagePath;
     }
 
@@ -228,14 +224,13 @@ router.put('/update-mod', async (req, res) => {
       await mod.setTags(tagInstances.map(([tag]) => tag));
     }
 
-    res.status(200).json({ message: 'Mod actualizado correctamente' });
+    res.status(200).json({ message: 'Mod actualitzat correctament' });
   } catch (error) {
-    console.error('Error actualizado el mod:', error);
-    res.status(500).json({ error: 'Error al actualizar el mod' });
+    console.error(error);
+    res.status(500).json({ error: 'Error en actualitzar el mod' });
   }
 });
 
-// Hecho
 router.patch('/change-visible/:id', async (req, res) => {
   try {
     const mod = await Mod.findByPk(req.params.id);
@@ -244,19 +239,19 @@ router.patch('/change-visible/:id', async (req, res) => {
     mod.visible = !mod.visible;
     await mod.save();
 
-    res.status(200).json({ message: 'Visibilidad del mod actualizado correctamente' });
+    res.status(200).json({ message: 'Visibilitat del mod actualitzat' });
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar la visibilidad del mod' });
+    console.error(error);
+    res.status(500).json({ error: 'Error en actualitzar la visibilitat del mod' });
   }
 });
 
-// Hecho
 router.patch('/security/:id', async (req, res) => {
   try {
     const modId = req.params.id;
 
     const mod = await Mod.findByPk(modId);
-    if(!mod) return res.status(404).json({ error: 'Mod no encontrado' });
+    if(!mod) return res.status(404).json({ error: 'Mod no trobat' });
 
     mod.security = !mod.security;
     mod.save();
@@ -264,20 +259,18 @@ router.patch('/security/:id', async (req, res) => {
     const io = getIO();
     io.emit('updateSecurity', { modId: mod.id, security: mod.security });
 
-    res.status(200).json({ message: "Seguridad del mod actualizada correctamente" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Error en actualizar la seguridad del mod" });
+    res.status(200).json({ message: "Seguretat del mod actualitzada correctament" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error en actualitzar la seguretat del mod" });
   }
 });
 
-//Hecho
 router.delete('/delete-mod/:id', async (req, res) => {
   try {
     const deleted = await Mod.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!deleted) return res.status(404).json({ error: 'Usuari no trobat' });
 
-    // MongoDB
     await Comment.deleteMany({ modId: req.params.id });
     await Like.deleteMany({ modId: req.params.id });
     await DailyDownloadsMods.deleteMany({ modId: req.params.id });
@@ -291,20 +284,20 @@ router.delete('/delete-mod/:id', async (req, res) => {
       { upsert: true }
     );
 
-    res.status(200).json({ message: 'Mod eliminado' });
+    res.status(200).json({ message: 'Mod eliminat' });
   } catch (error) {
-    res.status(500).json({ error: 'Mod existosamente eliminado' });
+    console.error(error)
+    res.status(500).json({ error: 'Error en eliminar el Mod' });
   }
 });
 
-// Hecho
 router.patch('/download/:id', async (req, res) => {
   try {
     const modId = req.params.id;
     const mod = await Mod.findByPk(modId);
 
     if (!mod) {
-      return res.status(404).json({ error: 'Mod no encontrado' });
+      return res.status(404).json({ error: 'Mod no trobat' });
     }
 
     const io = getIO();
@@ -322,37 +315,10 @@ router.patch('/download/:id', async (req, res) => {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    res.status(200).json({ message: 'Descarga existosa' });
+    res.status(200).json({ message: 'Descàrrega existosa' });
   } catch (error) {
-    console.error('Error al registrar descarga:', error);
-    res.status(500).json({ error: 'Error al registrar descarga' });
-  }
-});
-
-router.post('/new-tag/:id', async (req, res) => {
-  const modId = req.params.id;
-  const { name } = req.body;
-
-  if (!name || typeof name !== 'string') {
-    return res.status(400).json({ error: 'Se requiere un nombre de tag válido.' });
-  }
-
-  try {
-    const mod = await Mod.findByPk(modId);
-    if (!mod) {
-      return res.status(404).json({ error: 'Mod no encontrado.' });
-    }
-
-    const [tag] = await Tag.findOrCreate({
-      where: { name: name.trim().toLowerCase() }
-    });
-
-    await mod.addTag(tag);
-
-    return res.status(200).json({ message: `Tag '${tag.name}' agregado al mod.` });
-  } catch (error) {
-    console.error('Error al agregar tag:', error);
-    return res.status(500).json({ error: 'Error interno del servidor.' });
+    console.error(error);
+    res.status(500).json({ error: 'Error en registrar descàrrega' });
   }
 });
 

@@ -1,9 +1,7 @@
 <template>
   <div class="nexus-mods-admin">
-    <!-- Fondo Three.js -->
     <div id="threejs-background" ref="threeContainer"></div>
     
-    <!-- Capçalera amb efecte de lluminositat -->
     <div class="admin-header glow-effect">
       <div class="header-content">
         <v-icon color="#fc503b" size="32" class="mr-3">mdi-puzzle</v-icon>
@@ -13,7 +11,6 @@
         </h2>
       </div>
       
-      <!-- Filtres premium -->
       <div class="filters-container">
         <v-btn-toggle
           v-model="selectedFilter"
@@ -74,17 +71,14 @@
       </div>
     </div>
 
-    <!-- Targeta de taula amb efecte d'elevació -->
     <v-card 
       class="mods-table-card elevation-8"
       :class="{ 'loading': isLoading }"
     >
-      <!-- Skeleton loader -->
       <div v-if="isLoading" class="skeleton-loader">
         <div v-for="i in 5" :key="i" class="skeleton-row"></div>
       </div>
 
-      <!-- Taula de mods -->
       <v-data-table
         v-else
         :headers="headers"
@@ -95,7 +89,6 @@
         loading-text="Carregant mods..."
         no-data-text="No s'han trobat mods"
       >
-        <!-- Columna de seguretat amb animació -->
         <template v-slot:item.security="{ item }">
           <v-fade-transition>
             <v-switch
@@ -115,7 +108,6 @@
           </v-fade-transition>
         </template>
 
-        <!-- Columna d'accions amb efecte hover -->
         <template v-slot:item.actions="{ item }">
           <div class="actions-container">
             <v-btn
@@ -133,7 +125,6 @@
           </div>
         </template>
 
-        <!-- Columna de data formatejada -->
         <template v-slot:item.uploaded_at="{ item }">
           <v-tooltip location="top">
             <template v-slot:activator="{ props }">
@@ -143,7 +134,6 @@
           </v-tooltip>
         </template>
 
-        <!-- Missatge quan no hi ha resultats -->
         <template v-slot:no-results>
           <div class="no-results">
             <v-icon color="#fc503b" size="48">mdi-magnify-close</v-icon>
@@ -167,7 +157,6 @@ import * as THREE from 'three';
 import { changeSecurity, getModsAdmin } from '@/services/communicationManager';
 import { listenChangeSecurityModAdmin, listenNewModsAdmin } from '@/services/socketManager';
 
-// Variables d'estat
 const mods = ref([]);
 const selectedFilter = ref('all');
 const searchQuery = ref('');
@@ -177,21 +166,16 @@ const notificationMessage = ref('');
 const notificationColor = ref('');
 const threeContainer = ref(null);
 
-// Variables Three.js
-let scene, camera, renderer, particles, raycaster, mouse;
+let scene, camera, renderer, particles;
 let animationId = null;
-let hoveredParticle = null;
 
 const initThreeJS = () => {
-  // Escena
   scene = new THREE.Scene();
   scene.background = null;
 
-  // Càmera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 30;
 
-  // Renderer
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true
@@ -200,14 +184,11 @@ const initThreeJS = () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   threeContainer.value.appendChild(renderer.domElement);
 
-  // Crear partícules
   createParticles();
 
-  // Animació
   const animate = () => {
     animationId = requestAnimationFrame(animate);
     
-    // Rotació suau
     if (particles) {
       particles.rotation.x += 0.0002;
       particles.rotation.y += 0.0003;
@@ -226,7 +207,6 @@ const createParticles = () => {
   const colors = new Float32Array(particleCount * 3);
   const sizes = new Float32Array(particleCount);
 
-  // Crear textura per a partícules rodones
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
@@ -242,13 +222,11 @@ const createParticles = () => {
 
   const particleTexture = new THREE.CanvasTexture(canvas);
 
-  // Posicions i colors
   for (let i = 0; i < particleCount; i++) {
     positions[i * 3] = (Math.random() - 0.5) * 100;
     positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
 
-    // Colors en tons vermells/taronja
     colors[i * 3] = 0.9 + Math.random() * 0.1;
     colors[i * 3 + 1] = 0.2 + Math.random() * 0.2;
     colors[i * 3 + 2] = 0.1 + Math.random() * 0.1;
@@ -294,7 +272,6 @@ const cleanUpThreeJS = () => {
   }
 };
 
-// Capçaleres de la taula
 const headers = [
   { title: 'Títol', key: 'title', width: '25%' },
   { title: 'Autor', key: 'username', width: '20%' },
@@ -314,13 +291,11 @@ const filteredMods = computed(() => {
   });
 });
 
-// Hecho
 const fetchModsAdmin = async () => {
   try {
     const response = await getModsAdmin();
 
     if(!response) {
-      console.log('Error de xarxa o problema al servidor');
       notificationMessage.value = 'Error de xarxa o problema al servidor';
       notificationColor.value = 'error';
       showNotification.value = true;
@@ -330,7 +305,6 @@ const fetchModsAdmin = async () => {
     const data = await response.json();
 
     if(!response.ok) {
-      console.log('Error en obtenir tots els mods');
       notificationMessage.value = 'Error en obtenir tots els mods';
       notificationColor.value = 'error';
       showNotification.value = true;
@@ -339,14 +313,13 @@ const fetchModsAdmin = async () => {
 
     mods.value = data.mods;
   } catch (error) {
-    console.log('Error inesperat en obtenir tots els mods', error);
+    console.error(error);
     notificationMessage.value = 'Error inesperat en obtenir tots els mods';
     notificationColor.value = 'error';
     showNotification.value = true;
   }
 }
 
-// Hecho
 const toggleSafety = async (mod) => {
   const previousValue = mod.security;
   mod.updating = true;
@@ -376,8 +349,8 @@ const toggleSafety = async (mod) => {
       : 'Mod marcat com a no segur';
     notificationColor.value = 'success';  
     showNotification.value = true;
-  } catch (err) {
-    console.error("Error en actualitzar la seguretat del mod", err);
+  } catch (error) {
+    console.error(error);
     mod.security = previousValue;
     notificationMessage.value = 'Error inesperat en actualitzar la seguretat del mod';
     notificationColor.value = 'error';
@@ -392,17 +365,14 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   
-  // Si és d'avui, mostrar només l'hora
   if (date.toDateString() === now.toDateString()) {
     return date.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
   }
-  
-  // Si és d'aquest any, mostrar dia i mes
+
   if (date.getFullYear() === now.getFullYear()) {
     return date.toLocaleDateString('ca-ES', { month: 'short', day: 'numeric' });
   }
   
-  // Per a dates més antigues
   return date.toLocaleDateString('ca-ES', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
@@ -444,7 +414,6 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-/* Capçalera amb efecte */
 .admin-header {
   background-color: rgba(25, 25, 25, 0.9);
   border-radius: 8px;
@@ -489,7 +458,6 @@ onBeforeUnmount(() => {
   border-radius: 3px;
 }
 
-/* Filtres premium */
 .filters-container {
   display: flex;
   flex-wrap: wrap;
@@ -529,7 +497,6 @@ onBeforeUnmount(() => {
   color: #fc503b !important;
 }
 
-/* Targeta de taula */
 .mods-table-card {
   background-color: rgba(25, 25, 25, 0.9) !important;
   border: 1px solid #333;
@@ -572,7 +539,6 @@ onBeforeUnmount(() => {
   background-color: rgba(252, 80, 59, 0.05) !important;
 }
 
-/* Accions */
 .actions-container {
   display: flex;
   justify-content: center;
@@ -587,7 +553,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 8px rgba(252, 80, 59, 0.2);
 }
 
-/* Skeleton loader */
 .skeleton-loader {
   padding: 20px;
 }
@@ -605,7 +570,6 @@ onBeforeUnmount(() => {
   50% { opacity: 0.3; }
 }
 
-/* No results */
 .no-results {
   text-align: center;
   padding: 40px;
@@ -617,7 +581,6 @@ onBeforeUnmount(() => {
   margin-top: 15px;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .filters-container {
     flex-direction: column;

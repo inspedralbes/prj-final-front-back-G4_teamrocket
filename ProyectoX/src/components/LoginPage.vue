@@ -2,12 +2,10 @@
   <div class="nexus-login-container">
     <v-container fluid class="pa-0 h-100">
       <v-row no-gutters class="h-100">
-        <!-- Columna izquierda solo con partículas -->
         <v-col cols="12" md="6" class="hidden-sm-and-down">
           <div id="particles-js-left" class="particles-left-container"></div>
         </v-col>
 
-        <!-- Columna derecha con formulario de login -->
         <v-col cols="12" md="6">
           <div class="d-flex align-center justify-center h-100">
             <v-card class="nexus-login-card" elevation="10">
@@ -73,25 +71,6 @@
                     INICIAR SESSIÓ
                   </template>
                 </v-btn>
-              
-                <!-- Snackbar para mostrar mensajes -->
-                <v-snackbar
-                  v-model="showMessage"
-                  :timeout="3000"
-                  :color="messageType"
-                  location="top"
-                >
-                  {{ messageText }}
-                  <template v-slot:actions>
-                    <v-btn
-                      variant="text"
-                      @click="showMessage = false"
-                    >
-                      Tancar
-                    </v-btn>
-                  </template>
-                </v-snackbar>
-
                 <div class="nexus-login-footer">
                   <p class="nexus-login-text">No tens un compte?</p>
                   <v-btn
@@ -108,6 +87,24 @@
             </v-card>
           </div>
         </v-col>
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          timeout="3000"
+          location="bottom"
+          class="nexus-snackbar"
+        >
+          {{ snackbar.text }}
+          <template v-slot:actions>
+            <v-btn
+              variant="text"
+              @click="snackbar.show = false"
+              :color="snackbar.color === 'error' ? 'white' : ''"
+            >
+              Tancar
+            </v-btn>
+          </template>
+        </v-snackbar>
       </v-row>
     </v-container>
   </div>
@@ -122,20 +119,43 @@ const router = useRouter();
 const loading = ref(false);
 const email = ref('');
 const password = ref('');
-const rememberMe = ref(false);
-
 const loginSuccess = ref(false);
 const loginError = ref(false);
+const snackbar = ref({
+  show: false,
+  text: '',
+  color: ''
+});
 
-// Hecho
 const login = async () => {
   loading.value = true;
+
+  if(!email.value || !password.value) {
+    loginError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Falta omplir els camps',
+      color: 'error'
+    }
+
+    setTimeout(() => {
+      loginError.value = false;
+    }, 2000);
+
+    loading.value = false;
+    return;
+  }
 
   try {
     const response = await postLogin(email, password);
 
     if(!response) {
       loginError.value = true;
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      }
 
       setTimeout(() => {
         loginError.value = false;
@@ -148,11 +168,15 @@ const login = async () => {
 
     if (!response.ok) {
       loginError.value = true;
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en iniciar sessió',
+        color: 'error'
+      }
 
       setTimeout(() => {
         loginError.value = false;
       }, 2000);
-
       return;
     }
 
@@ -160,12 +184,22 @@ const login = async () => {
     localStorage.setItem('userAdmin', data.admin.toString());
 
     loginSuccess.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Benvingut a Darkness Unseen',
+      color: 'success'
+    }
 
     setTimeout(() => {
       router.push('/');
     }, 1000);
   } catch {
     loginError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperat en iniciar sessió',
+      color: 'error'
+    }
 
     setTimeout(() => {
       loginError.value = false;
@@ -232,7 +266,6 @@ onMounted(() => {
   height: 100%;
 }
 
-/* Contenedor de partículas para la columna izquierda */
 .particles-left-container {
   position: absolute;
   width: 50%;
@@ -242,7 +275,6 @@ onMounted(() => {
   background-color: #0a0a0a;
 }
 
-/* Estilos para la tarjeta de login */
 .nexus-login-card {
   background-color: rgba(30, 30, 30, 0.9) !important;
   border-radius: 16px !important;
@@ -431,7 +463,6 @@ onMounted(() => {
   text-shadow: 0 0 8px #fc503b;
 }
 
-/* Efectos de animación */
 .nexus-login-card {
   opacity: 0;
   transform: translateY(30px);
@@ -445,7 +476,6 @@ onMounted(() => {
   }
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .particles-left-container {
     display: none;

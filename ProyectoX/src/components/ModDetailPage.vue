@@ -1,6 +1,5 @@
 <template>
   <div class="nexus-detail-page">
-    <!-- Botó de tornar -->
     <v-btn 
       @click="$router.back()" 
       prepend-icon="mdi-arrow-left" 
@@ -11,9 +10,7 @@
       Tornar a la llista
     </v-btn>
     
-    <!-- Contingut principal -->
     <v-card v-if="mod" class="nexus-mod-detail">
-      <!-- Capçalera -->
       <div class="nexus-mod-header">
         <h1 class="nexus-mod-title">{{ mod.title }}</h1>
       </div>
@@ -21,15 +18,12 @@
       <v-divider class="nexus-divider"></v-divider>
       
       <div class="nexus-mod-content">
-        <!-- Columna esquerra -->
         <div class="nexus-main-column">
-          <!-- Descripció -->
           <div class="nexus-section">
             <h2 class="nexus-section-title">Descripció</h2>
             <div class="nexus-mod-description">{{ mod.description }}</div>
           </div>
           
-          <!-- Actualitzacions -->
           <div class="nexus-section" v-if="mod.uploaded_at">
             <h2 class="nexus-section-title">Actualitzacions</h2>
             <div class="nexus-update-info">
@@ -40,11 +34,9 @@
             </div>
           </div>
           
-          <!-- Comentaris -->
           <div class="nexus-section">
             <h2 class="nexus-section-title">Comentaris</h2>
             
-            <!-- Formulari per afegir comentaris -->
             <v-card variant="outlined" class="nexus-comment-form">
               <h3 class="nexus-comment-form-title">Afegeix un comentari</h3>
               
@@ -83,7 +75,6 @@
               </v-form>
             </v-card>
             
-            <!-- Llista de comentaris -->
             <div v-if="comments.length > 0" class="nexus-comments-list">
               <v-card 
                 v-for="(comment, index) in comments" 
@@ -153,9 +144,7 @@
           </div>
         </div>
         
-        <!-- Columna dreta -->
         <div class="nexus-sidebar">
-         <!-- Informació del creador -->
          <v-card variant="outlined" class="nexus-creator-card">
             <div class="nexus-creator-item">
               <span class="nexus-creator-label">Creat per</span>
@@ -176,7 +165,6 @@
             </div>
           </v-card>
 
-          <!-- Botó de descàrrega -->
           <v-btn
             @click="download(mod)" 
             block 
@@ -188,7 +176,6 @@
             Descarregar mod
           </v-btn>
           
-          <!-- Gràfic de descàrregues diàries -->
           <v-card variant="outlined" class="nexus-downloads-chart-card">
             <h3 class="nexus-chart-title">Descàrregues diàries</h3>
             <div class="nexus-chart-container">
@@ -200,7 +187,6 @@
             </div>
           </v-card>
           
-          <!-- Etiquetas -->
         <v-card variant="outlined" class="nexus-tags-card">
           <h3 class="nexus-tags-title">Etiquetes per aquest mod</h3>
           
@@ -226,7 +212,6 @@
       </div>
     </v-card>
     
-    <!-- Estats de carrega/error -->
     <v-card v-else class="nexus-loading-card">
       <v-card-text class="nexus-loading-content">
         <v-progress-circular indeterminate color="#fc503b" v-if="loading"></v-progress-circular>
@@ -237,7 +222,6 @@
       </v-card-text>
     </v-card>
     
-    <!-- Snackbar per a missatges -->
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
@@ -283,7 +267,6 @@ const snackbar = ref({
 const downloadsChart = ref(null);
 const chartInstance = ref(null);
 
-// Variables per a l'indicador de tendència (estil Steam)
 const trendPercentage = ref(0);
 const trendColor = ref('success');
 const trendIcon = ref('mdi-arrow-up');
@@ -296,7 +279,6 @@ const newComment = ref({
   rating: 5
 });
 
-// Funció millorada per calcular la tendència (7 dies com Steam)
 const calculateTrend = (data) => {
   if (!data || data.length < 2) {
     trendPercentage.value = 0;
@@ -306,7 +288,6 @@ const calculateTrend = (data) => {
     return;
   }
 
-  // Agafar els últims 7 dies o tots si n'hi ha menys de 7
   const recentData = data.length > 7 ? data.slice(-7) : data;
   const firstValue = recentData[0].totalDownloads;
   const lastValue = recentData[recentData.length - 1].totalDownloads;
@@ -337,15 +318,12 @@ const calculateTrend = (data) => {
   }
 };
 
-// Funció per inicialitzar el gràfic (estil Steam)
 const initChart = () => {
-  // Verificar si el canvas existeix i està disponible
   if (!downloadsChart.value) {
     console.log('Canvas no disponible per al gràfic');
     return;
   }
 
-  // Verificar si hi ha dades disponibles
   const stats = mod.value?.statsDailyDownloadsMods;
   if (!stats || !stats.length) {
     console.log('No hi ha dades suficients per al gràfic');
@@ -353,7 +331,6 @@ const initChart = () => {
   }
 
   try {
-    // Verificar si el canvas té context
     const ctx = downloadsChart.value.getContext('2d');
     if (!ctx) {
       console.error('No es pot obtenir el context del canvas');
@@ -365,31 +342,17 @@ const initChart = () => {
       chartInstance.value = null;
     }
     
-    // Ordenar dades per data
     const sortedData = [...mod.value.statsDailyDownloadsMods].sort((a, b) => 
       new Date(a.date) - new Date(b.date)
     );
 
-    // Preparar etiquetes i dades
     const labels = sortedData.map(item => 
       new Date(item.date).toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' })
     );
     const data = sortedData.map(item => item.totalDownloads);
 
-    // Calcular tendència
     calculateTrend(sortedData);
 
-    // Destruir instància anterior si existeix
-    // if (chartInstance.value) {
-    //   try {
-    //     chartInstance.value.destroy();
-    //   } catch (error) {
-    //     console.error('Error en destruir el gràfic anterior:', error);
-    //   }
-    //   chartInstance.value = null;
-    // }
-
-    // Crear nova instància amb estil Steam
     chartInstance.value = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -458,7 +421,6 @@ const initChart = () => {
       }
     });
   } catch (error) {
-    console.error('Error en inicialitzar el gràfic:', error);
     if (chartInstance.value) {
       chartInstance.value = null;
     }
@@ -471,7 +433,6 @@ const initDownloadsHistory = () => {
   }
 };
 
-// Hecho
 const fetchModDetails = async () => {
   loading.value = true;
 
@@ -523,7 +484,6 @@ const fetchModDetails = async () => {
   }
 };
 
-// Hecho
 const fetchComments = async () => {
   try {
     const response = await getCommentsById(route.params.id);
@@ -546,7 +506,6 @@ const fetchComments = async () => {
   }
 };
 
-// Hecho
 const submitComment = async () => {
   submitting.value = true;
 
@@ -590,7 +549,7 @@ const submitComment = async () => {
   } catch {
     snackbar.value = {
       show: true,
-      text: 'Error inesperat en publicar comentari',
+      text: 'Error inesperat en publicar el comentari',
       color: 'error'
     };
   } finally {
@@ -601,13 +560,10 @@ const submitComment = async () => {
 const formatDate = (dateString) => {
   if (!dateString) return 'Data desconeguda';
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('ca-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
+  const day = String(date.getDate());
+  const month = String(date.getMonth() + 1);
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const maskEmail = (email) => {
@@ -625,7 +581,6 @@ const maskEmail = (email) => {
   return `${maskedName}@${domain}`;
 };
 
-// Hecho
 const download = async (mod) => {
   try {
     const response = await patchDownloadMod(route.params.id);
@@ -649,7 +604,7 @@ const download = async (mod) => {
       
     snackbar.value = {
       show: true,
-      text: 'Descàrrega iniciada',
+      text: 'Descàrrega exitosa',
       color: 'success'
     };
   } catch {
@@ -661,7 +616,6 @@ const download = async (mod) => {
   }
 };
 
-// Hecho
 const deleteComment = async (comment) => {
   try {
     const response = await deleteCommentMongodb(comment._id);
@@ -709,7 +663,6 @@ const toggleEdit = (comment) => {
   isEditing.value = !isEditing.value;
 };
 
-// Hecho
 const editComment = async (comment) => {
   try {
     const response = await putComment(comment._id, newContent.value);
@@ -751,18 +704,8 @@ const editComment = async (comment) => {
   }
 };
 
-// Observar canvis en les dades de descàrregues
-// watch(() => mod.value?.statsDailyDownloadsMods, (newVal) => {
-//   if (newVal && downloadsChart.value) {
-//     nextTick(() => {
-//       initChart();
-//     });
-//   }
-// }, { deep: true });
-
 onMounted(() => {
   fetchModDetails();
-  // Inicialitzar el gràfic quan el component estigui muntat
   nextTick(() => {
     if (downloadsChart.value) {
       initChart();
@@ -877,7 +820,6 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-/* Cards de la sidebar */
 .nexus-stats-card,
 .nexus-creator-card,
 .nexus-tags-card,
@@ -918,7 +860,6 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-/* Estilos para el gráfico de descargas */
 .nexus-downloads-chart-card {
   background: rgba(13, 13, 13, 0.8);
   border: 1px solid #252525;
@@ -1041,7 +982,6 @@ onBeforeUnmount(() => {
   color: #ffffff;
 }
 
-/* Estilos para comentarios */
 .nexus-comment-form {
   background: rgba(13, 13, 13, 0.8);
   border: 1px solid #252525;
@@ -1154,7 +1094,6 @@ onBeforeUnmount(() => {
   margin-top: 12px;
 }
 
-/* Loading states */
 .nexus-loading-card {
   background: rgba(18, 18, 18, 0.9);
   border: 1px solid #252525;
@@ -1176,12 +1115,10 @@ onBeforeUnmount(() => {
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Snackbar */
 .nexus-snackbar {
   font-family: inherit;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .nexus-mod-content {
     flex-direction: column;
@@ -1209,7 +1146,6 @@ onBeforeUnmount(() => {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
 
 .nexus-tags-card {
   margin-top: 16px;

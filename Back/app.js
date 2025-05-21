@@ -1,8 +1,6 @@
 "use strict";
-// Importación de módulos necesarios
 import express from "express";
 import path from "path";
-import { WebSocketServer } from "ws";
 import { fileURLToPath } from "url";
 import http from 'http';
 import { Server as SocketIOServer } from "socket.io";
@@ -11,7 +9,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
 
-// Importación de rutas y modelos
 import { sequelize } from './models/index.js';
 import api_users from './routes/api-users.js';
 import api_mods from './routes/api-mods.js';
@@ -19,12 +16,9 @@ import api_comments from './MongoDB/routes/api-comments.js';
 import api_likes from './MongoDB/routes/api-likes.js';
 import api_stats from './MongoDB/routes/api-stats.js';
 
-// Carga variables de entorno desde .env
 dotenv.config();
 
-// Inicialización de la app de Express
 const app = express();
-
 const PORT = process.env.PORT || 3002;
 const server = http.createServer(app);
 
@@ -49,7 +43,6 @@ app.use("/api/likes", api_likes);
 app.use("/api/stats", api_stats);
 
 let io;
-
 io = new SocketIOServer(server, {
   cors: {
     origin: "http://localhost:7001",
@@ -59,16 +52,16 @@ io = new SocketIOServer(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('Usuario conectado:', socket.id);
+  console.log('Usuari connectat:', socket.id);
 
   socket.on('disconnect', () => {
-    console.log(`Usuario desconectado: ${socket.id}`);
+    console.log(`Usuari desconnectat: ${socket.id}`);
   });
 });
 
 export const getIO = () => {
   if (!io) {
-    throw new Error('Socket.io no ha sido inicializado');
+    throw new Error('Socket.io no ha estat inicialitzat');
   }
   return io;
 };
@@ -80,7 +73,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connectat a MongoDB'))
 .catch((err) => console.error('Error al connectar a MongoDB', err));
 
-// Sincroniza Sequelize (base de datos relacional) y arranca el servidor
 sequelize
   .sync()
   .then(() => {

@@ -1,6 +1,5 @@
 <template>
   <div class="nexus-register-container">
-    <!-- Efecto de partículas para fondo -->
     <div id="particles-js-register" class="particles-container"></div>
    
     <v-container fluid class="pa-0 h-100">
@@ -55,7 +54,7 @@
               <v-text-field
                 v-model="password"
                 :rules="passwordRules"
-                label="Contraseña"
+                label="Contrasenya"
                 type="password"
                 required
                 prepend-inner-icon="mdi-lock"
@@ -80,7 +79,6 @@
                 class="nexus-input mb-3"
                 density="comfortable"
               ></v-text-field>
-
 
               <v-btn
                 @click="register"
@@ -119,7 +117,25 @@
               </div>
             </v-card-text>
           </v-card>
-        </v-col>
+        </v-col>      
+        <v-snackbar
+          v-model="snackbar.show"
+          :color="snackbar.color"
+          timeout="3000"
+          location="bottom"
+          class="nexus-snackbar"
+        >
+          {{ snackbar.text }}
+          <template v-slot:actions>
+            <v-btn
+              variant="text"
+              @click="snackbar.show = false"
+              :color="snackbar.color === 'error' ? 'white' : ''"
+            >
+              Tancar
+            </v-btn>
+          </template>
+        </v-snackbar>
       </v-row>
     </v-container>
   </div>
@@ -157,13 +173,22 @@ const confirmPasswordRules = [
   v => !!v || 'Confirma la teva contrasenya',
   v => v === password.value || 'Les contrasenyes no coincideixen'
 ];
+const snackbar = ref({
+  show: false,
+  text: '',
+  color: ''
+});
 
-// 
 const register = async () => {
   loading.value = true;
   
-  if(!username.value || !email.value || !password.value) {
+  if(!username.value || !email.value || !password.value || password.value !== confirmPassword.value) {
     registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Falta omplir els camps',
+      color: 'error'
+    }
 
     setTimeout(() => {
       registerError.value = false;
@@ -172,12 +197,31 @@ const register = async () => {
     loading.value = false;
     return;
   }
+
+  if(password.value !== confirmPassword.value) {
+    registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Les contrasenyes no coincideixen',
+      color: 'error'
+    }
+    setTimeout(() => {
+      registerError.value = false;
+    }, 2000);
+    loading.value = false;
+    return;
+  }
   
   try {
     const response = await postRegister(username, email, password);
 
-    if (!response || !response.ok) {
+    if (!response) {
       registerError.value = true;
+      snackbar.value = {
+        show: true,
+        text: 'Error de xarxa o problema al servidor',
+        color: 'error'
+      }
 
       setTimeout(() => {
         registerError.value = false;
@@ -185,15 +229,37 @@ const register = async () => {
       return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!response.ok) {
+      registerError.value = true;
+      snackbar.value = {
+        show: true,
+        text: data.error || 'Error en registrar',
+        color: 'error'
+      }
+
+      setTimeout(() => {
+        registerError.value = false;
+      }, 2000);
+      return;
+    }
 
     registerSuccess.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Benvingut a Darkness Unseen',
+      color: 'success'
+    }
 
     setTimeout(() => {
       router.push('/');
     }, 1500);
   } catch {
     registerError.value = true;
+    snackbar.value = {
+      show: true,
+      text: 'Error inesperat en registrar',
+      color: 'error'
+    }
 
     setTimeout(() => {
       registerError.value = false;
@@ -227,7 +293,6 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped>
 .nexus-register-container {
   min-height: 100vh;
@@ -236,11 +301,9 @@ onMounted(() => {
   overflow: hidden;
 }
 
-
 .h-100 {
   height: 100%;
 }
-
 
 .particles-container {
   position: fixed;
@@ -252,8 +315,6 @@ onMounted(() => {
   pointer-events: none;
 }
 
-
-/* Estilos para la tarjeta de registro */
 .nexus-register-card {
   background-color: rgba(30, 30, 30, 0.9) !important;
   border-radius: 12px !important;
@@ -269,12 +330,10 @@ onMounted(() => {
   margin: 20px auto;
 }
 
-
 .nexus-register-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 28px rgba(252, 80, 59, 0.2) !important;
 }
-
 
 .nexus-register-header {
   display: flex;
@@ -283,13 +342,11 @@ onMounted(() => {
   position: relative;
 }
 
-
 .logo-container {
   position: relative;
   width: 80px;
   height: 80px;
 }
-
 
 .nexus-register-logo {
   border-radius: 50%;
@@ -298,7 +355,6 @@ onMounted(() => {
   position: relative;
   z-index: 2;
 }
-
 
 .logo-glow {
   position: absolute;
@@ -313,7 +369,6 @@ onMounted(() => {
   transition: opacity 0.3s;
 }
 
-
 .logo-border {
   position: absolute;
   top: -4px;
@@ -326,23 +381,19 @@ onMounted(() => {
   transition: all 0.3s;
 }
 
-
 .logo-container:hover .nexus-register-logo {
   transform: scale(1.08) rotate(3deg);
   box-shadow: 0 0 20px rgba(252, 80, 59, 0.6);
 }
 
-
 .logo-container:hover .logo-glow {
   opacity: 1;
 }
-
 
 .logo-container:hover .logo-border {
   border-color: rgba(252, 80, 59, 0.4);
   transform: scale(1.03);
 }
-
 
 .nexus-register-title {
   color: #fc503b !important;
@@ -356,7 +407,6 @@ onMounted(() => {
   position: relative;
 }
 
-
 .nexus-register-title::after {
   content: '';
   display: block;
@@ -366,11 +416,9 @@ onMounted(() => {
   margin: 8px auto 0;
 }
 
-
 .nexus-register-content {
   padding: 0 24px 24px !important;
 }
-
 
 .nexus-input :deep(.v-field) {
   background-color: rgba(18, 18, 18, 0.8) !important;
@@ -379,49 +427,40 @@ onMounted(() => {
   transition: all 0.3s;
 }
 
-
 .nexus-input :deep(.v-field__outline) {
   color: #333 !important;
 }
 
-
 .nexus-input :deep(.v-field:hover .v-field__outline) {
   color: #fc503b !important;
 }
-
 
 .nexus-input :deep(.v-field--focused .v-field__outline) {
   color: #fc503b !important;
   opacity: 1 !important;
 }
 
-
 .nexus-input :deep(.v-label) {
   color: #b0b0b0 !important;
   font-size: 0.9rem !important;
 }
 
-
 .nexus-input :deep(.v-field--focused .v-label) {
   color: #fc503b !important;
 }
 
-
 .nexus-input :deep(.v-field__prepend-inner) {
   padding-right: 10px !important;
 }
-
 
 .nexus-input :deep(.v-messages__message) {
   color: #fc503b !important;
   font-size: 0.75rem !important;
 }
 
-
 .nexus-input :deep(.v-messages__hint) {
   font-size: 0.75rem !important;
 }
-
 
 .nexus-register-btn {
   background-color: #fc503b !important;
@@ -437,18 +476,15 @@ onMounted(() => {
   font-size: 0.9rem !important;
 }
 
-
 .nexus-register-btn:hover {
   background-color: #e04635 !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 16px rgba(252, 80, 59, 0.4) !important;
 }
 
-
 .nexus-register-btn:active {
   transform: translateY(0) !important;
 }
-
 
 .nexus-register-footer {
   display: flex;
@@ -459,13 +495,11 @@ onMounted(() => {
   border-top: 1px solid rgba(252, 80, 59, 0.2);
 }
 
-
 .nexus-register-text {
   color: #b0b0b0;
   margin-bottom: 6px;
   font-size: 0.85rem;
 }
-
 
 .nexus-login-btn {
   font-weight: 600 !important;
@@ -476,20 +510,16 @@ onMounted(() => {
   font-size: 0.85rem !important;
 }
 
-
 .nexus-login-btn:hover {
   color: white !important;
   text-shadow: 0 0 6px #fc503b;
 }
 
-
-/* Efectos de animación */
 .nexus-register-card {
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.6s ease-out forwards;
 }
-
 
 @keyframes fadeInUp {
   to {
@@ -498,8 +528,6 @@ onMounted(() => {
   }
 }
 
-
-/* Responsive */
 @media (max-width: 600px) {
   .nexus-register-card {
     margin: 10px;

@@ -1,6 +1,5 @@
 <template>
   <div id="app" class="nexus-style">
-    <!-- Header -->
     <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header">
       <div class="logo-container">
         <v-img
@@ -76,8 +75,6 @@
       </div>
     </v-app-bar>
 
-
-    <!-- Banner principal amb efecte parallax -->
     <div class="nexus-banner">
       <div class="parallax-bg"></div>
       <div class="banner-content">
@@ -96,7 +93,6 @@
 
 
     <v-container fluid class="pa-0 nexus-container">
-      <!-- Secció Sobre el Joc -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="about" class="section about nexus-section">
@@ -114,8 +110,6 @@
         </v-col>
       </v-row>
 
-
-      <!-- Secció de Descàrrega -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="download" class="section download nexus-section nexus-download-section">
@@ -161,8 +155,6 @@
         </v-col>
       </v-row>
 
-
-      <!-- Secció de Contacte -->
       <v-row no-gutters>
         <v-col cols="12">
           <section id="contact" class="section contact nexus-section">
@@ -180,8 +172,6 @@
         </v-col>
       </v-row>
 
-
-      <!-- Footer -->
       <v-footer
         class="nexus-footer"
         color="#0d0d0d"
@@ -202,34 +192,22 @@
         </v-row>
       </v-footer>
     </v-container>
-   
-    <!-- Efecte de partícules per a fons -->
     <div id="particles-js" class="particles-container"></div>
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 
-
-const router = useRouter();
 const userEmail = ref(localStorage.getItem('userEmail'));
 const isAdmin = ref(localStorage.getItem('userAdmin') == 1);
 
-
-console.log(isAdmin.value);
-
-
 onMounted(() => {
-  // Efecte d'aparició de seccions
   const sections = document.querySelectorAll('.nexus-section');
   const options = {
     root: null,
     threshold: 0.1,
   };
-
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -239,13 +217,10 @@ onMounted(() => {
     });
   }, options);
 
-
   sections.forEach((section) => {
     observer.observe(section);
   });
 
-
-  // Inicialitzar partícules.js si està disponible
   if (window.particlesJS) {
     window.particlesJS('particles-js', {
       particles: {
@@ -268,14 +243,12 @@ onMounted(() => {
   }
 });
 
-
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
   });
 };
-
 
 const logout = () => {
   localStorage.removeItem('userEmail');
@@ -287,14 +260,12 @@ const logout = () => {
 
 
 <style scoped>
-/* Estilos generales */
 .nexus-style {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #e0e0e0;
   background-color: #121212;
   position: relative;
 }
-
 
 .particles-container {
   position: fixed;
@@ -306,8 +277,6 @@ const logout = () => {
   pointer-events: none;
 }
 
-
-/* Header estilo Nexus */
 .nexus-header {
   background-color: rgba(13, 13, 13, 0.9) !important;
   backdrop-filter: blur(5px);
@@ -318,13 +287,11 @@ const logout = () => {
   align-items: center;
 }
 
-
 .logo-container {
   margin-right: 20px;
   cursor: pointer;
   flex-shrink: 0;
 }
-
 
 .nexus-logo {
   border-radius: 50%;
@@ -333,12 +300,10 @@ const logout = () => {
   border: 2px solid #fc503b;
 }
 
-
 .nexus-logo:hover {
   transform: scale(1.05);
   box-shadow: 0 0 15px #fc503b;
 }
-
 
 .nexus-user-section {
   display: flex;
@@ -347,7 +312,6 @@ const logout = () => {
   margin-left: auto;
   padding-right: 0;
 }
-
 
 .nexus-login-btn {
   text-transform: none;
@@ -360,7 +324,6 @@ const logout = () => {
   margin: 0 !important;
 }
 
-
 .nexus-login-btn .v-btn__content {
   display: flex;
   align-items: center;
@@ -368,18 +331,15 @@ const logout = () => {
   padding: 0;
 }
 
-
 .btn-text {
   font-size: 0.8125rem;
   letter-spacing: 0.5px;
 }
 
-
 .nexus-login-btn .v-icon {
   font-size: 20px;
   margin-right: 4px;
 }
-
 
 .nexus-nav-links {
   display: flex;
@@ -387,7 +347,6 @@ const logout = () => {
   gap: 8px;
   margin-left: 20px;
 }
-
 
 .nexus-nav-btn {
   text-transform: none;
@@ -398,14 +357,12 @@ const logout = () => {
   height: 36px;
 }
 
-
 .nexus-login-btn .v-btn__content,
 .nexus-nav-btn .v-btn__content {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 
 .nexus-nav-btn {
   position: relative;
@@ -419,7 +376,6 @@ const logout = () => {
   padding: 10px 20px;
 }
 
-
 .nexus-nav-btn::after {
   content: '';
   position: absolute;
@@ -432,18 +388,15 @@ const logout = () => {
   transform: translateX(-50%);
 }
 
-
 .nexus-nav-btn:hover::after {
   width: 80%;
 }
-
 
 .nexus-nav-btn:hover {
   color: #fff !important;
   text-shadow: 0 0 8px #fc503b;
   transform: translateY(-2px);
 }
-
 
 .nexus-login-btn {
   font-weight: 600;
@@ -454,14 +407,11 @@ const logout = () => {
   transition: all 0.3s;
 }
 
-
 .nexus-login-btn:hover {
   color: #fff !important;
   text-shadow: 0 0 8px #fc503b;
 }
 
-
-/* Banner principal */
 .nexus-banner {
   height: 70vh;
   min-height: 500px;
@@ -473,7 +423,6 @@ const logout = () => {
   text-align: center;
   color: white;
 }
-
 
 .parallax-bg {
   position: absolute;
@@ -488,13 +437,11 @@ const logout = () => {
   z-index: -1;
 }
 
-
 .banner-content {
   max-width: 800px;
   padding: 0 20px;
   z-index: 1;
 }
-
 
 .banner-title {
   font-size: 4.5rem;
@@ -508,13 +455,11 @@ const logout = () => {
   display: inline-block;
 }
 
-
 @keyframes text-glow {
   0% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
   50% { text-shadow: 0 0 30px rgba(252, 80, 59, 1), 0 0 40px rgba(252, 80, 59, 0.5); }
   100% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
 }
-
 
 .banner-title::after {
   content: '';
@@ -527,13 +472,11 @@ const logout = () => {
   background: linear-gradient(90deg, transparent, #fc503b, transparent);
 }
 
-
 .banner-subtitle {
   font-size: 1.5rem;
   margin-bottom: 40px;
   letter-spacing: 1px;
 }
-
 
 @keyframes pulse {
   0% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
@@ -541,8 +484,6 @@ const logout = () => {
   100% { text-shadow: 0 0 20px rgba(252, 80, 59, 0.7); }
 }
 
-
-/* Mejora del botón de descarga principal */
 .nexus-download-btn {
   background-color: #fc503b !important;
   color: white !important;
@@ -563,7 +504,6 @@ const logout = () => {
   justify-content: center !important;
 }
 
-
 .nexus-download-btn::after {
   content: '';
   position: absolute;
@@ -575,18 +515,15 @@ const logout = () => {
   transition: all 0.6s;
 }
 
-
 .nexus-download-btn:hover {
   background-color: #e04635 !important;
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 12px 24px rgba(252, 80, 59, 0.4) !important;
 }
 
-
 .nexus-download-btn:hover::after {
   left: 100%;
 }
-
 
 .nexus-download-btn .v-btn__content {
   display: flex;
@@ -595,8 +532,6 @@ const logout = () => {
   width: 100%;
 }
 
-
-/* Secciones generales */
 .nexus-section {
   padding: 80px 10%;
   text-align: center;
@@ -608,19 +543,16 @@ const logout = () => {
   background-color: rgba(18, 18, 18, 0.9);
 }
 
-
 .nexus-section.visible {
   opacity: 1;
   transform: translateY(0);
 }
-
 
 .section-header {
   margin-bottom: 60px;
   position: relative;
   z-index: 2;
 }
-
 
 .section-header::before {
   content: '';
@@ -633,17 +565,14 @@ const logout = () => {
   pointer-events: none;
 }
 
-
 .nexus-section.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-
 .section-header {
   margin-bottom: 50px;
 }
-
 
 .section-title {
   font-size: 2.5rem;
@@ -656,14 +585,12 @@ const logout = () => {
   display: inline-block;
 }
 
-
 .title-decoration {
   height: 3px;
   width: 100px;
   background: linear-gradient(to right, transparent, #fc503b, transparent);
   margin: 0 auto;
 }
-
 
 .nexus-text {
   max-width: 800px;
@@ -673,7 +600,6 @@ const logout = () => {
   color: #e0e0e0;
 }
 
-
 .nexus-divider {
   height: 1px;
   width: 200px;
@@ -681,15 +607,12 @@ const logout = () => {
   margin: 40px auto;
 }
 
-
-/* Sección de descarga */
 .nexus-download-section {
   background: linear-gradient(rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.9)),
               url('https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80') no-repeat center center;
   background-size: cover;
   background-attachment: fixed;
 }
-
 
 .system-requirements {
   max-width: 800px;
@@ -700,13 +623,11 @@ const logout = () => {
   border: 1px solid #333;
 }
 
-
 .requirements-title {
   color: #fc503b;
   margin-bottom: 20px;
   font-size: 1.5rem;
 }
-
 
 .requirements-grid {
   display: grid;
@@ -714,7 +635,6 @@ const logout = () => {
   gap: 30px;
   text-align: left;
 }
-
 
 .requirements-col h4 {
   color: #fc503b;
@@ -724,19 +644,16 @@ const logout = () => {
   padding-bottom: 5px;
 }
 
-
 .requirements-col ul {
   list-style-type: none;
   padding-left: 0;
 }
-
 
 .requirements-col li {
   margin-bottom: 8px;
   position: relative;
   padding-left: 20px;
 }
-
 
 .requirements-col li::before {
   content: "•";
@@ -745,15 +662,12 @@ const logout = () => {
   left: 0;
 }
 
-
-/* Sección de contacto */
 .social-links {
   display: flex;
   justify-content: center;
   gap: 20px;
   margin-top: 30px;
 }
-
 
 .social-icon {
   color: #e0e0e0;
@@ -770,7 +684,6 @@ const logout = () => {
   overflow: hidden;
 }
 
-
 .social-icon::before {
   content: '';
   position: absolute;
@@ -783,17 +696,14 @@ const logout = () => {
   transition: opacity 0.3s;
 }
 
-
 .social-icon:hover {
   color: #fff;
   transform: translateY(-5px);
 }
 
-
 .social-icon:hover::before {
   opacity: 1;
 }
-
 
 .nexus-link {
   color: #fc503b;
@@ -801,14 +711,11 @@ const logout = () => {
   transition: all 0.3s;
 }
 
-
 .nexus-link:hover {
   text-decoration: underline;
   text-shadow: 0 0 8px rgba(252, 80, 59, 0.5);
 }
 
-
-/* Footer */
 .nexus-footer {
   border-top: 1px solid #fc503b;
   padding: 30px 0 !important;
@@ -816,7 +723,6 @@ const logout = () => {
   backdrop-filter: blur(5px);
   z-index: 100;
 }
-
 
 .footer-links {
   display: flex;
@@ -826,7 +732,6 @@ const logout = () => {
   margin-bottom: 20px;
 }
 
-
 .footer-link {
   color: #b0b0b0;
   text-decoration: none;
@@ -834,19 +739,15 @@ const logout = () => {
   font-size: 0.9rem;
 }
 
-
 .footer-link:hover {
   color: #fc503b;
 }
-
 
 .copyright {
   color: #777;
   font-size: 0.9rem;
 }
 
-
-/* Responsive */
 @media (max-width: 960px) {
   .banner-title {
     font-size: 3.5rem;
@@ -856,7 +757,6 @@ const logout = () => {
     grid-template-columns: 1fr;
   }
 }
-
 
 @media (max-width: 600px) {
   .nexus-header {

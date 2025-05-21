@@ -1,6 +1,5 @@
 <template>
   <div class="nexus-admin">
-    <!-- Header fijo idéntico a ModsListPage -->
     <v-app-bar app color="#0d0d0d" dark elevation="0" height="60" class="nexus-header fixed-header">
         <div class="logo-container">
     <v-img
@@ -40,11 +39,9 @@
       </div>
     </v-app-bar>
 
-    <!-- Contenido principal -->
     <div class="admin-content-wrapper">
       <v-container class="nexus-admin-container">
         <v-row>
-          <!-- Sidebar de Navegación -->
           <v-col cols="12" md="3" class="nexus-admin-sidebar">
             <v-card class="nexus-admin-card">
               <v-list bg-color="transparent">
@@ -64,7 +61,6 @@
             </v-card>
           </v-col>
 
-          <!-- Contenido Dinámico -->
           <v-col cols="12" md="9">
             <v-card class="nexus-admin-main-card">
               <component :is="activeComponent" />
@@ -152,9 +148,9 @@ const navigateToMainPage = () => {
 
 .logo-container {
   margin-right: 20px;
-  padding: 8px; /* Espacio adicional alrededor del logo */
+  padding: 8px;
   cursor: pointer;
-  overflow: visible; /* Asegura que el hover no se recorte */
+  overflow: visible;
 }
 
 .nexus-logo {
@@ -162,14 +158,14 @@ const navigateToMainPage = () => {
   border: 2px solid #fc503b;
   transition: transform 0.3s ease;
   cursor: pointer;
-  display: block; /* Asegura que la transformación se aplique correctamente */
-  margin: 0 auto; /* Centra el logo en su contenedor */
-  transform-origin: center; /* Escala desde el centro */
-  box-sizing: content-box; /* Incluye el borde en las dimensiones */
+  display: block;
+  margin: 0 auto;
+  transform-origin: center;
+  box-sizing: content-box;
 }
 
 .nexus-logo:hover {
-  transform: scale(1.15); /* Ajusta este valor según necesidad */
+  transform: scale(1.15);
   box-shadow: 0 0 15px rgba(252, 80, 59, 0.5);
 }
 
@@ -193,7 +189,6 @@ const navigateToMainPage = () => {
   gap: 8px;
 }
 
-/* Estilos para el sidebar */
 .nexus-admin-sidebar .v-list-item {
   border-left: 3px solid transparent;
   transition: all 0.3s ease;
@@ -209,7 +204,6 @@ const navigateToMainPage = () => {
   background-color: rgba(252, 80, 59, 0.05) !important;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .nexus-admin-sidebar {
     padding-right: 12px;
