@@ -114,7 +114,7 @@
               color="#fc503b"
               variant="tonal"
               size="small"
-              :href="`http://darknessunseen.dam.inspedralbes.cat:3002${item.file_path}`"
+              :href="`https://darknessunseen.dam.inspedralbes.cat${item.file_path}`"
               target="_blank"
               class="action-btn download-btn"
             >

@@ -109,7 +109,7 @@
                 </a>
               </div>
               <div class="bepinex-cube">
-                <a href="http://darknessunseen.dam.inspedralbes.cat:3002/resources/bepinex/BepInEx_win_x64_5.4.23.3.zip" class="bepinex-link" target="_blank" rel="noopener">
+                <a href="https://darknessunseen.dam.inspedralbes.cat/resources/bepinex/BepInEx_win_x64_5.4.23.3.zip" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-zip-box</v-icon>
                   <span>Baixar BepInEx (.zip)</span>
                 </a>
@@ -204,7 +204,7 @@
         <div class="mods-cubes-row">
           <div v-for="mod in filteredMods" :key="mod.id" class="mod-cube">
             <div class="mod-cube-image-wrapper">
-              <img v-if="mod.image" :src="`http://darknessunseen.dam.inspedralbes.cat:3002${mod.image}`" alt="Imagen del mod" class="mod-cube-image" />
+              <img v-if="mod.image" :src="`https://darknessunseen.dam.inspedralbes.cat${mod.image}`" alt="Imagen del mod" class="mod-cube-image" />
               <div v-else class="mod-cube-image-placeholder">Sense imatge</div>
             </div>
             <div class="nexus-mod-content">
@@ -750,7 +750,7 @@ const downloadMod = async (mod) => {
     uploadSuccess.value = true;
     
     const link = document.createElement('a');
-    link.href = `http://darknessunseen.dam.inspedralbes.cat:3002${mod.file_path}`;
+    link.href = `https://darknessunseen.dam.inspedralbes.cat${mod.file_path}`;
     link.setAttribute('download', `${mod.title || 'mod'}.zip`);
     link.setAttribute('target', '_blank');
     document.body.appendChild(link);

@@ -44,7 +44,7 @@
           <div class="nexus-profile-left">
             <div class="nexus-avatar-container" @click="triggerFileInput">
               <v-avatar class="nexus-profile-avatar" size="160">
-                <v-img :src="'http://darknessunseen.dam.inspedralbes.cat:3002' + user.avatar" />
+                <v-img :src="'https://darknessunseen.dam.inspedralbes.cat' + user.avatar" />
               </v-avatar>
               <div class="nexus-avatar-overlay">
                 <v-icon size="32">mdi-camera</v-icon>
@@ -132,7 +132,7 @@
                   <div class="nexus-mod-image-container">
                     <img 
                       v-if="mod.image" 
-                      :src="`http://darknessunseen.dam.inspedralbes.cat:3002${mod.image}`" 
+                      :src="`https://darknessunseen.dam.inspedralbes.cat${mod.image}`" 
                       alt="Imatge del mod" 
                       class="nexus-mod-image" 
                     />
