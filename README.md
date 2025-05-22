@@ -133,5 +133,5 @@ Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la lla
 **Darkness Unseen** suporta **mods comunitaris**:
 
 - Els jugadors poden crear nous enemics, escenaris o ítems.
-- Els mods es poden descarregar i instal·lar des de la pàgina oficial del joc.
+- Els mods es poden descarregar.
 
