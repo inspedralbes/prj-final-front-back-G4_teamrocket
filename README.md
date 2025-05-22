@@ -19,7 +19,7 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 - **Socket.io**: Comunicació a temps real
 - **MongoDB**: Base de dades
 - **Mongoose**: ORM per MongoDB
-- **JWT**: Autenticació basada en tokens
+- **spawn**: Per eliminar fitxers automàticament
 - **bcrypt**: Encriptació de contrasenyes
 ### Gestió de Tasques:
 - **Taiga.io**: https://tree.taiga.io/project/a23hashusraf-tr3_g4-teamroket/backlog
