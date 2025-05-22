@@ -8,7 +8,6 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 ### Frontend: 
 - **Vue.js**: Framework principal per la interfície d'usuari
 - **Three.js**: Biblioteca per gràfics 3D en temps real
-- **Axios**: Gestió de peticions HTTP
 - **Vue Router**: Navegació entre vistes
 - **Vuex**: Gestió d'estat global
 - **Vue CLI**: Eina de desenvolupament
