@@ -1,10 +1,6 @@
-import { nextTick } from 'vue';
 import { io } from "socket.io-client";
 
-const socket = io("https://darknessunseen.dam.inspedralbes.cat", {
-  path: "/socket.io",
-  transports: ["websocket"]
-});
+const socket = io("https://darknessunseen.dam.inspedralbes.cat");
 
 export const listenToModDownloads = (mods, stats) => {
   socket.on("modDownloaded", (downloaded) => {

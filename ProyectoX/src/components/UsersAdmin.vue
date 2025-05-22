@@ -325,11 +325,9 @@ const deleteUser = async (userId) => {
       return;
     }
 
-    const data = await response.json();
-
     if(!response.ok) {
       console.error("Error en eliminar l'usuari");
-      notificationMessage.value = data.error || "Error en eliminar l'usuari";
+      notificationMessage.value = "Error en eliminar l'usuari";
       notificationColor.value = 'error';
       showNotification.value = true;
       return;

@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { spawn } from 'child_process';
 import { v4 as uuidv4 } from 'uuid';
 import { models } from '../models/index.js';
 import DailyNewMods from '../MongoDB/models/dailyNewMods.js';
@@ -191,6 +192,19 @@ router.post('/new-mod', async (req, res) => {
   }
 });
 
+const deleteFile = (filePath) => {
+  if (!filePath) return;
+  const resolvedPath = path.resolve(`.${filePath}`);
+  if (fs.existsSync(resolvedPath)) {
+    const rm = spawn('rm', ['-f', resolvedPath]);
+    rm.on('error', (err) => console.error(`Error eliminant ${resolvedPath}:`, err));
+    rm.stderr.on('data', (data) => console.error(`stderr: ${data}`));
+    rm.on('close', (code) => console.log(`Fitxer ${resolvedPath} eliminat amb codi ${code}`));
+  } else {
+    console.warn(`Fitxer no trobat: ${resolvedPath}`);
+  }
+};
+
 router.put('/update-mod', async (req, res) => {
   try {
     const { id, title, description, tags } = req.body;
@@ -204,11 +218,15 @@ router.put('/update-mod', async (req, res) => {
     mod.description = description;
 
     if (req.files && req.files.modFile) {
+      if (mod.file_path) deleteFile(mod.file_path);
+
       const modPath = await handleFileUpload(req.files.modFile, modsDir, title);
       mod.file_path = modPath;
     }
 
     if (req.files && req.files.image) {
+      if (mod.image) deleteFile(mod.image);
+
       const imagePath = await handleFileUpload(req.files.image, imagesModDir, title);
       mod.image = imagePath;
     }
@@ -273,8 +291,37 @@ router.patch('/security/:id', async (req, res) => {
 
 router.delete('/delete-mod/:id', async (req, res) => {
   try {
-    const deleted = await Mod.destroy({ where: { id: req.params.id } });
-    if (!deleted) return res.status(404).json({ error: 'Usuari no trobat' });
+    const mod = await Mod.findByPk(req.params.id);
+    if (!mod) return res.status(404).json({ error: 'Mod no trobat' });
+
+    const deleteFile = (filePath) => {
+      const resolvedPath = path.resolve(`.${filePath}`);
+      if (fs.existsSync(resolvedPath)) {
+        const rm = spawn('rm', ['-f', resolvedPath]);
+
+        rm.on('error', (err) => {
+          console.error(`Error eliminant ${resolvedPath}:`, err);
+        });
+
+        rm.stderr.on('data', (data) => {
+          console.error(`stderr: ${data}`);
+        });
+
+        rm.on('close', (code) => {
+          console.log(`Fitxer ${resolvedPath} eliminat amb codi ${code}`);
+        });
+      } else {
+        console.warn(`Fitxer no trobat: ${resolvedPath}`);
+      }
+    };
+
+    if (mod.file_path) {
+      deleteFile(mod.file_path);
+    }
+
+    if (mod.image) {
+      deleteFile(mod.image);
+    }
 
     await Comment.deleteMany({ modId: req.params.id });
     await Like.deleteMany({ modId: req.params.id });
@@ -309,7 +356,7 @@ router.patch('/download/:id', async (req, res) => {
     await mod.save();
 
     const io = getIO();
-    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads + 1 });
+    io.emit('modDownloaded', { id: mod.id, downloads: mod.downloads });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

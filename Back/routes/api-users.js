@@ -132,6 +132,20 @@ const handleFileUpload = (file, directory) => {
   });
 };
 
+const deleteFile = (filePath) => {
+  if (!filePath) return;
+  const resolvedPath = path.resolve(`.${filePath}`);
+  if (fs.existsSync(resolvedPath)) {
+    const rm = spawn('rm', ['-f', resolvedPath]);
+    rm.on('error', (err) => console.error(`Error eliminant ${resolvedPath}:`, err));
+    rm.stderr.on('data', (data) => console.error(`stderr: ${data}`));
+    rm.on('close', (code) => console.log(`Fitxer ${resolvedPath} eliminat amb codi ${code}`));
+  } else {
+    console.warn(`Fitxer no trobat: ${resolvedPath}`);
+  }
+};
+
+
 router.put('/update-perfil/:id', async (req, res) => {
     try {
         const userId = req.params.id;
@@ -153,6 +167,7 @@ router.put('/update-perfil/:id', async (req, res) => {
         }
 
         if(req.files && req.files.newAvatar) {
+            if (user.avatar_path) deleteFile(user.avatar_path);
             const newAvatarPath = await handleFileUpload(req.files.newAvatar, image_ProfileDir);
             user.avatar_path = newAvatarPath;
         }
@@ -172,6 +187,8 @@ router.delete('/delete-user/:id', async (req, res) => {
 
     await Like.deleteMany({ email: user.email });
     await Comment.deleteMany({ email: user.email });
+
+    if (user.avatar_path) deleteFile(user.avatar_path);
 
     await user.destroy();
     res.status(200).end();
