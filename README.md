@@ -72,7 +72,7 @@ Port exposat: 3002
 Comanda per defecte: npm run dev (amb nodemon)
 ![image](https://github.com/user-attachments/assets/4b537fe4-67ac-41be-8ec0-b81edcd1dd49)
 
-##🚀 Instruccions de Desplegament
+## 🚀 Instruccions de Desplegament
 Assegura’t de tenir Docker instal·lat.
 Si no el tens, el pots descarregar des de https://www.docker.com
 
@@ -102,6 +102,7 @@ Els volums Docker garanteixen que les dades no es perdin encara que els contenid
 🔄 Canvis al codi dins Back/ s'apliquen automàticament gràcies al muntatge de volums.
 🌍 El backend està preparat per rebre sol·licituds del frontend Vue.js i accedir a MongoDB/MySQL mitjançant .env.
 
+--- 
 # 🕯️ Darkness Unseen – Manual d'Ús
 
 **Darkness Unseen** és un videojoc cooperatiu de terror en 2D on la foscor és total i només la teva llanterna t’ajuda a orientar-te. El jugador ha de col·laborar amb amics per explorar escenaris generats aleatòriament, evitar enemics amb intel·ligència artificial i recollir els objectes necessaris per escapar.
