@@ -52,6 +52,56 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 
 ---
 
+# 🐳 Desplegament amb Docker
+Aquest apartat descriu com desplegar el servei de backend Node.js utilitzant Docker. Aquesta configuració permet crear un entorn de desenvolupament i desplegament coherent i fàcil de reproduir.
+
+## 📦 Arquitectura de Contenidors
+El projecte utilitza una arquitectura contenidoritzada pel backend. El frontend es desplega per mitjans tradicionals, mentre que el backend està encapsulat dins d’un contenidor Docker.
+
+Arquitectura del Docker:
+![image](https://github.com/user-attachments/assets/c7881c03-13e3-4b8e-82d8-57b14fad7903)
+
+## ⚙️ Configuració Docker del Backend
+🧱 Imatge Base i Execució
+Base: node:18-alpine
+
+Directori de treball: /app
+
+Port exposat: 3002
+
+Comanda per defecte: npm run dev (amb nodemon)
+![image](https://github.com/user-attachments/assets/4b537fe4-67ac-41be-8ec0-b81edcd1dd49)
+
+##🚀 Instruccions de Desplegament
+Assegura’t de tenir Docker instal·lat.
+Si no el tens, el pots descarregar des de https://www.docker.com
+
+Afegeix un fitxer .env a la carpeta Back/ amb les variables d'entorn necessàries, com:
+```bash
+MYSQL_HOST=mysql
+MYSQL_DATABASE= Nom de la base de dades
+MYSQL_USER= Nom de L'usuari del servidor
+MYSQL_PASSWORD= La teva contrasenya secreta
+
+MONGODB_URI= mongodb://USUARI:CONTRASENYA@HOST:PORT/NOM_BASE_DATOS
+```
+
+Executa els serveis:
+```bash
+docker compose -f docker-compose-dev.yml up --build -d
+```
+
+Aquesta comanda:
+Construeix la imatge del backend
+Inicia MongoDB, MySQL, Adminer i Portainer
+Exposa els ports necessaris
+
+## 🗂️ Volums i Persistència
+Els volums Docker garanteixen que les dades no es perdin encara que els contenidors es reiniciïn
+### 🧰 Desenvolupament Actiu
+🔄 Canvis al codi dins Back/ s'apliquen automàticament gràcies al muntatge de volums.
+🌍 El backend està preparat per rebre sol·licituds del frontend Vue.js i accedir a MongoDB/MySQL mitjançant .env.
+
 # 🕯️ Darkness Unseen – Manual d'Ús
 
 **Darkness Unseen** és un videojoc cooperatiu de terror en 2D on la foscor és total i només la teva llanterna t’ajuda a orientar-te. El jugador ha de col·laborar amb amics per explorar escenaris generats aleatòriament, evitar enemics amb intel·ligència artificial i recollir els objectes necessaris per escapar.
