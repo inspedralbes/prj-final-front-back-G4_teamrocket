@@ -122,12 +122,11 @@ Quan el líder de la sala inicia la partida:
 
 ![diagrama](https://github.com/user-attachments/assets/b0db1aa2-cf20-4390-8472-3fbb915f31db)
 
-
+---
 
 ## 🔁 Restauració d’Ítems
 
-Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la llanterna es **restauren automàticament**:
-
+Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la llanterna es poden comprar de nou a la botiga i restaurar-ne les funcions:
 - La llanterna torna a tenir 1 minut de durada.
 - El bat torna a tenir 3 usos.
 - No es pot conservar res entre partides.
@@ -140,4 +139,5 @@ Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la lla
 
 - Els jugadors poden crear nous enemics, escenaris o ítems.
 - Els mods es poden descarregar.
+- Si estàs interessat en instal·lar mods visita la nostra pàgina web: https://darknessunseen.dam.inspedralbes.cat/
 
