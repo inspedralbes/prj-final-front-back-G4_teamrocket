@@ -8,7 +8,7 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 ## Adreça del gestor de tasques:
 - **Taiga.io**: [https://tree.taiga.io/project/a23hashusraf-tr3_g4-teamroket/backlog](https://tree.taiga.io/project/a23hashusraf-tr3_g4-teamroket/backlog).
 
-## Tecnologíes Utilizades
+## Tecnologíes Utilitzades
 ### Frontend: 
 - **Vue.js**: Framework per construir interficies d'usuario interactives.
 ### Backend:
