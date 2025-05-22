@@ -117,6 +117,13 @@ Quan el líder de la sala inicia la partida:
 
 ---
 
+
+## Diagrama GamePlay
+
+![diagrama](https://github.com/user-attachments/assets/b0db1aa2-cf20-4390-8472-3fbb915f31db)
+
+
+
 ## 🔁 Restauració d’Ítems
 
 Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la llanterna es **restauren automàticament**:
