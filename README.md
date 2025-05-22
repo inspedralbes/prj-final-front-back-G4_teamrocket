@@ -35,6 +35,23 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 | [Matthew Castilla] 
 | [David Muñoz] 
 
+# Documentació
+
+
+## Disseny
+
+---
+
+### Moqups:
+![image](https://github.com/user-attachments/assets/7865e64e-adf9-4220-85e2-b7fbe7a8c9ef)
+
+--
+
+### WifreFrames:
+
+![image](https://github.com/user-attachments/assets/940e9d85-dab6-4d0f-a3ff-9036bde6f38a)
+
+--
 
 # 🕯️ Darkness Unseen – Manual d'Ús
 
