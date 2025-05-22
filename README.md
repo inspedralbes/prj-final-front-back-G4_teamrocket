@@ -28,13 +28,13 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 - **GitHub**: Control de versions y colaboracións.
 ---
 ## Participants del Proyecte
-| Nom | Rol |
-|--------|-----|
-| [Hasham Hussain ] | --- |
-| [Albert Robert] | --- |
-| [Marc Castro] | --- |
-| [Matthew Castilla] | --- |
-| [David Muñoz] | --- |
+| Nom | 
+|--------|
+| [Hasham Hussain ] 
+| [Albert Robert] 
+| [Marc Castro]
+| [Matthew Castilla] 
+| [David Muñoz] 
 
 
 # 🕯️ Darkness Unseen – Manual d'Ús
@@ -47,7 +47,7 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 
 Per jugar a **Darkness Unseen**, necessites:
 
-- Un ordinador amb Windows o Linux
+- Un ordinador amb Windows
 - Una connexió a Internet estable
 - Un compte de **Steam** actiu
 - Steam instal·lat i executant-se
@@ -134,5 +134,4 @@ Quan una partida acaba i tornes a la **lobby**, els objectes com el bat i la lla
 
 - Els jugadors poden crear nous enemics, escenaris o ítems.
 - Els mods es poden descarregar i instal·lar des de la pàgina oficial del joc.
-
 
