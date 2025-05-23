@@ -81,7 +81,6 @@
                 Transforma la teva experiència d'horror amb mods que milloren els gràfics, afegeixen nous elements de joc i contingut escalofriant.
               </p>
               <div class="nexus-hero-buttons">
-                <!-- <v-btn color="#fc503b" class="nexus-hero-btn" @click.stop>Explorar tots els mods</v-btn> -->
                 <v-btn 
                   color="#fc503b" 
                   variant="outlined" 
@@ -115,9 +114,9 @@
                 </a>
               </div>
               <div class="bepinex-cube">
-                <a href="#" class="bepinex-link" target="_blank" rel="noopener">
+                <a href="https://youtu.be/3r-fs2oFOFo" class="bepinex-link" target="_blank" rel="noopener">
                   <v-icon left color="#fc503b" size="28">mdi-play-circle</v-icon>
-                  <span>Veure tutorial en vídeo (pròximament)</span>
+                  <span>Veure tutorial</span>
                 </a>
               </div>
             </div>

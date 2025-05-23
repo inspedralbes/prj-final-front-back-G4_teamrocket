@@ -106,9 +106,9 @@ const router = useRouter();
 const activeTab = ref('users');
 
 const adminNavItems = [
-  { title: 'Gestión de Usuarios', icon: 'mdi-account-group', value: 'users' },
-  { title: 'Gestión de Mods', icon: 'mdi-puzzle', value: 'mods' },
-  { title: 'Estadísticas', icon: 'mdi-chart-bar', value: 'stats' },
+  { title: "Gestió d'Usuaris", icon: 'mdi-account-group', value: 'users' },
+  { title: 'Gestió de Mods', icon: 'mdi-puzzle', value: 'mods' },
+  { title: 'Estadístiques', icon: 'mdi-chart-bar', value: 'stats' },
 ];
 
 const componentsMap = {
