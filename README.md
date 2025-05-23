@@ -37,12 +37,12 @@ En aquest projecte desenvoluparem un joc d'ordinador emocionant on els jugadors 
 
 ---
 
-Video PITCH:
-[Pitch](https://www.youtube.com/watch?v=mkCZrv41KWE)
 
 
 # Documentació
 
+# Video PITCH:
+[Pitch](https://www.youtube.com/watch?v=mkCZrv41KWE)
 
 ## Disseny
 
